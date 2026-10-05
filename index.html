@@ -1327,7 +1327,7 @@
         "Analog electronics": "Electrónica analógica",
         "Op-amps": "Amplificadores operacionales",
         "BUILD · CONNECT": "CREAR · CONECTAR",
-        "SENSE / ACT": "SENTIR / ACTUAR",
+        "SENSE / ACT": "DETECTAR / ACTUAR",
         FEEDBACK: "REALIMENTACIÓN",
         MEASURE: "MEDICIÓN",
         CONNECTED: "CONECTADOS",
@@ -1382,11 +1382,11 @@
           ),
         digital: () =>
           frame(
-            `<g class="build">${chip(180, 93, 70)}</g><g class="build delay1"><path d="M48 70h20v20h22V70h22v20h22 M48 190h20v-20h22v20h22v-20h22"/><path d="M135 80h21v36h15 M135 180h21v-36h15 M259 116h33V80h65 M259 144h33v36h65" class="svg-muted"/></g><g class="build delay2"><rect x="302" y="62" width="55" height="34" rx="5"/><rect x="302" y="161" width="55" height="34" rx="5"/><path d="M310 179h10v-9h11v16h11"/></g><path class="signal" d="M74 228h272"/><text class="svg-text" x="174" y="132">RTL</text>`,
+            `<g class="build">${chip(180, 93, 70)}<text class="svg-text" x="215" y="128" text-anchor="middle" dominant-baseline="central">RTL</text></g><g class="build delay1"><path d="M48 70h20v20h22V70h22v20h22 M48 190h20v-20h22v20h22v-20h22"/><path d="M135 80h21v36h15 M135 180h21v-36h15 M259 116h33V80h65 M259 144h33v36h65" class="svg-muted"/></g><g class="build delay2"><rect x="302" y="62" width="55" height="34" rx="5"/><rect x="302" y="161" width="55" height="34" rx="5"/><path d="M310 179h10v-9h11v16h11"/></g><path class="signal" d="M74 228h272"/>`,
           ),
         control: () =>
           frame(
-            `<rect x="54" y="48" width="312" height="159" rx="9"/><g class="svg-muted"><path d="M78 76h264 M78 111h264 M78 146h264 M78 181h264 M108 67v122 M168 67v122 M228 67v122 M288 67v122"/></g><path class="draw" d="M78 170h38c12 0 15-105 34-87s19 76 36 42 17-22 30-9 14-12 27-6 12-5 25-3h74"/><path class="svg-muted" d="M78 108h264"/><circle cx="327" cy="230" r="9"/><path d="M327 230l4-6 M66 231h181"/><text class="svg-text" x="79" y="237">FEEDBACK</text>`,
+            `<rect x="54" y="48" width="312" height="159" rx="9"/><g class="svg-muted"><path d="M78 76h264 M78 111h264 M78 146h264 M78 181h264 M108 67v122 M168 67v122 M228 67v122 M288 67v122"/></g><path class="draw" d="M78 170h38c12 0 15-105 34-87s19 76 36 42 17-22 30-9 14-12 27-6 12-5 25-3h74"/><path class="svg-muted" d="M78 108h264"/><circle cx="327" cy="230" r="9"/><path d="M327 230l4-6 M66 250h181"/><text class="svg-text" x="156.5" y="231" text-anchor="middle" dominant-baseline="central">FEEDBACK</text>`,
           ),
         process: () =>
           frame(
