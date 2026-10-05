@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0e1b36">
+  <meta name="description" content="Portafolio de Junior Ruiz Sánchez: ingeniería eléctrica, sistemas embebidos, software y diseño digital.">
+  <title>Junior Ruiz Sánchez — Ingeniería Eléctrica</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17233a;
+      --muted: #5d6b82;
+      --navy: #0e1b36;
+      --blue: #2859c5;
+      --teal: #0d8b83;
+      --line: #dce4ef;
+      --paper: #ffffff;
+      --canvas: #f3f6fb;
+      --soft-blue: #edf3ff;
+      --shadow: 0 18px 55px rgb(24 44 80 / 8%);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 80% 0%, rgb(40 89 197 / 8%), transparent 32rem),
+        var(--canvas);
+      font: 16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    a { color: var(--blue); text-underline-offset: 0.18em; }
+    a:hover { color: var(--teal); }
+    a:focus-visible, button:focus-visible {
+      outline: 3px solid #f3b43f;
+      outline-offset: 3px;
+    }
+    .skip-link { position: absolute; top: 0.5rem; left: 0.5rem; z-index: 5; padding: 0.5rem 0.75rem; color: var(--navy); background: white; border-radius: 8px; transform: translateY(-160%); }
+    .skip-link:focus { transform: translateY(0); }
+    .wrap { width: min(1080px, calc(100% - 2rem)); margin: 0 auto; padding: 2rem 0 4rem; }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 2rem;
+      padding: clamp(2rem, 6vw, 4.5rem);
+      color: white;
+      background: linear-gradient(125deg, #0e1b36 8%, #193c78 65%, #236e83 120%);
+      border-radius: 28px;
+      box-shadow: 0 24px 64px rgb(14 27 54 / 18%);
+    }
+    .hero::after {
+      position: absolute;
+      top: -9rem;
+      right: -7rem;
+      width: 27rem;
+      height: 27rem;
+      border: 1px solid rgb(255 255 255 / 15%);
+      border-radius: 50%;
+      box-shadow: 0 0 0 2.8rem rgb(255 255 255 / 4%), 0 0 0 5.6rem rgb(255 255 255 / 3%);
+      content: "";
+      pointer-events: none;
+    }
+    .hero-copy, .hero-side { position: relative; z-index: 1; }
+    .eyebrow { margin: 0 0 0.85rem; color: #b9d2ff; font-size: 0.77rem; font-weight: 750; letter-spacing: 0.16em; text-transform: uppercase; }
+    h1 { max-width: 700px; margin: 0; font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.07; letter-spacing: -0.045em; }
+    .hero .tagline { max-width: 650px; margin: 1rem 0 0; color: #d7e4fa; font-size: clamp(1rem, 2vw, 1.18rem); }
+    .contact-links { display: flex; flex-wrap: wrap; gap: 0.45rem 1rem; margin-top: 1.5rem; font-size: 0.9rem; }
+    .contact-links a { color: white; }
+    .contact-links span { color: #d7e4fa; }
+    .hero-side { min-width: 185px; color: #d7e4fa; font-size: 0.9rem; }
+    .hero-side p { margin: 0.5rem 0; }
+    .location-badge { display: inline-flex; align-items: center; padding: 0.45rem 0.75rem; border: 1px solid rgb(255 255 255 / 25%); border-radius: 999px; color: white; font-size: 0.8rem; }
+
+    main { display: grid; gap: 1.25rem; margin-top: 1.4rem; }
+    section { min-width: 0; padding: clamp(1.25rem, 3vw, 2rem); background: var(--paper); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.15rem; }
+    h2 { margin: 0; color: var(--navy); font-size: 1.15rem; letter-spacing: 0.01em; }
+    .section-kicker { margin: 0 0 0.25rem; color: var(--teal); font-size: 0.72rem; font-weight: 750; letter-spacing: 0.13em; text-transform: uppercase; }
+    .section-note { margin: 0; color: var(--muted); font-size: 0.88rem; }
+    .profile-copy { max-width: 800px; margin: 0; font-size: 1.05rem; }
+    .profile-points { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 1.2rem; }
+    .pill { display: inline-flex; padding: 0.33rem 0.68rem; color: #244887; background: var(--soft-blue); border: 1px solid #dbe6fa; border-radius: 999px; font-size: 0.78rem; font-weight: 650; }
+
+    .cv-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .cv-card { display: flex; flex-direction: column; align-items: flex-start; min-height: 205px; padding: 1.3rem; background: linear-gradient(145deg, #fff, #f7f9fd); border: 1px solid var(--line); border-radius: 16px; }
+    .cv-card.primary { border-color: #b9cdf2; background: linear-gradient(145deg, #f0f5ff, #fff); }
+    .audience { margin: 0 0 0.65rem; color: var(--teal); font-size: 0.72rem; font-weight: 750; letter-spacing: 0.1em; text-transform: uppercase; }
+    .cv-card h3 { margin: 0; color: var(--navy); font-size: 1.05rem; }
+    .cv-card p { flex: 1; margin: 0.45rem 0 1rem; color: var(--muted); font-size: 0.89rem; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.68rem 0.95rem; color: white; background: var(--blue); border: 1px solid var(--blue); border-radius: 10px; font-size: 0.88rem; font-weight: 700; text-decoration: none; transition: transform 150ms ease, background 150ms ease; }
+    .button:hover { color: white; background: #1e469f; transform: translateY(-1px); }
+    .button.secondary { color: var(--navy); background: white; border-color: #cbd7e8; }
+    .button.secondary:hover { color: var(--blue); background: var(--soft-blue); }
+
+    .experience-card { padding: 1.2rem 1.3rem; background: #f8fafd; border-left: 4px solid var(--teal); border-radius: 0 12px 12px 0; }
+    .experience-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.25rem 1rem; }
+    .experience-head h3 { margin: 0; color: var(--navy); font-size: 1rem; }
+    .experience-head time { color: var(--muted); font-size: 0.84rem; }
+    .place { margin: 0.2rem 0 0.7rem; color: var(--muted); font-size: 0.86rem; }
+    .experience-card ul { margin: 0; padding-left: 1.15rem; }
+    .experience-card li { margin: 0.32rem 0; }
+
+    .filters { display: flex; flex-wrap: wrap; gap: 0.48rem; margin: 0 0 1rem; }
+    .filters button { padding: 0.4rem 0.78rem; color: #2d4775; background: white; border: 1px solid var(--line); border-radius: 999px; font: inherit; font-size: 0.8rem; cursor: pointer; }
+    .filters button:hover { background: var(--soft-blue); }
+    .filters button[aria-pressed="true"] { color: white; background: var(--navy); border-color: var(--navy); }
+    .projects-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.85rem; }
+    .project-card { min-height: 155px; padding: 1rem; background: #fff; border: 1px solid var(--line); border-radius: 14px; transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease; }
+    .project-card:hover { transform: translateY(-3px); border-color: #b9cdf2; box-shadow: 0 12px 30px rgb(24 44 80 / 9%); }
+    .project-card h3 { margin: 0 0 0.45rem; color: var(--navy); font-size: 0.94rem; line-height: 1.35; }
+    .project-card p { margin: 0; color: var(--muted); font-size: 0.82rem; }
+    .tags { display: flex; flex-wrap: wrap; gap: 0.32rem; margin-top: 0.75rem; }
+    .tag { padding: 0.15rem 0.45rem; color: #3b578b; background: var(--soft-blue); border-radius: 999px; font-size: 0.68rem; font-weight: 650; }
+    .filter-status { min-height: 1.4em; margin: 0 0 0.7rem; color: var(--muted); font-size: 0.8rem; }
+
+    .details-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 1rem; }
+    .detail-panel { padding: 1.15rem; background: #f8fafd; border: 1px solid var(--line); border-radius: 14px; }
+    .detail-panel h3 { margin: 0 0 0.7rem; color: var(--navy); font-size: 0.95rem; }
+    .detail-panel p { margin: 0.3rem 0; color: var(--muted); font-size: 0.87rem; }
+    .skills-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+    .skill { padding: 0.8rem; background: white; border: 1px solid var(--line); border-radius: 11px; }
+    .skill h4 { margin: 0 0 0.25rem; color: var(--teal); font-size: 0.78rem; }
+    .skill p { margin: 0; font-size: 0.78rem; }
+    footer { padding: 1.5rem 0 0.3rem; color: var(--muted); text-align: center; font-size: 0.79rem; }
+
+    @media (max-width: 760px) {
+      .hero { grid-template-columns: 1fr; align-items: start; gap: 1.2rem; }
+      .hero-side { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1rem; }
+      .hero-side p { margin: 0.25rem 0; }
+      .projects-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 540px) {
+      .wrap { width: min(100% - 1rem, 1080px); padding-top: 0.5rem; }
+      .hero { padding: 1.6rem 1.25rem; border-radius: 20px; }
+      .hero::after { right: -17rem; }
+      section { padding: 1.1rem; border-radius: 16px; }
+      .cv-grid, .details-grid, .projects-grid, .skills-grid { grid-template-columns: 1fr; }
+      .cv-card { min-height: 0; }
+      .section-heading { align-items: start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
+  <div class="wrap">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Portafolio · Ingeniería eléctrica</p>
+        <h1>Junior Alfonso Ruiz Sánchez</h1>
+        <p class="tagline">Sistemas embebidos, software y diseño digital aplicados a problemas reales.</p>
+        <nav class="contact-links" aria-label="Enlaces de contacto y perfil">
+          <a href="mailto:jr.pompio@gmail.com">Correo</a>
+          <a href="https://www.linkedin.com/in/jr-ruiz/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="https://github.com/jrpompio" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </nav>
+      </div>
+      <div class="hero-side">
+        <span class="location-badge">Costa Rica</span>
+        <p>Ingeniero Eléctrico, Universidad de Costa Rica</p>
+        <p>Énfasis en Computadoras y Redes</p>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section id="perfil" aria-labelledby="perfil-title">
+        <div class="section-heading">
+          <div><p class="section-kicker">Perfil</p><h2 id="perfil-title">Construyo, pruebo y documento</h2></div>
+        </div>
+        <p class="profile-copy">Ingeniero Eléctrico de la UCR con experiencia práctica en sistemas embebidos, diseño digital/RTL, redes, control y desarrollo de software. Actualmente apoyo la verificación de procesos y producto con mediciones mecánicas, análisis de capacidad y documentación de manufactura.</p>
+        <div class="profile-points" aria-label="Áreas principales">
+          <span class="pill">Firmware y sistemas embebidos</span><span class="pill">Python · C/C++</span>
+          <span class="pill">Verilog · FPGA</span><span class="pill">Control y procesos</span>
+        </div>
+      </section>
+
+      <section id="cv" aria-labelledby="cv-title">
+        <div class="section-heading">
+          <div><p class="section-kicker">CV</p><h2 id="cv-title">Elegí la versión según quién la va a leer</h2></div>
+        </div>
+        <div class="cv-grid">
+          <article class="cv-card primary">
+            <p class="audience">Para revisión humana rápida</p>
+            <h3>CV compacto completo</h3>
+            <p>Agrupa proyectos relacionados y facilita identificar el perfil en una primera lectura.</p>
+            <a class="button" href="mailto:jr.pompio@gmail.com?subject=Solicitud%20del%20CV%20compacto%20completo">Solicitar por correo <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="cv-card">
+            <p class="audience">Para lectura extensa y búsqueda automatizada</p>
+            <h3>CV completo</h3>
+            <p>Conserva más proyectos y términos técnicos para encontrar evidencia de habilidades específicas.</p>
+            <a class="button secondary" href="mailto:jr.pompio@gmail.com?subject=Solicitud%20del%20CV%20completo">Solicitar por correo <span aria-hidden="true">↗</span></a>
+          </article>
+        </div>
+      </section>
+
+      <section id="experiencia" aria-labelledby="experience-title">
+        <div class="section-heading">
+          <div><p class="section-kicker">Experiencia</p><h2 id="experience-title">Ingeniería de procesos</h2></div>
+        </div>
+        <article class="experience-card">
+          <div class="experience-head"><h3>Boston Scientific · Pasante de Ingeniería de Procesos</h3><time datetime="2026-03">Marzo 2026 – presente</time></div>
+          <p class="place">Cartago, Costa Rica</p>
+          <ul>
+            <li>Seguimiento de procesos de manufactura de guías para catéteres en piso y apoyo a operadores con dudas de proceso o producto.</li>
+            <li>Medición de agujeros, anchos y mandriles con microscopio Keyence VHX y métodos de prueba establecidos para verificar el cumplimiento de especificaciones.</li>
+            <li>Recolección de mediciones y análisis en Minitab Sixpack; reviso que el Ppk alcance el mínimo solicitado.</li>
+            <li>Selecciono unidades para medición según las instrucciones del ingeniero responsable y excluyo las identificadas como scrap de la evaluación del producto.</li>
+            <li>Preparación y actualización de instrucciones de manufactura (MI) y apoyo a documentación PRA.</li>
+            <li>Apoyo documental acotado en QPQ: organización de anexos y revisión del reporte PC y documentos relacionados.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section id="proyectos" aria-labelledby="projects-title">
+        <div class="section-heading">
+          <div><p class="section-kicker">Selección de proyectos</p><h2 id="projects-title">Experiencia aplicada en varias disciplinas</h2></div>
+          <p class="section-note">Filtrá por área para explorar los proyectos.</p>
+        </div>
+        <div class="filters" role="group" aria-label="Filtrar proyectos por área">
+          <button type="button" data-filter="all" aria-pressed="true">Todos</button>
+          <button type="button" data-filter="EMBEBIDOS" aria-pressed="false">Embebidos</button>
+          <button type="button" data-filter="REDES" aria-pressed="false">Redes</button>
+          <button type="button" data-filter="RTL_FPGA" aria-pressed="false">RTL/FPGA</button>
+          <button type="button" data-filter="SW" aria-pressed="false">Software</button>
+          <button type="button" data-filter="CONTROL" aria-pressed="false">Control</button>
+        </div>
+        <p class="filter-status" id="filter-status" aria-live="polite"></p>
+        <div class="projects-grid" id="projects-grid"></div>
+        <noscript><p>Activá JavaScript para filtrar los proyectos por área.</p></noscript>
+      </section>
+
+      <section id="educacion-habilidades" aria-labelledby="details-title">
+        <div class="section-heading">
+          <div><p class="section-kicker">Formación y herramientas</p><h2 id="details-title">Fundamentos para resolver problemas de extremo a extremo</h2></div>
+        </div>
+        <div class="details-grid">
+          <div class="detail-panel">
+            <h3>Educación</h3>
+            <p><strong>Bachillerato en Ingeniería Eléctrica</strong></p>
+            <p>Universidad de Costa Rica · Énfasis en Computadoras y Redes</p>
+            <p>Carrera completada; trámite de graduación en curso.</p>
+            <h3 style="margin-top:1.2rem">Idiomas</h3>
+            <p>Español — nativo · Inglés — intermedio</p>
+          </div>
+          <div class="detail-panel">
+            <h3>Áreas técnicas</h3>
+            <div class="skills-grid">
+              <div class="skill"><h4>Software</h4><p>Python, C, C++, Rust, Git, Docker, Linux</p></div>
+              <div class="skill"><h4>Embebidos</h4><p>ESP32, STM32, Raspberry Pi, Jetson Nano, MicroPython</p></div>
+              <div class="skill"><h4>Diseño digital</h4><p>Verilog, FSM, FPGA, Yosys, Synopsys EDA</p></div>
+              <div class="skill"><h4>Redes y control</h4><p>OSPF, VLAN, BLE, Wi-Fi, UDP, MATLAB, control PI</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Portafolio personal · <a href="https://github.com/jrpompio" target="_blank" rel="noopener noreferrer">GitHub</a></p>
+      <p>Para ver todos los proyectos y las variantes por perfil, consultá el repositorio.</p>
+    </footer>
+  </div>
+
+  <script>
+    const proyectos = [
+      { nombre: "TCU · vehículo a escala", tags: ["EMBEBIDOS", "CONTROL"], desc: "Control con Raspberry Pi y mando Xbox, más una interfaz diseñada para usuarios no técnicos." },
+      { nombre: "Open-CoRoCo · ArcosLab", tags: ["EMBEBIDOS", "RTL_FPGA"], desc: "Fix de odometría, comunicación USB y pruebas de sensores en un robot ROS 2." },
+      { nombre: "Robot educativo · Kinect2ROS", tags: ["EMBEBIDOS"], desc: "Empaquetado de dependencias y diseño de un slot modular para sensores en Raspberry Pi 5." },
+      { nombre: "Visión en NVIDIA Jetson Nano", tags: ["EMBEBIDOS", "SW"], desc: "Tracking y clasificación de vehículos con DeepStream y GStreamer; streaming UDP." },
+      { nombre: "Control de flujo de aire", tags: ["CONTROL"], desc: "Identificación de modelos y sintonización de controladores PI con MATLAB." },
+      { nombre: "Provisión BLE–Wi-Fi con ESP32", tags: ["REDES", "EMBEBIDOS"], desc: "Transferencia de credenciales mediante BLE, servidor GATT en Python e interfaz Qt." },
+      { nombre: "Automatización del hogar (IoT)", tags: ["EMBEBIDOS", "REDES"], desc: "ESP32 y Raspberry Pi Pico con sensores, control remoto por Telegram y Wake-on-LAN." },
+      { nombre: "Herramienta interna de escritorio", tags: ["SW"], desc: "Aplicación Python/PySide6 para automatizar un flujo de trabajo empresarial, descrita sin detalles internos." },
+      { nombre: "LabCamera · boroscopio USB-C", tags: ["SW", "EMBEBIDOS"], desc: "Aplicación PySide6 para capturar imágenes y agilizar la recolección de datos." },
+      { nombre: "UART para FPGA Nexys A7", tags: ["EMBEBIDOS", "RTL_FPGA"], desc: "Cliente Python para comunicación UART y conversión de imágenes a RGB565." },
+      { nombre: "Controlador FSM en Verilog", tags: ["RTL_FPGA", "SW"], desc: "Máquina de estados para un cajero automático, sintetizada con Yosys." },
+      { nombre: "Flujo Synopsys para SoC Amber", tags: ["RTL_FPGA"], desc: "Flujo de síntesis y diseño físico con DC/ICC2, incluyendo routing y análisis de timing/IR drop." },
+      { nombre: "Red multi-sitio OSPF", tags: ["REDES"], desc: "Diseño de red con VLANs, EtherChannel y ACLs en Cisco Packet Tracer." },
+      { nombre: "Circuitos analógicos", tags: ["CONTROL"], desc: "Sensor de humedad con op-amps y generador de funciones basado en LM358." },
+    ];
+
+    const grid = document.getElementById("projects-grid");
+    const status = document.getElementById("filter-status");
+    const buttons = [...document.querySelectorAll(".filters button")];
+
+    function render(filter) {
+      const matches = proyectos.filter(project => filter === "all" || project.tags.includes(filter));
+      const fragment = document.createDocumentFragment();
+
+      for (const project of matches) {
+        const card = document.createElement("article");
+        card.className = "project-card";
+
+        const title = document.createElement("h3");
+        title.textContent = project.nombre;
+        const description = document.createElement("p");
+        description.textContent = project.desc;
+        const tags = document.createElement("div");
+        tags.className = "tags";
+        tags.setAttribute("aria-label", "Áreas del proyecto");
+
+        for (const tag of project.tags) {
+          const badge = document.createElement("span");
+          badge.className = "tag";
+          badge.textContent = tag;
+          tags.append(badge);
+        }
+
+        card.append(title, description, tags);
+        fragment.append(card);
+      }
+
+      grid.replaceChildren(fragment);
+      status.textContent = `${matches.length} proyectos mostrados`;
+      for (const button of buttons) {
+        button.setAttribute("aria-pressed", String(button.dataset.filter === filter));
+      }
+    }
+
+    for (const button of buttons) {
+      button.addEventListener("click", () => render(button.dataset.filter));
+    }
+    render("all");
+  </script>
+</body>
+</html>
