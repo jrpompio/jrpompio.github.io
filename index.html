@@ -1,333 +1,1548 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0e1b36">
-  <meta name="description" content="Portafolio de Junior Ruiz Sánchez: ingeniería eléctrica, sistemas embebidos, software y diseño digital.">
-  <title>Junior Ruiz Sánchez — Ingeniería Eléctrica</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --ink: #17233a;
-      --muted: #5d6b82;
-      --navy: #0e1b36;
-      --blue: #2859c5;
-      --teal: #0d8b83;
-      --line: #dce4ef;
-      --paper: #ffffff;
-      --canvas: #f3f6fb;
-      --soft-blue: #edf3ff;
-      --shadow: 0 18px 55px rgb(24 44 80 / 8%);
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      color: var(--ink);
-      background:
-        radial-gradient(ellipse at 80% 0%, rgb(40 89 197 / 8%), transparent 32rem),
-        var(--canvas);
-      font: 16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    }
-    a { color: var(--blue); text-underline-offset: 0.18em; }
-    a:hover { color: var(--teal); }
-    a:focus-visible, button:focus-visible {
-      outline: 3px solid #f3b43f;
-      outline-offset: 3px;
-    }
-    .skip-link { position: absolute; top: 0.5rem; left: 0.5rem; z-index: 5; padding: 0.5rem 0.75rem; color: var(--navy); background: white; border-radius: 8px; transform: translateY(-160%); }
-    .skip-link:focus { transform: translateY(0); }
-    .wrap { width: min(1080px, calc(100% - 2rem)); margin: 0 auto; padding: 2rem 0 4rem; }
-    .hero {
-      position: relative;
-      overflow: hidden;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: end;
-      gap: 2rem;
-      padding: clamp(2rem, 6vw, 4.5rem);
-      color: white;
-      background: linear-gradient(125deg, #0e1b36 8%, #193c78 65%, #236e83 120%);
-      border-radius: 28px;
-      box-shadow: 0 24px 64px rgb(14 27 54 / 18%);
-    }
-    .hero::after {
-      position: absolute;
-      top: -9rem;
-      right: -7rem;
-      width: 27rem;
-      height: 27rem;
-      border: 1px solid rgb(255 255 255 / 15%);
-      border-radius: 50%;
-      box-shadow: 0 0 0 2.8rem rgb(255 255 255 / 4%), 0 0 0 5.6rem rgb(255 255 255 / 3%);
-      content: "";
-      pointer-events: none;
-    }
-    .hero-copy, .hero-side { position: relative; z-index: 1; }
-    .eyebrow { margin: 0 0 0.85rem; color: #b9d2ff; font-size: 0.77rem; font-weight: 750; letter-spacing: 0.16em; text-transform: uppercase; }
-    h1 { max-width: 700px; margin: 0; font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.07; letter-spacing: -0.045em; }
-    .hero .tagline { max-width: 650px; margin: 1rem 0 0; color: #d7e4fa; font-size: clamp(1rem, 2vw, 1.18rem); }
-    .contact-links { display: flex; flex-wrap: wrap; gap: 0.45rem 1rem; margin-top: 1.5rem; font-size: 0.9rem; }
-    .contact-links a { color: white; }
-    .contact-links span { color: #d7e4fa; }
-    .hero-side { min-width: 185px; color: #d7e4fa; font-size: 0.9rem; }
-    .hero-side p { margin: 0.5rem 0; }
-    .location-badge { display: inline-flex; align-items: center; padding: 0.45rem 0.75rem; border: 1px solid rgb(255 255 255 / 25%); border-radius: 999px; color: white; font-size: 0.8rem; }
-
-    main { display: grid; gap: 1.25rem; margin-top: 1.4rem; }
-    section { min-width: 0; padding: clamp(1.25rem, 3vw, 2rem); background: var(--paper); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); }
-    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.15rem; }
-    h2 { margin: 0; color: var(--navy); font-size: 1.15rem; letter-spacing: 0.01em; }
-    .section-kicker { margin: 0 0 0.25rem; color: var(--teal); font-size: 0.72rem; font-weight: 750; letter-spacing: 0.13em; text-transform: uppercase; }
-    .section-note { margin: 0; color: var(--muted); font-size: 0.88rem; }
-    .profile-copy { max-width: 800px; margin: 0; font-size: 1.05rem; }
-    .profile-points { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 1.2rem; }
-    .pill { display: inline-flex; padding: 0.33rem 0.68rem; color: #244887; background: var(--soft-blue); border: 1px solid #dbe6fa; border-radius: 999px; font-size: 0.78rem; font-weight: 650; }
-
-    .cv-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-    .cv-card { display: flex; flex-direction: column; align-items: flex-start; min-height: 205px; padding: 1.3rem; background: linear-gradient(145deg, #fff, #f7f9fd); border: 1px solid var(--line); border-radius: 16px; }
-    .cv-card.primary { border-color: #b9cdf2; background: linear-gradient(145deg, #f0f5ff, #fff); }
-    .audience { margin: 0 0 0.65rem; color: var(--teal); font-size: 0.72rem; font-weight: 750; letter-spacing: 0.1em; text-transform: uppercase; }
-    .cv-card h3 { margin: 0; color: var(--navy); font-size: 1.05rem; }
-    .cv-card p { flex: 1; margin: 0.45rem 0 1rem; color: var(--muted); font-size: 0.89rem; }
-    .button { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.68rem 0.95rem; color: white; background: var(--blue); border: 1px solid var(--blue); border-radius: 10px; font-size: 0.88rem; font-weight: 700; text-decoration: none; transition: transform 150ms ease, background 150ms ease; }
-    .button:hover { color: white; background: #1e469f; transform: translateY(-1px); }
-    .button.secondary { color: var(--navy); background: white; border-color: #cbd7e8; }
-    .button.secondary:hover { color: var(--blue); background: var(--soft-blue); }
-
-    .experience-card { padding: 1.2rem 1.3rem; background: #f8fafd; border-left: 4px solid var(--teal); border-radius: 0 12px 12px 0; }
-    .experience-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.25rem 1rem; }
-    .experience-head h3 { margin: 0; color: var(--navy); font-size: 1rem; }
-    .experience-head time { color: var(--muted); font-size: 0.84rem; }
-    .place { margin: 0.2rem 0 0.7rem; color: var(--muted); font-size: 0.86rem; }
-    .experience-card ul { margin: 0; padding-left: 1.15rem; }
-    .experience-card li { margin: 0.32rem 0; }
-
-    .filters { display: flex; flex-wrap: wrap; gap: 0.48rem; margin: 0 0 1rem; }
-    .filters button { padding: 0.4rem 0.78rem; color: #2d4775; background: white; border: 1px solid var(--line); border-radius: 999px; font: inherit; font-size: 0.8rem; cursor: pointer; }
-    .filters button:hover { background: var(--soft-blue); }
-    .filters button[aria-pressed="true"] { color: white; background: var(--navy); border-color: var(--navy); }
-    .projects-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.85rem; }
-    .project-card { min-height: 155px; padding: 1rem; background: #fff; border: 1px solid var(--line); border-radius: 14px; transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease; }
-    .project-card:hover { transform: translateY(-3px); border-color: #b9cdf2; box-shadow: 0 12px 30px rgb(24 44 80 / 9%); }
-    .project-card h3 { margin: 0 0 0.45rem; color: var(--navy); font-size: 0.94rem; line-height: 1.35; }
-    .project-card p { margin: 0; color: var(--muted); font-size: 0.82rem; }
-    .tags { display: flex; flex-wrap: wrap; gap: 0.32rem; margin-top: 0.75rem; }
-    .tag { padding: 0.15rem 0.45rem; color: #3b578b; background: var(--soft-blue); border-radius: 999px; font-size: 0.68rem; font-weight: 650; }
-    .filter-status { min-height: 1.4em; margin: 0 0 0.7rem; color: var(--muted); font-size: 0.8rem; }
-
-    .details-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 1rem; }
-    .detail-panel { padding: 1.15rem; background: #f8fafd; border: 1px solid var(--line); border-radius: 14px; }
-    .detail-panel h3 { margin: 0 0 0.7rem; color: var(--navy); font-size: 0.95rem; }
-    .detail-panel p { margin: 0.3rem 0; color: var(--muted); font-size: 0.87rem; }
-    .skills-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
-    .skill { padding: 0.8rem; background: white; border: 1px solid var(--line); border-radius: 11px; }
-    .skill h4 { margin: 0 0 0.25rem; color: var(--teal); font-size: 0.78rem; }
-    .skill p { margin: 0; font-size: 0.78rem; }
-    footer { padding: 1.5rem 0 0.3rem; color: var(--muted); text-align: center; font-size: 0.79rem; }
-
-    @media (max-width: 760px) {
-      .hero { grid-template-columns: 1fr; align-items: start; gap: 1.2rem; }
-      .hero-side { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1rem; }
-      .hero-side p { margin: 0.25rem 0; }
-      .projects-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 540px) {
-      .wrap { width: min(100% - 1rem, 1080px); padding-top: 0.5rem; }
-      .hero { padding: 1.6rem 1.25rem; border-radius: 20px; }
-      .hero::after { right: -17rem; }
-      section { padding: 1.1rem; border-radius: 16px; }
-      .cv-grid, .details-grid, .projects-grid, .skills-grid { grid-template-columns: 1fr; }
-      .cv-card { min-height: 0; }
-      .section-heading { align-items: start; flex-direction: column; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
-    }
-  </style>
-</head>
-<body>
-  <a class="skip-link" href="#main-content">Saltar al contenido</a>
-  <div class="wrap">
-    <header class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">Portafolio · Ingeniería eléctrica</p>
-        <h1>Junior Alfonso Ruiz Sánchez</h1>
-        <p class="tagline">Sistemas embebidos, software y diseño digital aplicados a problemas reales.</p>
-        <nav class="contact-links" aria-label="Enlaces de contacto y perfil">
-          <a href="mailto:jr.pompio@gmail.com">Correo</a>
-          <a href="https://www.linkedin.com/in/jr-ruiz/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-          <a href="https://github.com/jrpompio" target="_blank" rel="noopener noreferrer">GitHub</a>
-        </nav>
-      </div>
-      <div class="hero-side">
-        <span class="location-badge">Costa Rica</span>
-        <p>Ingeniero Eléctrico, Universidad de Costa Rica</p>
-        <p>Énfasis en Computadoras y Redes</p>
-      </div>
-    </header>
-
-    <main id="main-content">
-      <section id="perfil" aria-labelledby="perfil-title">
-        <div class="section-heading">
-          <div><p class="section-kicker">Perfil</p><h2 id="perfil-title">Construyo, pruebo y documento</h2></div>
-        </div>
-        <p class="profile-copy">Ingeniero Eléctrico de la UCR con experiencia práctica en sistemas embebidos, diseño digital/RTL, redes, control y desarrollo de software. Actualmente apoyo la verificación de procesos y producto con mediciones mecánicas, análisis de capacidad y documentación de manufactura.</p>
-        <div class="profile-points" aria-label="Áreas principales">
-          <span class="pill">Firmware y sistemas embebidos</span><span class="pill">Python · C/C++</span>
-          <span class="pill">Verilog · FPGA</span><span class="pill">Control y procesos</span>
-        </div>
-      </section>
-
-      <section id="cv" aria-labelledby="cv-title">
-        <div class="section-heading">
-          <div><p class="section-kicker">CV</p><h2 id="cv-title">Elegí la versión según quién la va a leer</h2></div>
-        </div>
-        <div class="cv-grid">
-          <article class="cv-card primary">
-            <p class="audience">Para revisión humana rápida</p>
-            <h3>CV compacto completo</h3>
-            <p>Agrupa proyectos relacionados y facilita identificar el perfil en una primera lectura.</p>
-            <a class="button" href="mailto:jr.pompio@gmail.com?subject=Solicitud%20del%20CV%20compacto%20completo">Solicitar por correo <span aria-hidden="true">↗</span></a>
-          </article>
-          <article class="cv-card">
-            <p class="audience">Para lectura extensa y búsqueda automatizada</p>
-            <h3>CV completo</h3>
-            <p>Conserva más proyectos y términos técnicos para encontrar evidencia de habilidades específicas.</p>
-            <a class="button secondary" href="mailto:jr.pompio@gmail.com?subject=Solicitud%20del%20CV%20completo">Solicitar por correo <span aria-hidden="true">↗</span></a>
-          </article>
-        </div>
-      </section>
-
-      <section id="experiencia" aria-labelledby="experience-title">
-        <div class="section-heading">
-          <div><p class="section-kicker">Experiencia</p><h2 id="experience-title">Ingeniería de procesos</h2></div>
-        </div>
-        <article class="experience-card">
-          <div class="experience-head"><h3>Boston Scientific · Pasante de Ingeniería de Procesos</h3><time datetime="2026-03">Marzo 2026 – presente</time></div>
-          <p class="place">Cartago, Costa Rica</p>
-          <ul>
-            <li>Seguimiento de procesos de manufactura de guías para catéteres en piso y apoyo a operadores con dudas de proceso o producto.</li>
-            <li>Medición de agujeros, anchos y mandriles con microscopio Keyence VHX y métodos de prueba establecidos para verificar el cumplimiento de especificaciones.</li>
-            <li>Recolección de mediciones y análisis en Minitab Sixpack; reviso que el Ppk alcance el mínimo solicitado.</li>
-            <li>Selecciono unidades para medición según las instrucciones del ingeniero responsable y excluyo las identificadas como scrap de la evaluación del producto.</li>
-            <li>Preparación y actualización de instrucciones de manufactura (MI) y apoyo a documentación PRA.</li>
-            <li>Apoyo documental acotado en QPQ: organización de anexos y revisión del reporte PC y documentos relacionados.</li>
-          </ul>
-        </article>
-      </section>
-
-      <section id="proyectos" aria-labelledby="projects-title">
-        <div class="section-heading">
-          <div><p class="section-kicker">Selección de proyectos</p><h2 id="projects-title">Experiencia aplicada en varias disciplinas</h2></div>
-          <p class="section-note">Filtrá por área para explorar los proyectos.</p>
-        </div>
-        <div class="filters" role="group" aria-label="Filtrar proyectos por área">
-          <button type="button" data-filter="all" aria-pressed="true">Todos</button>
-          <button type="button" data-filter="EMBEBIDOS" aria-pressed="false">Embebidos</button>
-          <button type="button" data-filter="REDES" aria-pressed="false">Redes</button>
-          <button type="button" data-filter="RTL_FPGA" aria-pressed="false">RTL/FPGA</button>
-          <button type="button" data-filter="SW" aria-pressed="false">Software</button>
-          <button type="button" data-filter="CONTROL" aria-pressed="false">Control</button>
-        </div>
-        <p class="filter-status" id="filter-status" aria-live="polite"></p>
-        <div class="projects-grid" id="projects-grid"></div>
-        <noscript><p>Activá JavaScript para filtrar los proyectos por área.</p></noscript>
-      </section>
-
-      <section id="educacion-habilidades" aria-labelledby="details-title">
-        <div class="section-heading">
-          <div><p class="section-kicker">Formación y herramientas</p><h2 id="details-title">Fundamentos para resolver problemas de extremo a extremo</h2></div>
-        </div>
-        <div class="details-grid">
-          <div class="detail-panel">
-            <h3>Educación</h3>
-            <p><strong>Bachillerato en Ingeniería Eléctrica</strong></p>
-            <p>Universidad de Costa Rica · Énfasis en Computadoras y Redes</p>
-            <p>Carrera completada; trámite de graduación en curso.</p>
-            <h3 style="margin-top:1.2rem">Idiomas</h3>
-            <p>Español — nativo · Inglés — intermedio</p>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#f5f6f2" />
+    <meta
+      name="description"
+      content="Junior Ruiz Sánchez — Electrical engineering, embedded Linux, robotics, digital design and software. Explore projects by discipline."
+    />
+    <title>Junior Ruiz Sánchez · Electrical Engineering</title>
+    <style>
+      :root {
+        --paper: #f5f6f2;
+        --ink: #172724;
+        --muted: #576762;
+        --line: #d8dfd7;
+        --accent: #21745b;
+        --glow: #84e5b5;
+        --soft: #e8f1eb;
+        --panel: #101f1b;
+        --radius: 22px;
+        color-scheme: light;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font:
+          16px/1.6 system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+      button,
+      a {
+        -webkit-tap-highlight-color: transparent;
+      }
+      button {
+        font: inherit;
+      }
+      a {
+        color: var(--accent);
+        text-underline-offset: 4px;
+      }
+      button:focus-visible,
+      a:focus-visible,
+      summary:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: 5px;
+      }
+      button {
+        cursor: pointer;
+      }
+      button,
+      a {
+        touch-action: manipulation;
+      }
+      ::selection {
+        background: var(--glow);
+        color: #10231b;
+      }
+      .wrap {
+        max-width: 1180px;
+        margin: auto;
+        padding: 0 32px;
+      }
+      .skip {
+        position: absolute;
+        top: -100px;
+        left: 15px;
+        z-index: 10;
+        background: white;
+        padding: 12px;
+      }
+      .skip:focus {
+        top: 10px;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 25px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 650;
+        letter-spacing: 0.03em;
+      }
+      .monogram {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border: 1px solid var(--ink);
+        border-radius: 50%;
+        font-size: 13px;
+      }
+      .top-right {
+        display: flex;
+        gap: 25px;
+        align-items: center;
+      }
+      .top-link {
+        font-size: 13px;
+        color: var(--muted);
+        text-decoration: none;
+      }
+      .language {
+        display: flex;
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        padding: 3px;
+        gap: 2px;
+      }
+      .language button {
+        border: 0;
+        border-radius: 20px;
+        background: none;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+        min-width: 42px;
+        min-height: 34px;
+      }
+      .language button[aria-pressed="true"] {
+        background: var(--ink);
+        color: white;
+      }
+      .selector {
+        padding: 26px 0 0;
+      }
+      .selector-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 12px;
+      }
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+      }
+      .filters button {
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--muted);
+        padding: 9px 15px;
+        border-radius: 24px;
+        font-size: 12px;
+        font-weight: 600;
+        min-height: 42px;
+        transition:
+          background 0.2s,
+          color 0.2s;
+      }
+      .filters button:hover {
+        background: var(--soft);
+        color: var(--ink);
+      }
+      .filters button[aria-pressed="true"] {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: white;
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: 1.06fr 1fr;
+        align-items: center;
+        gap: 55px;
+        padding: 48px 0 50px;
+      }
+      .eyebrow {
+        display: flex;
+        gap: 9px;
+        align-items: center;
+        color: var(--accent);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        font-weight: 700;
+        margin: 0 0 19px;
+      }
+      .dot {
+        height: 7px;
+        width: 7px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+      h1 {
+        font-size: clamp(34px, 4.4vw, 56px);
+        line-height: 1.08;
+        letter-spacing: -0.055em;
+        font-weight: 650;
+        margin: 0 0 12px;
+      }
+      .name {
+        color: var(--muted);
+        font-size: 14px;
+        margin: 0 0 26px;
+      }
+      .about {
+        font-size: 16px;
+        line-height: 1.8;
+        max-width: 550px;
+        margin: 0 0 24px;
+      }
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: center;
+      }
+      .cta {
+        display: inline-flex;
+        gap: 20px;
+        align-items: center;
+        background: var(--ink);
+        color: white;
+        padding: 12px 19px;
+        border-radius: 7px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .text-link {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .visual {
+        position: relative;
+        background: var(--panel);
+        color: var(--glow);
+        border-radius: var(--radius);
+        overflow: hidden;
+        min-width: 0;
+        box-shadow: 0 16px 45px #16251d13;
+      }
+      .visual:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(#ffffff15 1px, transparent 1px);
+        background-size: 18px 18px;
+        pointer-events: none;
+      }
+      .visual-top,
+      .visual-bottom {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 17px 22px;
+        font:
+          10px/1.5 ui-monospace,
+          SFMono-Regular,
+          Consolas,
+          monospace;
+        letter-spacing: 0.08em;
+        color: #b6c9c3;
+      }
+      .visual-top {
+        border-bottom: 1px solid #ffffff13;
+      }
+      .visual-bottom {
+        border-top: 1px solid #ffffff13;
+      }
+      .visual-top span:first-child {
+        color: var(--glow);
+      }
+      .visual svg {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1.55;
+        overflow: hidden;
+      }
+      .svg-line {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .svg-muted {
+        opacity: 0.32;
+      }
+      .svg-fill {
+        fill: currentColor;
+        stroke: none;
+      }
+      .svg-text {
+        fill: currentColor;
+        stroke: none;
+        font:
+          11px ui-monospace,
+          monospace;
+        letter-spacing: 1px;
+      }
+      .skills {
+        padding: 18px 0 26px;
+        border-top: 1px solid var(--line);
+        display: flex;
+        align-items: baseline;
+        gap: 28px;
+      }
+      .section-label {
+        font-size: 11px;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .skill-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px 23px;
+        color: var(--ink);
+        font-size: 13px;
+      }
+      .section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 24px;
+        margin: 35px 0 22px;
+      }
+      .section-head h2 {
+        font-size: 28px;
+        font-weight: 550;
+        letter-spacing: -0.04em;
+        margin: 6px 0 0;
+      }
+      .section-head p {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 0;
+      }
+      .project-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .project {
+        border: 1px solid var(--line);
+        background: #ffffff8c;
+        border-radius: 14px;
+        padding: 23px;
+        display: flex;
+        flex-direction: column;
+        min-height: 230px;
+        transition:
+          border-color 0.2s,
+          transform 0.2s;
+      }
+      .project:hover {
+        border-color: var(--accent);
+        transform: translateY(-3px);
+      }
+      .project-head {
+        display: flex;
+        justify-content: space-between;
+        color: var(--accent);
+        font:
+          10px ui-monospace,
+          monospace;
+        letter-spacing: 0.06em;
+        margin-bottom: 27px;
+      }
+      .project h3 {
+        font-size: 17px;
+        font-weight: 600;
+        line-height: 1.4;
+        letter-spacing: -0.015em;
+        margin: 0 0 10px;
+      }
+      .project p {
+        font-size: 13px;
+        line-height: 1.7;
+        color: var(--muted);
+        margin: 0 0 20px;
+      }
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: auto;
+      }
+      .tag {
+        background: var(--soft);
+        border-radius: 4px;
+        font:
+          10px/1.5 ui-monospace,
+          monospace;
+        color: var(--accent);
+        padding: 4px 7px;
+      }
+      .project a {
+        font-size: 12px;
+        margin-top: 15px;
+        align-self: start;
+      }
+      .experience {
+        display: grid;
+        grid-template-columns: 1fr 1.65fr;
+        gap: 55px;
+        margin: 55px 0 0;
+        padding: 35px 0;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .experience h2 {
+        font-size: 25px;
+        font-weight: 550;
+        letter-spacing: -0.03em;
+        margin: 7px 0 8px;
+      }
+      .experience .meta {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .experience h3 {
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0 0 10px;
+      }
+      .experience p {
+        font-size: 14px;
+        color: var(--muted);
+        margin: 0 0 12px;
+      }
+      .experience ul {
+        padding-left: 18px;
+        margin: 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .experience li {
+        margin: 8px 0;
+      }
+      .education {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 27px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .education p {
+        font-size: 13px;
+        margin: 7px 0 0;
+      }
+      .education .meta {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        padding: 30px 0 38px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .footer-links {
+        display: flex;
+        gap: 20px;
+      }
+      .footer-links a {
+        color: var(--muted);
+      }
+      .status {
+        min-height: 19px;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      .intro-motion {
+        animation: arrive 0.6s ease-out both;
+      }
+      .build {
+        animation: assemble 0.8s ease-out both;
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+      .delay1 {
+        animation-delay: 0.1s;
+      }
+      .delay2 {
+        animation-delay: 0.22s;
+      }
+      .delay3 {
+        animation-delay: 0.34s;
+      }
+      .signal {
+        stroke-dasharray: 6 14;
+        animation: signal 2s linear 2;
+      }
+      .arm {
+        transform-origin: 210px 165px;
+        animation: arm 2.3s ease-in-out 1;
+      }
+      .unit {
+        animation: conveyor 2.5s ease-in-out 1;
+      }
+      .pulse {
+        animation: pulse 1.4s ease-in-out 2;
+      }
+      .draw {
+        stroke-dasharray: 550;
+        stroke-dashoffset: 550;
+        animation: draw 1.7s ease-out forwards;
+      }
+      @keyframes arrive {
+        from {
+          opacity: 0.4;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @keyframes assemble {
+        from {
+          opacity: 0;
+          transform: translateY(-12px) scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @keyframes signal {
+        to {
+          stroke-dashoffset: -40;
+        }
+      }
+      @keyframes arm {
+        0% {
+          transform: rotate(-9deg);
+        }
+        50% {
+          transform: rotate(7deg);
+        }
+        100% {
+          transform: rotate(0);
+        }
+      }
+      @keyframes conveyor {
+        from {
+          transform: translateX(-45px);
+          opacity: 0.4;
+        }
+        to {
+          transform: none;
+          opacity: 1;
+        }
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.25;
+        }
+      }
+      @keyframes draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      @media (min-width: 1400px) {
+        .wrap {
+          max-width: 1240px;
+        }
+        .hero {
+          padding: 60px 0;
+        }
+      }
+      @media (max-width: 850px) {
+        .hero {
+          gap: 30px;
+          grid-template-columns: 1fr 1fr;
+        }
+        .project-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .hero h1 {
+          font-size: 37px;
+        }
+        .experience {
+          gap: 25px;
+        }
+        .wrap {
+          padding: 0 24px;
+        }
+      }
+      @media (max-width: 620px) {
+        .wrap {
+          padding: 0 18px;
+        }
+        .topbar {
+          padding: 18px 0;
+        }
+        .top-link {
+          display: none;
+        }
+        .brand {
+          font-size: 12px;
+        }
+        .filters {
+          gap: 6px;
+        }
+        .filters button {
+          font-size: 11px;
+          padding: 8px 12px;
+        }
+        .selector {
+          padding-top: 20px;
+        }
+        .hero {
+          grid-template-columns: 1fr;
+          gap: 28px;
+          padding: 30px 0;
+        }
+        .hero h1 {
+          font-size: 42px;
+        }
+        .about {
+          font-size: 15px;
+        }
+        .name {
+          margin-bottom: 18px;
+        }
+        .visual {
+          max-width: 100%;
+          width: 100%;
+        }
+        .skills {
+          align-items: start;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .project-grid {
+          grid-template-columns: 1fr;
+        }
+        .project {
+          min-height: 0;
+          padding: 22px;
+        }
+        .project-head {
+          margin-bottom: 17px;
+        }
+        .experience {
+          grid-template-columns: 1fr;
+          gap: 20px;
+          margin-top: 35px;
+          padding: 27px 0;
+        }
+        .education {
+          flex-direction: column;
+        }
+        .section-head {
+          margin-top: 23px;
+          align-items: start;
+        }
+        .section-head h2 {
+          font-size: 25px;
+        }
+        .section-head p {
+          max-width: 120px;
+          text-align: right;
+        }
+        .selector-label .index {
+          display: none;
+        }
+        footer {
+          align-items: start;
+          flex-direction: column;
+        }
+        .top-right {
+          gap: 10px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        *,
+        *:before,
+        *:after {
+          animation: none !important;
+          transition: none !important;
+        }
+        .draw {
+          stroke-dashoffset: 0;
+        }
+        .project:hover {
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#main" data-i18n="skip">Skip to content</a>
+    <div class="wrap">
+      <header class="topbar">
+        <a class="brand" href="#main"
+          ><span class="monogram">JR</span><span>JUNIOR RUIZ SÁNCHEZ</span></a
+        >
+        <div class="top-right">
+          <a class="top-link" href="https://github.com/jrpompio">GitHub ↗</a>
+          <div class="language" role="group" aria-label="Language / Idioma">
+            <button type="button" data-lang="en" aria-pressed="true" lang="en">
+              EN</button
+            ><button
+              type="button"
+              data-lang="es"
+              aria-pressed="false"
+              lang="es"
+            >
+              ES
+            </button>
           </div>
-          <div class="detail-panel">
-            <h3>Áreas técnicas</h3>
-            <div class="skills-grid">
-              <div class="skill"><h4>Software</h4><p>Python, C, C++, Rust, Git, Docker, Linux</p></div>
-              <div class="skill"><h4>Embebidos</h4><p>ESP32, STM32, Raspberry Pi, Jetson Nano, MicroPython</p></div>
-              <div class="skill"><h4>Diseño digital</h4><p>Verilog, FSM, FPGA, Yosys, Synopsys EDA</p></div>
-              <div class="skill"><h4>Redes y control</h4><p>OSPF, VLAN, BLE, Wi-Fi, UDP, MATLAB, control PI</p></div>
+        </div>
+      </header>
+      <main id="main">
+        <div class="selector">
+          <div class="selector-label">
+            <span data-i18n="explore">Explore by discipline</span
+            ><span class="index" data-i18n="choose"
+              >Choose a focus. Explore the work.</span
+            >
+          </div>
+          <nav
+            class="filters"
+            id="filters"
+            aria-label="Engineering disciplines"
+          ></nav>
+        </div>
+        <section class="hero" aria-labelledby="hero-title">
+          <div id="intro">
+            <p class="eyebrow">
+              <span class="dot"></span
+              ><span id="discipline-label">Electrical engineering</span>
+            </p>
+            <h1 id="hero-title">Connecting hardware,<br />software & ideas.</h1>
+            <p class="name" data-i18n="location">
+              Junior Ruiz Sánchez · Costa Rica
+            </p>
+            <p class="about" id="about">
+              I am an electrical engineer working across embedded systems,
+              software, digital design, networks and control. My projects
+              connect code with physical systems, while my process engineering
+              experience brings measurement, testing and documentation into the
+              picture.
+            </p>
+            <div class="hero-actions">
+              <a
+                id="cv-link"
+                class="cta"
+                href="mailto:jr.pompio@gmail.com?subject=CV%20request"
+                ><span data-i18n="cv">Request my CV</span
+                ><span aria-hidden="true">↗</span></a
+              ><a class="text-link" href="#projects" data-i18n="view"
+                >Explore projects ↓</a
+              >
             </div>
           </div>
+          <div class="visual">
+            <div class="visual-top">
+              <span id="scene-label">SYSTEM / OVERVIEW</span
+              ><span aria-hidden="true">JR—01</span>
+            </div>
+            <div id="scene" aria-hidden="true"></div>
+            <div class="visual-bottom">
+              <span id="scene-caption">Hardware meets software</span
+              ><span aria-hidden="true">●</span>
+            </div>
+          </div>
+        </section>
+        <div class="skills">
+          <span class="section-label" data-i18n="tools"
+            >Tools & approaches</span
+          >
+          <div class="skill-list" id="skills"></div>
         </div>
-      </section>
-    </main>
-
-    <footer>
-      <p>Portafolio personal · <a href="https://github.com/jrpompio" target="_blank" rel="noopener noreferrer">GitHub</a></p>
-      <p>Para ver todos los proyectos y las variantes por perfil, consultá el repositorio.</p>
-    </footer>
-  </div>
-
-  <script>
-    const proyectos = [
-      { nombre: "TCU · vehículo a escala", tags: ["EMBEBIDOS", "CONTROL"], desc: "Control con Raspberry Pi y mando Xbox, más una interfaz diseñada para usuarios no técnicos." },
-      { nombre: "Open-CoRoCo · ArcosLab", tags: ["EMBEBIDOS", "RTL_FPGA"], desc: "Fix de odometría, comunicación USB y pruebas de sensores en un robot ROS 2." },
-      { nombre: "Robot educativo · Kinect2ROS", tags: ["EMBEBIDOS"], desc: "Empaquetado de dependencias y diseño de un slot modular para sensores en Raspberry Pi 5." },
-      { nombre: "Visión en NVIDIA Jetson Nano", tags: ["EMBEBIDOS", "SW"], desc: "Tracking y clasificación de vehículos con DeepStream y GStreamer; streaming UDP." },
-      { nombre: "Control de flujo de aire", tags: ["CONTROL"], desc: "Identificación de modelos y sintonización de controladores PI con MATLAB." },
-      { nombre: "Provisión BLE–Wi-Fi con ESP32", tags: ["REDES", "EMBEBIDOS"], desc: "Transferencia de credenciales mediante BLE, servidor GATT en Python e interfaz Qt." },
-      { nombre: "Automatización del hogar (IoT)", tags: ["EMBEBIDOS", "REDES"], desc: "ESP32 y Raspberry Pi Pico con sensores, control remoto por Telegram y Wake-on-LAN." },
-      { nombre: "Herramienta interna de escritorio", tags: ["SW"], desc: "Aplicación Python/PySide6 para automatizar un flujo de trabajo empresarial, descrita sin detalles internos." },
-      { nombre: "LabCamera · boroscopio USB-C", tags: ["SW", "EMBEBIDOS"], desc: "Aplicación PySide6 para capturar imágenes y agilizar la recolección de datos." },
-      { nombre: "UART para FPGA Nexys A7", tags: ["EMBEBIDOS", "RTL_FPGA"], desc: "Cliente Python para comunicación UART y conversión de imágenes a RGB565." },
-      { nombre: "Controlador FSM en Verilog", tags: ["RTL_FPGA", "SW"], desc: "Máquina de estados para un cajero automático, sintetizada con Yosys." },
-      { nombre: "Flujo Synopsys para SoC Amber", tags: ["RTL_FPGA"], desc: "Flujo de síntesis y diseño físico con DC/ICC2, incluyendo routing y análisis de timing/IR drop." },
-      { nombre: "Red multi-sitio OSPF", tags: ["REDES"], desc: "Diseño de red con VLANs, EtherChannel y ACLs en Cisco Packet Tracer." },
-      { nombre: "Circuitos analógicos", tags: ["CONTROL"], desc: "Sensor de humedad con op-amps y generador de funciones basado en LM358." },
-    ];
-
-    const grid = document.getElementById("projects-grid");
-    const status = document.getElementById("filter-status");
-    const buttons = [...document.querySelectorAll(".filters button")];
-
-    function render(filter) {
-      const matches = proyectos.filter(project => filter === "all" || project.tags.includes(filter));
-      const fragment = document.createDocumentFragment();
-
-      for (const project of matches) {
-        const card = document.createElement("article");
-        card.className = "project-card";
-
-        const title = document.createElement("h3");
-        title.textContent = project.nombre;
-        const description = document.createElement("p");
-        description.textContent = project.desc;
-        const tags = document.createElement("div");
-        tags.className = "tags";
-        tags.setAttribute("aria-label", "Áreas del proyecto");
-
-        for (const tag of project.tags) {
-          const badge = document.createElement("span");
-          badge.className = "tag";
-          badge.textContent = tag;
-          tags.append(badge);
+        <section id="projects" aria-labelledby="projects-title">
+          <div class="section-head">
+            <div>
+              <span class="section-label" data-i18n="work"
+                >Work in practice</span
+              >
+              <h2 id="projects-title" data-i18n="projects">
+                Selected projects
+              </h2>
+            </div>
+            <p
+              id="project-count"
+              class="status"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            ></p>
+          </div>
+          <div class="project-grid" id="project-grid"></div>
+        </section>
+        <section class="experience" aria-labelledby="experience-title">
+          <div>
+            <span class="section-label" data-i18n="experience"
+              >Professional experience</span
+            >
+            <h2 id="experience-title">Boston Scientific</h2>
+            <div class="meta" data-i18n="job">
+              Process Engineering Intern · Cartago<br />March 2026–Present
+            </div>
+          </div>
+          <div>
+            <h3 id="experience-heading"></h3>
+            <p id="experience-intro"></p>
+            <ul id="experience-list"></ul>
+          </div>
+        </section>
+        <section class="education" aria-label="Education and languages">
+          <div>
+            <span class="section-label" data-i18n="education">Education</span>
+            <p data-i18n="degree">
+              Electrical Engineering · University of Costa Rica
+            </p>
+            <p class="meta" data-i18n="degree-detail">
+              Computers & Networks emphasis. Coursework completed; graduation
+              process underway.
+            </p>
+          </div>
+          <div>
+            <span class="section-label" data-i18n="languages">Languages</span>
+            <p data-i18n="language-level">
+              Spanish — Native<br />English — Intermediate
+            </p>
+          </div>
+        </section>
+        <noscript
+          ><p>
+            This portfolio uses JavaScript for its bilingual discipline views.
+            My projects include embedded Linux on Jetson Nano, Raspberry Pi
+            robotics, microcontroller systems, FPGA and software development.
+            Contact:
+            <a href="mailto:jr.pompio@gmail.com">jr.pompio@gmail.com</a>.
+            <a href="https://github.com/jrpompio">Explore my GitHub projects</a
+            >.
+          </p></noscript
+        >
+      </main>
+      <footer>
+        <span data-i18n="footer"
+          >Built around curiosity. Grounded in engineering.</span
+        >
+        <div class="footer-links">
+          <a href="mailto:jr.pompio@gmail.com" data-i18n="email">Email ↗</a
+          ><a href="https://www.linkedin.com/in/jr-ruiz/">LinkedIn ↗</a
+          ><a href="https://github.com/jrpompio">GitHub ↗</a>
+        </div>
+      </footer>
+    </div>
+    <script>
+      // Edit both language strings together. The discipline keys also select project groups and SVG scenes.
+      const UI = {
+        en: {
+          skip: "Skip to content",
+          explore: "Explore by discipline",
+          choose: "Choose a focus. Explore the work.",
+          location: "Junior Ruiz Sánchez · Costa Rica",
+          cv: "Request my CV",
+          view: "Explore projects ↓",
+          tools: "Tools & approaches",
+          work: "Work in practice",
+          projects: "Selected projects",
+          experience: "Professional experience",
+          job: "Process Engineering Intern · Cartago<br>March 2026–Present",
+          education: "Education",
+          degree: "Electrical Engineering · University of Costa Rica",
+          "degree-detail":
+            "Computers & Networks emphasis. Coursework completed; graduation process underway.",
+          languages: "Languages",
+          "language-level": "Spanish — Native<br>English — Intermediate",
+          footer: "Built around curiosity. Grounded in engineering.",
+          email: "Email ↗",
+          count: "projects in this view",
+          repo: "Project repository ↗",
+          nav: "Engineering disciplines",
+          subject: "CV request",
+        },
+        es: {
+          skip: "Saltar al contenido",
+          explore: "Explorá por disciplina",
+          choose: "Elegí un enfoque. Conocé los proyectos.",
+          location: "Junior Ruiz Sánchez · Costa Rica",
+          cv: "Solicitar mi CV",
+          view: "Explorar proyectos ↓",
+          tools: "Herramientas y enfoques",
+          work: "Ingeniería en práctica",
+          projects: "Proyectos seleccionados",
+          experience: "Experiencia profesional",
+          job: "Pasante de Ingeniería de Procesos · Cartago<br>Marzo 2026–presente",
+          education: "Educación",
+          degree: "Ingeniería Eléctrica · Universidad de Costa Rica",
+          "degree-detail":
+            "Énfasis en Computadoras y Redes. Carrera completada; trámite de graduación en curso.",
+          languages: "Idiomas",
+          "language-level": "Español — nativo<br>Inglés — intermedio",
+          footer: "Curiosidad para explorar. Ingeniería para construir.",
+          email: "Correo ↗",
+          count: "proyectos en esta vista",
+          repo: "Repositorio del proyecto ↗",
+          nav: "Disciplinas de ingeniería",
+          subject: "Solicitud de CV",
+        },
+      };
+      const bi = (en, es) => ({ en, es });
+      const DISCIPLINES = {
+        all: {
+          label: bi("All", "Todos"),
+          eyebrow: bi("Electrical engineering", "Ingeniería eléctrica"),
+          title: bi(
+            "Connecting hardware,<br>software & ideas.",
+            "Conectando hardware,<br>software e ideas.",
+          ),
+          about: bi(
+            "I am an electrical engineer working across embedded systems, software, digital design, networks and control. My projects connect code with physical systems, while my process engineering experience brings measurement, testing and documentation into the picture.",
+            "Soy ingeniero eléctrico y me desenvuelvo en sistemas embebidos, software, diseño digital, redes y control. Mis proyectos conectan el código con sistemas físicos, y mi experiencia en ingeniería de procesos aporta medición, pruebas y documentación.",
+          ),
+          color: ["#21745b", "#84e5b5", "#e8f1eb"],
+          skills: [
+            "C / C++",
+            "Python",
+            "Linux",
+            "Raspberry Pi",
+            "Verilog",
+            "Testing",
+          ],
+          caption: bi(
+            "Hardware meets software",
+            "Hardware y software conectados",
+          ),
+        },
+        embedded: {
+          label: bi("Embedded & multimedia", "Embebidos y multimedia"),
+          eyebrow: bi(
+            "Embedded systems / Linux / multimedia",
+            "Sistemas embebidos / Linux / multimedia",
+          ),
+          title: bi(
+            "Code close<br>to the hardware.",
+            "Código cerca<br>del hardware.",
+          ),
+          about: bi(
+            "From bare-metal microcontrollers to Linux on Raspberry Pi and Jetson Nano, I enjoy working where software meets electronics. My academic work includes GStreamer and DeepStream video processing, Ubuntu and Docker.",
+            "Desde microcontroladores bare-metal hasta Linux en Raspberry Pi y Jetson Nano, disfruto trabajar donde el software se encuentra con la electrónica. Mi trabajo académico incluye procesamiento de video con GStreamer y DeepStream, Ubuntu y Docker.",
+          ),
+          color: ["#24733d", "#7cf58a", "#e8f2e7"],
+          skills: [
+            "C / C++",
+            "Linux",
+            "GStreamer",
+            "DeepStream",
+            "Docker",
+            "STM32 / ESP32",
+          ],
+          caption: bi(
+            "From firmware to video pipelines",
+            "Del firmware a las tuberías de video",
+          ),
+        },
+        robotics: {
+          label: bi("Robotics", "Robótica"),
+          eyebrow: bi("Robotics / integration", "Robótica / integración"),
+          title: bi(
+            "Making systems<br>move together.",
+            "Sistemas que<br>se mueven juntos.",
+          ),
+          about: bi(
+            "I have built a Raspberry Pi vehicle and contributed to robotics software, sensor tests and ROS 2 integration. I like understanding how the mechanical, electronic and software pieces work together.",
+            "He construido un vehículo con Raspberry Pi y contribuido a software de robótica, pruebas de sensores e integración con ROS 2. Me interesa entender cómo se relacionan las partes mecánicas, electrónicas y de software.",
+          ),
+          color: ["#99531f", "#ffba7d", "#f7ecdf"],
+          skills: [
+            "ROS 2",
+            "Raspberry Pi",
+            "Python",
+            "USB",
+            "Sensors",
+            "Motor control",
+          ],
+          caption: bi(
+            "Sensing, computation, motion",
+            "Sensores, procesamiento y movimiento",
+          ),
+        },
+        software: {
+          label: bi("Software", "Software"),
+          eyebrow: bi(
+            "Software / practical tools",
+            "Software / herramientas prácticas",
+          ),
+          title: bi(
+            "Useful tools.<br>Thoughtful interfaces.",
+            "Herramientas útiles.<br>Interfaces claras.",
+          ),
+          about: bi(
+            "I build software that helps people interact with data and devices. My projects include Python desktop applications, image capture with PySide6, connected interfaces and object-oriented programming.",
+            "Desarrollo software que ayuda a las personas a interactuar con datos y dispositivos. Mis proyectos incluyen aplicaciones de escritorio en Python, captura de imágenes con PySide6, interfaces conectadas y programación orientada a objetos.",
+          ),
+          color: ["#285ac0", "#91b9ff", "#eaf0fc"],
+          skills: [
+            "Python",
+            "C / C++",
+            "PySide6",
+            "Git",
+            "Linux",
+            "Data structures",
+          ],
+          caption: bi(
+            "Input → logic → useful output",
+            "Entrada → lógica → resultado útil",
+          ),
+        },
+        digital: {
+          label: bi("Digital design", "Diseño digital"),
+          eyebrow: bi(
+            "Digital design / FPGA / RTL",
+            "Diseño digital / FPGA / RTL",
+          ),
+          title: bi(
+            "From logic<br>to a working system.",
+            "De la lógica<br>al sistema.",
+          ),
+          about: bi(
+            "My academic projects cover Verilog state machines, FPGA communication and VLSI implementation flows. I work with simulation and synthesis to understand how digital designs behave and become hardware.",
+            "Mis proyectos académicos abarcan máquinas de estados en Verilog, comunicación con FPGA y flujos de implementación VLSI. Trabajo con simulación y síntesis para comprender el comportamiento de los diseños digitales y su implementación en hardware.",
+          ),
+          color: ["#7047a8", "#c7a8ff", "#f0eafa"],
+          skills: [
+            "Verilog",
+            "FPGA",
+            "Yosys",
+            "UART",
+            "Synopsys",
+            "RTL simulation",
+          ],
+          caption: bi(
+            "Describe → simulate → synthesize",
+            "Describir → simular → sintetizar",
+          ),
+        },
+        control: {
+          label: bi("Electronics & control", "Electrónica y control"),
+          eyebrow: bi(
+            "Electronics / control systems",
+            "Electrónica / sistemas de control",
+          ),
+          title: bi(
+            "Measure. Model.<br>Adjust.",
+            "Medir. Modelar.<br>Ajustar.",
+          ),
+          about: bi(
+            "I explore the behavior of physical systems through analog electronics, measurement and feedback. My projects include PI airflow control, system identification and small analog circuits.",
+            "Exploro el comportamiento de sistemas físicos mediante electrónica analógica, medición y realimentación. Mis proyectos incluyen control PI de flujo de aire, identificación de sistemas y circuitos analógicos.",
+          ),
+          color: ["#146f79", "#7ce1df", "#e3f2f1"],
+          skills: [
+            "MATLAB",
+            "PI control",
+            "System identification",
+            "Op-amps",
+            "Circuit design",
+          ],
+          caption: bi(
+            "Feedback makes the difference",
+            "La realimentación marca la diferencia",
+          ),
+        },
+        process: {
+          label: bi("Process engineering", "Ingeniería de procesos"),
+          eyebrow: bi(
+            "Process engineering / testing",
+            "Ingeniería de procesos / pruebas",
+          ),
+          title: bi(
+            "Evidence behind<br>each decision.",
+            "Evidencia detrás<br>de cada decisión.",
+          ),
+          about: bi(
+            "At Boston Scientific, I support process verification through dimensional measurements, established test methods and Minitab data analysis. I also help with manufacturing instructions, risk-analysis documents and qualification records.",
+            "En Boston Scientific apoyo la verificación de procesos mediante mediciones dimensionales, métodos de prueba establecidos y análisis de datos en Minitab. También colaboro con instrucciones de manufactura, documentación de riesgos y registros de cualificación.",
+          ),
+          color: ["#856215", "#f6d176", "#f5efdc"],
+          skills: [
+            "Measurement",
+            "Test methods",
+            "Minitab",
+            "Process capability",
+            "Technical documentation",
+          ],
+          caption: bi(
+            "Process → measurement → evaluation",
+            "Proceso → medición → evaluación",
+          ),
+        },
+        networks: {
+          label: bi("Networks & IoT", "Redes e IoT"),
+          eyebrow: bi(
+            "Networks / connected devices",
+            "Redes / dispositivos conectados",
+          ),
+          title: bi(
+            "Connecting devices.<br>Moving information.",
+            "Conectar dispositivos.<br>Mover información.",
+          ),
+          about: bi(
+            "I have worked on connected embedded projects using BLE, Wi-Fi and UDP, alongside academic network design with OSPF and VLANs. I enjoy bringing communication, device behavior and software interfaces together.",
+            "He trabajado en proyectos embebidos conectados mediante BLE, Wi-Fi y UDP, junto con diseño académico de redes con OSPF y VLANs. Me interesa integrar la comunicación, el comportamiento de los dispositivos y sus interfaces.",
+          ),
+          color: ["#365f9d", "#95c7fa", "#e9eff8"],
+          skills: ["BLE", "Wi-Fi", "UDP", "OSPF", "VLANs", "ESP32"],
+          caption: bi(
+            "Small devices, connected systems",
+            "Dispositivos pequeños, sistemas conectados",
+          ),
+        },
+      };
+      // Descriptions distinguish collaboration from authorship. Private/course repositories are not linked.
+      const PROJECTS = [
+        {
+          title: bi(
+            "Video processing on Jetson Nano",
+            "Procesamiento de video en Jetson Nano",
+          ),
+          groups: ["embedded", "software", "networks"],
+          desc: bi(
+            "Academic C application using GStreamer and DeepStream for vehicle tracking and classification, UDP streaming and hardware-accelerated recording.",
+            "Aplicación académica en C con GStreamer y DeepStream para seguimiento y clasificación de vehículos, transmisión UDP y grabación acelerada por hardware.",
+          ),
+          tech: ["C", "Jetson Nano", "GStreamer", "DeepStream"],
+        },
+        {
+          title: bi("Raspberry Pi vehicle", "Vehículo con Raspberry Pi"),
+          groups: ["robotics", "embedded", "control"],
+          desc: bi(
+            "A scale vehicle controlled with an Xbox controller, Python motor and servo control, and an interface designed for nontechnical users. Developed for a university community-service project.",
+            "Vehículo a escala con control Xbox, control de motores y servos en Python e interfaz para usuarios no técnicos. Desarrollado como proyecto de trabajo comunal universitario.",
+          ),
+          tech: ["Raspberry Pi", "Python", "Motor control"],
+        },
+        {
+          title: bi(
+            "Open-CoRoCo contributions",
+            "Contribuciones a Open-CoRoCo",
+          ),
+          groups: ["robotics", "embedded"],
+          desc: bi(
+            "Contributions to ArcosLab robotics software: a ROS 2 odometry fix, USB communication work with libopencm3-plus, and motor and sensor tests.",
+            "Contribuciones al software de robótica de ArcosLab: corrección de odometría en ROS 2, trabajo de comunicación USB con libopencm3-plus y pruebas de motores y sensores.",
+          ),
+          tech: ["ROS 2", "USB", "libopencm3"],
+        },
+        {
+          title: bi("Kinect / ROS 2 integration", "Integración Kinect / ROS 2"),
+          groups: ["robotics", "embedded"],
+          desc: bi(
+            "Dependency packaging, rosdep integration and documentation contributions to an existing Kinect V2 driver on Raspberry Pi 5, plus a modular sensor-slot design.",
+            "Contribuciones de empaquetado de dependencias, integración rosdep y documentación a un driver existente de Kinect V2 en Raspberry Pi 5, además del diseño de un slot modular para sensores.",
+          ),
+          tech: ["ROS 2", "Raspberry Pi 5", "Kinect"],
+          url: "https://github.com/jrpompio/kinect2ros",
+        },
+        {
+          title: bi("USB-C borescope capture", "Captura con boroscopio USB-C"),
+          groups: ["software", "embedded", "process"],
+          desc: bi(
+            "A PySide6 desktop application for image capture from a USB-C borescope, with camera enumeration on Windows and packaging with PyInstaller.",
+            "Aplicación de escritorio en PySide6 para capturar imágenes de un boroscopio USB-C, con enumeración de cámaras en Windows y distribución con PyInstaller.",
+          ),
+          tech: ["Python", "PySide6", "Image capture"],
+        },
+        {
+          title: bi("BLE-to-Wi-Fi provisioning", "Aprovisionamiento BLE–Wi-Fi"),
+          groups: ["embedded", "software", "networks"],
+          desc: bi(
+            "An ESP32 credential-provisioning project with a Python BLE GATT server and a Qt interface showing connection status.",
+            "Proyecto de aprovisionamiento de credenciales para ESP32, con servidor BLE GATT en Python e interfaz Qt que muestra el estado de conexión.",
+          ),
+          tech: ["ESP32", "BLE", "Python", "Qt"],
+          url: "https://github.com/jrpompio/ProyectoTeleco",
+        },
+        {
+          title: bi("Connected home experiments", "Automatización del hogar"),
+          groups: ["embedded", "networks", "software"],
+          desc: bi(
+            "Home automation with ESP32 and Raspberry Pi Pico, integrating motion and gas sensors, a Telegram interface and remote control.",
+            "Domótica con ESP32 y Raspberry Pi Pico, integrando sensores de movimiento y gas, una interfaz de Telegram y control remoto.",
+          ),
+          tech: ["ESP32", "Pi Pico", "MicroPython", "IoT"],
+        },
+        {
+          title: bi("Airflow feedback control", "Control de flujo de aire"),
+          groups: ["control", "process"],
+          desc: bi(
+            "System identification and PI controller tuning for an airflow plant, with simulation and experimental evaluation in MATLAB.",
+            "Identificación de sistemas y sintonización de un controlador PI para una planta de flujo de aire, con simulación y evaluación experimental en MATLAB.",
+          ),
+          tech: ["MATLAB", "PI control", "Measurement"],
+          url: "https://github.com/jrpompio/proyectouwu",
+        },
+        {
+          title: bi("Analog humidity sensor", "Sensor de humedad analógico"),
+          groups: ["control"],
+          desc: bi(
+            "A low-power analog circuit using operational amplifiers and comparators to drive threshold indicator LEDs.",
+            "Circuito analógico de bajo consumo con amplificadores operacionales y comparadores para indicadores LED por umbral.",
+          ),
+          tech: ["Analog electronics", "Op-amps"],
+        },
+        {
+          title: bi(
+            "Audio-based function generator",
+            "Generador de funciones desde audio",
+          ),
+          groups: ["control"],
+          desc: bi(
+            "A low-cost function generator using a phone or computer audio output, with an LM358 protection and amplification stage.",
+            "Generador de funciones de bajo costo a partir de la salida de audio de un teléfono o computadora, con etapa de protección y amplificación con LM358.",
+          ),
+          tech: ["LM358", "Analog electronics"],
+          url: "https://github.com/jrpompio/probarReadme",
+        },
+        {
+          title: bi("UART client for FPGA", "Cliente UART para FPGA"),
+          groups: ["digital", "embedded", "software"],
+          desc: bi(
+            "A Python client for communicating with VGA terminal firmware on a Nexys A7 FPGA, including opcode parsing and image conversion to RGB565.",
+            "Cliente Python para comunicarse con firmware de terminal VGA en FPGA Nexys A7, con interpretación de opcodes y conversión de imágenes a RGB565.",
+          ),
+          tech: ["Python", "UART", "FPGA", "RGB565"],
+        },
+        {
+          title: bi(
+            "State-machine controller",
+            "Controlador de máquina de estados",
+          ),
+          groups: ["digital"],
+          desc: bi(
+            "A Verilog finite-state machine for ATM operations, with testbenches and synthesis using Yosys.",
+            "Máquina de estados en Verilog para operaciones de cajero automático, con bancos de prueba y síntesis mediante Yosys.",
+          ),
+          tech: ["Verilog", "FSM", "Yosys"],
+        },
+        {
+          title: bi("VLSI implementation flow", "Flujo de implementación VLSI"),
+          groups: ["digital"],
+          desc: bi(
+            "Academic synthesis and physical-design work for an Amber SoC using Synopsys Design Compiler and IC Compiler II, from floorplanning to routing.",
+            "Trabajo académico de síntesis y diseño físico de un SoC Amber con Synopsys Design Compiler e IC Compiler II, desde floorplan hasta ruteo.",
+          ),
+          tech: ["Synopsys", "Tcl", "VLSI"],
+          url: "https://github.com/jrpompio/ProyectoVLSI",
+        },
+        {
+          title: bi("Multi-site network design", "Diseño de red multisede"),
+          groups: ["networks"],
+          desc: bi(
+            "Academic design of a three-site OSPF network with VLANs, EtherChannel and access-control lists in Cisco Packet Tracer.",
+            "Diseño académico de una red OSPF de tres sedes con VLANs, EtherChannel y listas de control de acceso en Cisco Packet Tracer.",
+          ),
+          tech: ["OSPF", "VLANs", "Packet Tracer"],
+        },
+        {
+          title: bi("Whack-A-Mole", "Whack-A-Mole"),
+          groups: ["software"],
+          desc: bi(
+            "A Python game exploring object-oriented design, configurable gameplay and a persistent leaderboard with Pygame and GTK tools.",
+            "Juego en Python para explorar diseño orientado a objetos, configuración de juego y clasificación persistente con Pygame y herramientas GTK.",
+          ),
+          tech: ["Python", "Pygame", "OOP"],
+        },
+      ];
+      const SPANISH_TERMS = {
+        Testing: "Pruebas",
+        Sensors: "Sensores",
+        "Motor control": "Control de motores",
+        "Data structures": "Estructuras de datos",
+        "RTL simulation": "Simulación RTL",
+        "PI control": "Control PI",
+        "System identification": "Identificación de sistemas",
+        "Circuit design": "Diseño de circuitos",
+        Measurement: "Medición",
+        "Test methods": "Métodos de prueba",
+        "Process capability": "Capacidad de proceso",
+        "Technical documentation": "Documentación técnica",
+        "Image capture": "Captura de imágenes",
+        "Analog electronics": "Electrónica analógica",
+        "Op-amps": "Amplificadores operacionales",
+        "BUILD · CONNECT": "CREAR · CONECTAR",
+        "SENSE / ACT": "SENTIR / ACTUAR",
+        FEEDBACK: "REALIMENTACIÓN",
+        MEASURE: "MEDICIÓN",
+        CONNECTED: "CONECTADOS",
+      };
+      const term = (text) =>
+        language === "es" ? SPANISH_TERMS[text] || text : text;
+      const EXPERIENCE = {
+        en: {
+          heading: "A practical approach to engineering",
+          intro:
+            "Supporting manufacturing processes through measurement, data collection and clear documentation.",
+          bullets: [
+            "Follow defined test methods and evaluate measurements against specifications.",
+            "Select measurement units under engineering direction and analyze process capability in Minitab.",
+            "Support manufacturing instructions, process risk analysis and qualification documentation.",
+          ],
+        },
+        es: {
+          heading: "Una forma práctica de hacer ingeniería",
+          intro:
+            "Apoyo a procesos de manufactura mediante medición, recolección de datos y documentación clara.",
+          bullets: [
+            "Seguir métodos de prueba definidos y evaluar mediciones frente a especificaciones.",
+            "Seleccionar unidades según las indicaciones del ingeniero responsable y analizar capacidad de proceso en Minitab.",
+            "Apoyar instrucciones de manufactura, análisis de riesgos de proceso y documentación de cualificación.",
+          ],
+        },
+      };
+      // Lightweight, original SVG illustrations. Motion ends after a short sequence; reduced-motion gets the static design.
+      const frame = (inner) =>
+        `<svg viewBox="0 0 420 270" xmlns="http://www.w3.org/2000/svg"><g class="svg-line">${inner}</g></svg>`;
+      const chip = (x, y, s = 58) =>
+        `<g><rect x="${x}" y="${y}" width="${s}" height="${s}" rx="7"/><rect x="${x + 11}" y="${y + 11}" width="${s - 22}" height="${s - 22}" rx="3" class="svg-muted"/>${[12, 24, 36, 48].map((n) => `<path d="M${x - 9} ${y + n}h9 M${x + s} ${y + n}h9 M${x + n} ${y - 9}v9 M${x + n} ${y + s}v9"/>`).join("")}</g>`;
+      const screen =
+        '<rect x="78" y="55" width="264" height="150" rx="10"/><rect x="91" y="68" width="238" height="110" rx="5" class="svg-muted"/><path d="M183 205v15h54v-15 M164 221h92"/>';
+      const scenes = {
+        all: () =>
+          frame(
+            `<path class="svg-muted" d="M92 135h73 M255 135h72 M210 88V44 M210 182v45"/><path class="signal" d="M92 135h73 M255 135h72"/><g class="build">${chip(178, 103, 64)}</g><g class="build delay1"><rect x="40" y="111" width="54" height="48" rx="7"/><circle cx="67" cy="135" r="12"/><circle cx="67" cy="135" r="4"/></g><g class="build delay2"><rect x="326" y="108" width="53" height="48" rx="5"/><path d="M337 121l9 8-9 8 M352 141h14 M340 164h25"/></g><g class="build delay3"><path d="M182 48l28-16 28 16-28 16z M182 48v22l28 16 28-16V48"/><path d="M184 225h52 M191 215v10 M229 215v10"/></g><text class="svg-text" x="171" y="253">BUILD · CONNECT</text>`,
+          ),
+        embedded: () =>
+          frame(
+            `<g class="build"><rect x="69" y="42" width="282" height="183" rx="12"/><circle cx="83" cy="56" r="3"/><circle cx="337" cy="211" r="3"/><path class="svg-muted" d="M80 188h44v-35h33 M249 150h36v37h55 M180 194v18 M228 190v22"/></g><g class="build delay1"><rect x="95" y="63" width="230" height="65" rx="5" fill="#0a1710"/><g stroke-width="4" stroke-linecap="square"><path class="pulse" d="M115 78h20v34h-20z M115 95h20 M153 78h20v34h-20z M153 95h20 M191 78h20v34h-20z M191 95h20"/><path d="M237 111V80l20 30V80 M272 80v32 M272 97l20-17 M272 97l20 15"/></g></g><g class="build delay2">${chip(174, 150, 48)}<path d="M113 150v55 M121 150v55 M282 152v48 M290 152v48" class="svg-muted"/></g>`,
+          ),
+        robotics: () =>
+          frame(
+            `<path class="svg-muted" d="M48 223h324 M290 82v111 M272 101h38"/><g class="build"><path d="M166 221l10-29h72l10 29z"/><circle cx="210" cy="175" r="18"/><path d="M195 193v-8 M225 193v-8"/></g><g class="arm"><path d="M197 163l-45-69 20-13 49 77"/><circle cx="157" cy="78" r="20"/><circle cx="157" cy="78" r="7"/><path d="M174 63l85 32-6 22-82-25"/><circle cx="270" cy="108" r="16"/><path d="M286 108h22l9 17 M286 112l8 25 19 4"/><circle cx="210" cy="175" r="6"/></g><rect class="build delay2" x="302" y="186" width="30" height="30" rx="4"/><path class="signal" d="M48 244h324"/><text class="svg-text" x="46" y="44">SENSE / ACT</text>`,
+          ),
+        software: () =>
+          frame(
+            `<g class="build">${screen}<path d="M92 88h236" class="svg-muted"/><circle cx="103" cy="78" r="2"/><circle cx="114" cy="78" r="2"/><circle cx="125" cy="78" r="2"/></g><g class="build delay1"><path d="M127 113l-13 13 13 13 M158 113l13 13-13 13 M149 108l-11 36"/><path d="M196 111h107 M196 128h73 M196 146h92" class="svg-muted"/></g><g class="build delay2"><rect x="276" y="177" width="88" height="47" rx="7" fill="#101f1b"/><path d="M298 200l9 9 17-19"/></g>`,
+          ),
+        digital: () =>
+          frame(
+            `<g class="build">${chip(180, 93, 70)}</g><g class="build delay1"><path d="M48 70h20v20h22V70h22v20h22 M48 190h20v-20h22v20h22v-20h22"/><path d="M135 80h21v36h15 M135 180h21v-36h15 M259 116h33V80h65 M259 144h33v36h65" class="svg-muted"/></g><g class="build delay2"><rect x="302" y="62" width="55" height="34" rx="5"/><rect x="302" y="161" width="55" height="34" rx="5"/><path d="M310 179h10v-9h11v16h11"/></g><path class="signal" d="M74 228h272"/><text class="svg-text" x="174" y="132">RTL</text>`,
+          ),
+        control: () =>
+          frame(
+            `<rect x="54" y="48" width="312" height="159" rx="9"/><g class="svg-muted"><path d="M78 76h264 M78 111h264 M78 146h264 M78 181h264 M108 67v122 M168 67v122 M228 67v122 M288 67v122"/></g><path class="draw" d="M78 170h38c12 0 15-105 34-87s19 76 36 42 17-22 30-9 14-12 27-6 12-5 25-3h74"/><path class="svg-muted" d="M78 108h264"/><circle cx="327" cy="230" r="9"/><path d="M327 230l4-6 M66 231h181"/><text class="svg-text" x="79" y="237">FEEDBACK</text>`,
+          ),
+        process: () =>
+          frame(
+            `<rect x="47" y="174" width="328" height="37" rx="18"/><path class="signal" d="M70 192h282"/><circle cx="68" cy="192" r="11"/><circle cx="354" cy="192" r="11"/><path d="M89 212v20 M333 212v20"/><g class="unit"><rect x="88" y="139" width="36" height="34" rx="4"/><rect x="191" y="139" width="36" height="34" rx="4"/><rect x="299" y="139" width="36" height="34" rx="4"/></g><path d="M175 125V67h67v58 M163 67h91"/><path class="pulse" d="M184 106h49 M184 116h49" stroke-dasharray="3 6"/><path d="M311 149l7 7 12-12"/><text class="svg-text" x="167" y="45">MEASURE</text><path class="svg-muted" d="M269 80h44v38"/>`,
+          ),
+        networks: () =>
+          frame(
+            `<g class="svg-muted"><path d="M210 127L91 68 M210 127l118-59 M210 127L91 208 M210 127l118 81"/></g><g class="signal"><path d="M210 127L91 68 M210 127l118-59 M210 127L91 208 M210 127l118 81"/></g><g class="build">${chip(182, 99, 56)}</g><g class="build delay1"><rect x="63" y="48" width="56" height="40" rx="6"/><rect x="300" y="48" width="56" height="40" rx="6"/></g><g class="build delay2"><rect x="63" y="188" width="56" height="40" rx="6"/><rect x="300" y="188" width="56" height="40" rx="6"/></g><path d="M78 62h26 M313 68l9 7 13-15 M79 207h25 M318 204h20"/><text class="svg-text" x="164" y="252">CONNECTED</text>`,
+          ),
+      };
+      let language = "en",
+        active = "all";
+      try {
+        const saved = localStorage.getItem("jr-language");
+        if (saved === "en" || saved === "es") language = saved;
+      } catch (e) {}
+      const pick = (value) => value[language];
+      function render(rebuildFilters = false) {
+        const d = DISCIPLINES[active],
+          u = UI[language];
+        document.documentElement.lang = language;
+        document.title =
+          language === "en"
+            ? "Junior Ruiz Sánchez · Electrical Engineering"
+            : "Junior Ruiz Sánchez · Ingeniería Eléctrica";
+        document
+          .querySelectorAll("[data-i18n]")
+          .forEach((el) => (el.innerHTML = u[el.dataset.i18n]));
+        document
+          .querySelectorAll("[data-lang]")
+          .forEach((el) =>
+            el.setAttribute(
+              "aria-pressed",
+              String(el.dataset.lang === language),
+            ),
+          );
+        document.querySelector("#filters").setAttribute("aria-label", u.nav);
+        if (rebuildFilters) {
+          const filters = document.querySelector("#filters");
+          filters.replaceChildren();
+          Object.entries(DISCIPLINES).forEach(([key, value]) => {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.dataset.discipline = key;
+            b.textContent = pick(value.label);
+            b.setAttribute("aria-controls", "intro project-grid");
+            b.addEventListener("click", () => {
+              if (active !== key) {
+                active = key;
+                render();
+              }
+            });
+            filters.append(b);
+          });
         }
-
-        card.append(title, description, tags);
-        fragment.append(card);
+        document
+          .querySelectorAll("[data-discipline]")
+          .forEach((el) =>
+            el.setAttribute(
+              "aria-pressed",
+              String(el.dataset.discipline === active),
+            ),
+          );
+        ["--accent", "--glow", "--soft"].forEach((name, i) =>
+          document.documentElement.style.setProperty(name, d.color[i]),
+        );
+        document.querySelector("#discipline-label").textContent = pick(
+          d.eyebrow,
+        );
+        document.querySelector("#hero-title").innerHTML = pick(d.title);
+        document.querySelector("#about").textContent = pick(d.about);
+        let illustration = scenes[active]();
+        if (language === "es")
+          illustration = illustration.replace(
+            />([^<>]+)</g,
+            (_, text) => ">" + term(text) + "<",
+          );
+        document.querySelector("#scene").innerHTML = illustration;
+        document.querySelector("#scene-label").textContent = pick(
+          d.label,
+        ).toUpperCase();
+        document.querySelector("#scene-caption").textContent = pick(d.caption);
+        document.querySelector("#skills").replaceChildren(
+          ...d.skills.map((skill) => {
+            const el = document.createElement("span");
+            el.textContent = term(skill);
+            return el;
+          }),
+        );
+        document.querySelector("#cv-link").href =
+          "mailto:jr.pompio@gmail.com?subject=" + encodeURIComponent(u.subject);
+        const filtered = PROJECTS.filter(
+          (p) => active === "all" || p.groups.includes(active),
+        );
+        const grid = document.querySelector("#project-grid");
+        grid.replaceChildren();
+        filtered.forEach((p, i) => {
+          const card = document.createElement("article");
+          card.className = "project";
+          const top = document.createElement("div");
+          top.className = "project-head";
+          const number = document.createElement("span");
+          number.textContent = String(i + 1).padStart(2, "0");
+          const category = document.createElement("span");
+          category.textContent = pick(
+            DISCIPLINES[active === "all" ? p.groups[0] : active].label,
+          );
+          top.append(number, category);
+          const title = document.createElement("h3");
+          title.textContent = pick(p.title);
+          const desc = document.createElement("p");
+          desc.textContent = pick(p.desc);
+          const tags = document.createElement("div");
+          tags.className = "tags";
+          p.tech.forEach((t) => {
+            const tag = document.createElement("span");
+            tag.className = "tag";
+            tag.textContent = term(t);
+            tags.append(tag);
+          });
+          card.append(top, title, desc, tags);
+          if (p.url) {
+            const link = document.createElement("a");
+            link.href = p.url;
+            link.textContent = u.repo;
+            card.append(link);
+          }
+          grid.append(card);
+        });
+        document.querySelector("#project-count").textContent =
+          filtered.length + " " + u.count;
+        const exp = EXPERIENCE[language];
+        document.querySelector("#experience-heading").textContent = exp.heading;
+        document.querySelector("#experience-intro").textContent = exp.intro;
+        document.querySelector("#experience-list").replaceChildren(
+          ...exp.bullets.map((t) => {
+            const li = document.createElement("li");
+            li.textContent = t;
+            return li;
+          }),
+        );
+        const intro = document.querySelector("#intro");
+        intro.classList.remove("intro-motion");
+        void intro.offsetWidth;
+        intro.classList.add("intro-motion");
       }
-
-      grid.replaceChildren(fragment);
-      status.textContent = `${matches.length} proyectos mostrados`;
-      for (const button of buttons) {
-        button.setAttribute("aria-pressed", String(button.dataset.filter === filter));
-      }
-    }
-
-    for (const button of buttons) {
-      button.addEventListener("click", () => render(button.dataset.filter));
-    }
-    render("all");
-  </script>
-</body>
+      document.querySelectorAll("[data-lang]").forEach((button) =>
+        button.addEventListener("click", () => {
+          language = button.dataset.lang;
+          try {
+            localStorage.setItem("jr-language", language);
+          } catch (e) {}
+          render(true);
+        }),
+      );
+      render(true);
+    </script>
+  </body>
 </html>
