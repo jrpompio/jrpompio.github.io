@@ -1411,10 +1411,15 @@
           robotics: demoState.holding
             ? demoText("Tap to release the box", "Tocá para soltar la caja")
             : demoText("Tap to pick up the box", "Tocá para recoger la caja"),
-          software: demoText(
-            "Tap to run the data flow",
-            "Tocá para ejecutar el flujo de datos",
-          ),
+          software: motionPreference.matches
+            ? demoText(
+                "Tap to advance one game step",
+                "Tocá para avanzar un paso",
+              )
+            : demoText(
+                "Tap, click or press Space to flap",
+                "Tocá, hacé clic o presioná espacio para saltar",
+              ),
           digital: demoText(
             "Tap to change inputs A and B",
             "Tocá para cambiar las entradas A y B",
@@ -1549,10 +1554,88 @@
           `${chip(180, 93, 70)}${centered("RTL", 215, 128)}<path class="svg-muted" d="M109 81h35v35h27 M109 175h35v-31h27 M259 128h43"/><rect x="55" y="60" width="54" height="42" rx="5"/><rect x="55" y="154" width="54" height="42" rx="5"/>${centered("A = " + a, 82, 81)}${centered("B = " + b, 82, 175)}<rect x="302" y="105" width="66" height="46" rx="5" fill="${result ? "currentColor" : "none"}" fill-opacity=".12"/>${centered("Q = " + result, 335, 128)}<circle cx="335" cy="173" r="7" fill="${result ? "currentColor" : "none"}" opacity="${result ? 1 : 0.3}"/>${centered("Q = A AND B", 210, 228)}`,
         );
       }
-      function drawSoftware(progress = 0, done = false) {
+      // A compact Flappy Bird-style game: one RAF loop, stopped on collision
+      // and whenever this discipline is unmounted or the page is hidden.
+      function drawSoftware(game = {}) {
+        const ready = !game.started && !game.over;
+        const ballY = game.y ?? 135;
+        const pipeX = game.pipeX ?? 310;
+        const gapY = game.gapY ?? 137;
+        const gap = 86;
+        const pipeWidth = 34;
+        const topHeight = gapY - gap / 2;
+        const bottomY = gapY + gap / 2;
+        const score = game.score ?? 0;
+        const statusLabel = game.over
+          ? demoText(
+              "GAME OVER · TAP TO RESTART",
+              "FIN DEL JUEGO · TOCÁ PARA REINICIAR",
+            )
+          : ready
+            ? demoText("TAP TO START", "TOCÁ PARA EMPEZAR")
+            : demoText("FLAP THROUGH THE GAPS", "VOLÁ ENTRE LOS TUBOS");
         paintDemo(
-          `${screen}<path class="svg-muted" d="M92 88h236"/><circle cx="105" cy="78" r="2"/><circle cx="117" cy="78" r="2"/><path d="M127 111l-13 13 13 13 M158 111l13 13-13 13 M149 106l-11 36"/><path class="svg-muted" d="M192 111h106 M192 128h77 M192 145h92"/><rect x="109" y="157" width="198" height="7" rx="3" class="svg-muted"/><rect x="109" y="157" width="${198 * progress}" height="7" rx="3" class="svg-fill"/>${done ? '<rect x="276" y="182" width="88" height="47" rx="7" fill="#101f1b"/><path d="M298 205l9 9 17-19"/>' : ""}${svgLabel(demoText(done ? "RESULT READY" : "INPUT → PROCESS → OUTPUT", done ? "RESULTADO LISTO" : "ENTRADA → PROCESO → SALIDA"), 59, 250)}`,
+          `<path class="svg-muted" d="M36 222h348"/><path d="M${pipeX} 35h${pipeWidth}v${topHeight - 35}h-9v-10h-16v10h-9z M${pipeX} ${bottomY}h${pipeWidth}v${222 - bottomY}h-9v-10h-16v10h-9z"/><circle cx="92" cy="${ballY}" r="11" fill="#ff4b4b" stroke="#ff7777" stroke-width="2"/><circle cx="96" cy="${ballY - 3}" r="2" fill="#fff" stroke="none"/><path d="M87 ${ballY + 1}l-8 4 9 2" fill="#ffd166"/><rect x="329" y="43" width="52" height="28" rx="8" fill="#101f1b" stroke="none"/><text class="svg-text" x="355" y="62" text-anchor="middle">${String(score).padStart(2, "0")}</text>${svgLabel("CODE / FLIGHT", 41, 29)}${centered(statusLabel, 210, 252)}`,
         );
+      }
+      function startSoftwareGame() {
+        cancelDemo();
+        demoState.game = {
+          started: true,
+          over: false,
+          y: 135,
+          velocity: -150,
+          pipeX: 310,
+          gapY: 137,
+          score: 0,
+          lastTime: 0,
+          scored: false,
+        };
+        demoStatus(
+          demoText(
+            "Game started. Tap or press Space to flap.",
+            "Juego iniciado. Tocá o presioná espacio para saltar.",
+          ),
+        );
+        function tick(now) {
+          const game = demoState.game;
+          if (!game?.started || active !== "software") return;
+          const dt = game.lastTime
+            ? Math.min((now - game.lastTime) / 1000, 0.04)
+            : 0;
+          game.lastTime = now;
+          game.velocity += 390 * dt;
+          game.y += game.velocity * dt;
+          game.pipeX -= 105 * dt;
+          if (game.pipeX < 54 && !game.scored) {
+            game.score += 1;
+            game.scored = true;
+          }
+          if (game.pipeX < 28) {
+            game.pipeX = 420;
+            game.gapY = 84 + Math.random() * 88;
+            game.scored = false;
+          }
+          const withinPipe = game.pipeX < 103 && game.pipeX + 34 > 81;
+          const outsideGap =
+            game.y - 11 < game.gapY - 43 || game.y + 11 > game.gapY + 43;
+          if (game.y < 38 || game.y > 222 || (withinPipe && outsideGap)) {
+            game.started = false;
+            game.over = true;
+            demoFrame = 0;
+            drawSoftware(game);
+            demoStatus(
+              demoText(
+                `Collision! Score: ${game.score}. Tap to try again.`,
+                `¡Choque! Puntos: ${game.score}. Tocá para intentarlo de nuevo.`,
+              ),
+            );
+            return;
+          }
+          drawSoftware(game);
+          demoFrame = requestAnimationFrame(tick);
+        }
+        demoFrame = requestAnimationFrame(tick);
       }
       function drawNetwork(progress = 0, started = false) {
         const points = [
@@ -1737,19 +1820,71 @@
             );
             break;
           case "software":
-            animateDemo(
-              1800,
-              (t) => drawSoftware(t),
-              () => {
-                drawSoftware(1, true);
+            if (motionPreference.matches) {
+              const game = demoState.game?.over
+                ? {
+                    y: 135,
+                    velocity: 0,
+                    pipeX: 310,
+                    gapY: 137,
+                    score: 0,
+                    scored: false,
+                  }
+                : (demoState.game ?? {
+                    y: 135,
+                    velocity: 0,
+                    pipeX: 310,
+                    gapY: 137,
+                    score: 0,
+                    scored: false,
+                  });
+              // Reduced-motion mode advances a short, discrete physics step per activation.
+              game.started = true;
+              game.velocity -= 75;
+              game.y += game.velocity * 0.22 + 0.5 * 390 * 0.22 * 0.22;
+              game.velocity += 390 * 0.22;
+              game.pipeX -= 32;
+              if (game.pipeX < 54 && !game.scored) {
+                game.score += 1;
+                game.scored = true;
+              }
+              if (game.pipeX < 28) {
+                game.pipeX = 310;
+                game.gapY = 84 + Math.random() * 88;
+                game.scored = false;
+              }
+              const withinPipe = game.pipeX < 103 && game.pipeX + 34 > 81;
+              const outsideGap =
+                game.y - 11 < game.gapY - 43 || game.y + 11 > game.gapY + 43;
+              game.over =
+                game.y < 38 || game.y > 222 || (withinPipe && outsideGap);
+              if (game.over)
                 demoStatus(
                   demoText(
-                    "Input processed. Output ready.",
-                    "Entrada procesada. Salida lista.",
+                    `Collision! Score: ${game.score}. Tap to restart.`,
+                    `¡Choque! Puntos: ${game.score}. Tocá para reiniciar.`,
                   ),
                 );
-              },
-            );
+              else
+                demoStatus(
+                  demoText(
+                    `Step advanced · score ${game.score}`,
+                    `Paso avanzado · puntos ${game.score}`,
+                  ),
+                );
+              demoState.game = game;
+              drawSoftware(game);
+            } else if (demoState.game?.started) {
+              demoState.game.velocity = -150;
+              demoStatus(
+                demoText(
+                  "Flap! Avoid the pipe and keep going.",
+                  "¡Salto! Evitá el tubo y seguí avanzando.",
+                ),
+              );
+            } else {
+              startSoftwareGame();
+            }
             break;
           case "networks":
             animateDemo(
