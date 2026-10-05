@@ -507,39 +507,6 @@
       .intro-motion {
         animation: arrive 0.6s ease-out both;
       }
-      .build {
-        animation: assemble 0.8s ease-out both;
-        transform-box: fill-box;
-        transform-origin: center;
-      }
-      .delay1 {
-        animation-delay: 0.1s;
-      }
-      .delay2 {
-        animation-delay: 0.22s;
-      }
-      .delay3 {
-        animation-delay: 0.34s;
-      }
-      .signal {
-        stroke-dasharray: 6 14;
-        animation: signal 2s linear 2;
-      }
-      .arm {
-        transform-origin: 210px 165px;
-        animation: arm 2.3s ease-in-out 1;
-      }
-      .unit {
-        animation: conveyor 2.5s ease-in-out 1;
-      }
-      .pulse {
-        animation: pulse 1.4s ease-in-out 2;
-      }
-      .draw {
-        stroke-dasharray: 550;
-        stroke-dashoffset: 550;
-        animation: draw 1.7s ease-out forwards;
-      }
       @keyframes arrive {
         from {
           opacity: 0.4;
@@ -548,52 +515,6 @@
         to {
           opacity: 1;
           transform: none;
-        }
-      }
-      @keyframes assemble {
-        from {
-          opacity: 0;
-          transform: translateY(-12px) scale(0.95);
-        }
-        to {
-          opacity: 1;
-          transform: none;
-        }
-      }
-      @keyframes signal {
-        to {
-          stroke-dashoffset: -40;
-        }
-      }
-      @keyframes arm {
-        0% {
-          transform: rotate(-9deg);
-        }
-        50% {
-          transform: rotate(7deg);
-        }
-        100% {
-          transform: rotate(0);
-        }
-      }
-      @keyframes conveyor {
-        from {
-          transform: translateX(-45px);
-          opacity: 0.4;
-        }
-        to {
-          transform: none;
-          opacity: 1;
-        }
-      }
-      @keyframes pulse {
-        50% {
-          opacity: 0.25;
-        }
-      }
-      @keyframes draw {
-        to {
-          stroke-dashoffset: 0;
         }
       }
       @media (min-width: 1400px) {
@@ -719,12 +640,49 @@
           animation: none !important;
           transition: none !important;
         }
-        .draw {
-          stroke-dashoffset: 0;
-        }
         .project:hover {
           transform: none;
         }
+      }
+      #scene {
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: inherit;
+        text-align: inherit;
+        position: relative;
+      }
+      #scene:focus-visible {
+        outline: 2px solid var(--glow);
+        outline-offset: -5px;
+        border-radius: 10px;
+      }
+      #scene:hover {
+        background: #ffffff04;
+      }
+      #scene-art {
+        display: block;
+        pointer-events: none;
+      }
+      #scene-hint {
+        display: block;
+        padding: 0 22px 17px;
+        font:
+          12px/1.5 system-ui,
+          sans-serif;
+        color: var(--glow);
+      }
+      .visual-bottom {
+        display: block;
+        min-height: 86px;
+      }
+      #scene-status {
+        display: block;
+        margin-top: 7px;
+        font-size: 10px;
+        color: #b6c9c3;
       }
     </style>
   </head>
@@ -799,10 +757,18 @@
               <span id="scene-label">SYSTEM / OVERVIEW</span
               ><span aria-hidden="true">JR—01</span>
             </div>
-            <div id="scene" aria-hidden="true"></div>
+            <button type="button" id="scene" aria-describedby="scene-status">
+              <span id="scene-art" aria-hidden="true"></span
+              ><span id="scene-hint"></span>
+            </button>
             <div class="visual-bottom">
-              <span id="scene-caption">Hardware meets software</span
-              ><span aria-hidden="true">●</span>
+              <span id="scene-caption">Hardware meets software</span>
+              <span
+                id="scene-status"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              ></span>
             </div>
           </div>
         </section>
@@ -1360,43 +1326,458 @@
       const frame = (inner) =>
         `<svg viewBox="0 0 420 270" xmlns="http://www.w3.org/2000/svg"><g class="svg-line">${inner}</g></svg>`;
       const chip = (x, y, s = 58) =>
-        `<g><rect x="${x}" y="${y}" width="${s}" height="${s}" rx="7"/><rect x="${x + 11}" y="${y + 11}" width="${s - 22}" height="${s - 22}" rx="3" class="svg-muted"/>${[12, 24, 36, 48].map((n) => `<path d="M${x - 9} ${y + n}h9 M${x + s} ${y + n}h9 M${x + n} ${y - 9}v9 M${x + n} ${y + s}v9"/>`).join("")}</g>`;
+        `<g><rect x="${x}" y="${y}" width="${s}" height="${s}" rx="7"/><rect x="${x + 11}" y="${y + 11}" width="${s - 22}" height="${s - 22}" rx="3" class="svg-muted"/>${[
+          0.2, 0.4, 0.6, 0.8,
+        ]
+          .map((ratio) => ratio * s)
+          .map(
+            (n) =>
+              `<path d="M${x - 9} ${y + n}h9 M${x + s} ${y + n}h9 M${x + n} ${y - 9}v9 M${x + n} ${y + s}v9"/>`,
+          )
+          .join("")}</g>`;
       const screen =
         '<rect x="78" y="55" width="264" height="150" rx="10"/><rect x="91" y="68" width="238" height="110" rx="5" class="svg-muted"/><path d="M183 205v15h54v-15 M164 221h92"/>';
-      const scenes = {
-        all: () =>
-          frame(
-            `<path class="svg-muted" d="M92 135h73 M255 135h72 M210 88V44 M210 182v45"/><path class="signal" d="M92 135h73 M255 135h72"/><g class="build">${chip(178, 103, 64)}</g><g class="build delay1"><rect x="40" y="111" width="54" height="48" rx="7"/><circle cx="67" cy="135" r="12"/><circle cx="67" cy="135" r="4"/></g><g class="build delay2"><rect x="326" y="108" width="53" height="48" rx="5"/><path d="M337 121l9 8-9 8 M352 141h14 M340 164h25"/></g><g class="build delay3"><path d="M182 48l28-16 28 16-28 16z M182 48v22l28 16 28-16V48"/><path d="M184 225h52 M191 215v10 M229 215v10"/></g><text class="svg-text" x="171" y="253">BUILD · CONNECT</text>`,
-          ),
-        embedded: () =>
-          frame(
-            `<g class="build"><rect x="69" y="42" width="282" height="183" rx="12"/><circle cx="83" cy="56" r="3"/><circle cx="337" cy="211" r="3"/><path class="svg-muted" d="M80 188h44v-35h33 M249 150h36v37h55 M180 194v18 M228 190v22"/></g><g class="build delay1"><rect x="95" y="63" width="230" height="65" rx="5" fill="#0a1710"/><g stroke-width="4" stroke-linecap="square"><path class="pulse" d="M115 78h20v34h-20z M115 95h20 M153 78h20v34h-20z M153 95h20 M191 78h20v34h-20z M191 95h20"/><path d="M237 111V80l20 30V80 M272 80v32 M272 97l20-17 M272 97l20 15"/></g></g><g class="build delay2">${chip(174, 150, 48)}<path d="M113 150v55 M121 150v55 M282 152v48 M290 152v48" class="svg-muted"/></g>`,
-          ),
-        robotics: () =>
-          frame(
-            `<path class="svg-muted" d="M48 223h324 M290 82v111 M272 101h38"/><g class="build"><path d="M166 221l10-29h72l10 29z"/><circle cx="210" cy="175" r="18"/><path d="M195 193v-8 M225 193v-8"/></g><g class="arm"><path d="M197 163l-45-69 20-13 49 77"/><circle cx="157" cy="78" r="20"/><circle cx="157" cy="78" r="7"/><path d="M174 63l85 32-6 22-82-25"/><circle cx="270" cy="108" r="16"/><path d="M286 108h22l9 17 M286 112l8 25 19 4"/><circle cx="210" cy="175" r="6"/></g><rect class="build delay2" x="302" y="186" width="30" height="30" rx="4"/><path class="signal" d="M48 244h324"/><text class="svg-text" x="46" y="44">SENSE / ACT</text>`,
-          ),
-        software: () =>
-          frame(
-            `<g class="build">${screen}<path d="M92 88h236" class="svg-muted"/><circle cx="103" cy="78" r="2"/><circle cx="114" cy="78" r="2"/><circle cx="125" cy="78" r="2"/></g><g class="build delay1"><path d="M127 113l-13 13 13 13 M158 113l13 13-13 13 M149 108l-11 36"/><path d="M196 111h107 M196 128h73 M196 146h92" class="svg-muted"/></g><g class="build delay2"><rect x="276" y="177" width="88" height="47" rx="7" fill="#101f1b"/><path d="M298 200l9 9 17-19"/></g>`,
-          ),
-        digital: () =>
-          frame(
-            `<g class="build">${chip(180, 93, 70)}<text class="svg-text" x="215" y="128" text-anchor="middle" dominant-baseline="central">RTL</text></g><g class="build delay1"><path d="M48 70h20v20h22V70h22v20h22 M48 190h20v-20h22v20h22v-20h22"/><path d="M135 80h21v36h15 M135 180h21v-36h15 M259 116h33V80h65 M259 144h33v36h65" class="svg-muted"/></g><g class="build delay2"><rect x="302" y="62" width="55" height="34" rx="5"/><rect x="302" y="161" width="55" height="34" rx="5"/><path d="M310 179h10v-9h11v16h11"/></g><path class="signal" d="M74 228h272"/>`,
-          ),
-        control: () =>
-          frame(
-            `<rect x="54" y="48" width="312" height="159" rx="9"/><g class="svg-muted"><path d="M78 76h264 M78 111h264 M78 146h264 M78 181h264 M108 67v122 M168 67v122 M228 67v122 M288 67v122"/></g><path class="draw" d="M78 170h38c12 0 15-105 34-87s19 76 36 42 17-22 30-9 14-12 27-6 12-5 25-3h74"/><path class="svg-muted" d="M78 108h264"/><circle cx="327" cy="230" r="9"/><path d="M327 230l4-6 M66 250h181"/><text class="svg-text" x="156.5" y="231" text-anchor="middle" dominant-baseline="central">FEEDBACK</text>`,
-          ),
-        process: () =>
-          frame(
-            `<rect x="47" y="174" width="328" height="37" rx="18"/><path class="signal" d="M70 192h282"/><circle cx="68" cy="192" r="11"/><circle cx="354" cy="192" r="11"/><path d="M89 212v20 M333 212v20"/><g class="unit"><rect x="88" y="139" width="36" height="34" rx="4"/><rect x="191" y="139" width="36" height="34" rx="4"/><rect x="299" y="139" width="36" height="34" rx="4"/></g><path d="M175 125V67h67v58 M163 67h91"/><path class="pulse" d="M184 106h49 M184 116h49" stroke-dasharray="3 6"/><path d="M311 149l7 7 12-12"/><text class="svg-text" x="167" y="45">MEASURE</text><path class="svg-muted" d="M269 80h44v38"/>`,
-          ),
-        networks: () =>
-          frame(
-            `<g class="svg-muted"><path d="M210 127L91 68 M210 127l118-59 M210 127L91 208 M210 127l118 81"/></g><g class="signal"><path d="M210 127L91 68 M210 127l118-59 M210 127L91 208 M210 127l118 81"/></g><g class="build">${chip(182, 99, 56)}</g><g class="build delay1"><rect x="63" y="48" width="56" height="40" rx="6"/><rect x="300" y="48" width="56" height="40" rx="6"/></g><g class="build delay2"><rect x="63" y="188" width="56" height="40" rx="6"/><rect x="300" y="188" width="56" height="40" rx="6"/></g><path d="M78 62h26 M313 68l9 7 13-15 M79 207h25 M318 204h20"/><text class="svg-text" x="164" y="252">CONNECTED</text>`,
-          ),
+      // Each illustration is an interactive demonstration, not recorded project data.
+      // One animation loop is owned by the current view and cancelled on view/language changes.
+      const motionPreference = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      );
+      let demoFrame = 0;
+      let demoState = {};
+      const demoText = (en, es) => (language === "es" ? es : en);
+      const mix = (a, b, t) => a + (b - a) * t;
+      const clamp = (n) => Math.max(0, Math.min(1, n));
+      const ease = (t) => {
+        t = clamp(t);
+        return t * t * (3 - 2 * t);
       };
+      const svgLabel = (text, x, y, extra = "") =>
+        `<text class="svg-text" x="${x}" y="${y}" ${extra}>${text}</text>`;
+      const centered = (text, x, y) =>
+        svgLabel(
+          text,
+          x,
+          y,
+          'text-anchor="middle" dominant-baseline="central"',
+        );
+      function paintDemo(content) {
+        document.querySelector("#scene-art").innerHTML = frame(content);
+      }
+      function demoStatus(text) {
+        document.querySelector("#scene-status").textContent = text;
+      }
+      function cancelDemo() {
+        cancelAnimationFrame(demoFrame);
+        demoFrame = 0;
+        demoState.busy = false;
+      }
+      function animateDemo(duration, draw, finished) {
+        cancelDemo();
+        demoState.busy = true;
+        if (motionPreference.matches) {
+          draw(1);
+          demoState.busy = false;
+          finished?.();
+          return;
+        }
+        const start = performance.now();
+        function tick(now) {
+          const progress = clamp((now - start) / duration);
+          draw(progress);
+          if (progress < 1) demoFrame = requestAnimationFrame(tick);
+          else {
+            demoFrame = 0;
+            demoState.busy = false;
+            finished?.();
+          }
+        }
+        demoFrame = requestAnimationFrame(tick);
+      }
+      function setDemoHint() {
+        const hints = {
+          all: demoText(
+            "Tap to send a signal through the system",
+            "Tocá para enviar una señal por el sistema",
+          ),
+          embedded: motionPreference.matches
+            ? demoText(
+                "Tap to advance one hexadecimal digit",
+                "Tocá para avanzar un dígito hexadecimal",
+              )
+            : demoText(
+                "Tap to start or restart: 0 → F",
+                "Tocá para iniciar o reiniciar: 0 → F",
+              ),
+          robotics: demoState.holding
+            ? demoText("Tap to release the box", "Tocá para soltar la caja")
+            : demoText("Tap to pick up the box", "Tocá para recoger la caja"),
+          software: demoText(
+            "Tap to run the data flow",
+            "Tocá para ejecutar el flujo de datos",
+          ),
+          digital: demoText(
+            "Tap to change inputs A and B",
+            "Tocá para cambiar las entradas A y B",
+          ),
+          control: demoText(
+            "Tap to move the pendulum and watch it settle",
+            "Tocá para mover el péndulo y ver cómo se estabiliza",
+          ),
+          process: demoText(
+            "Tap to remove the defective unit",
+            "Tocá para retirar la unidad defectuosa",
+          ),
+          networks: demoText(
+            "Tap to send a packet and receive a reply",
+            "Tocá para enviar un paquete y recibir una respuesta",
+          ),
+        };
+        document.querySelector("#scene-hint").textContent = hints[active];
+      }
+      // A seven-segment display with real hexadecimal segment patterns.
+      const hexSegments = [
+        "abcdef",
+        "bc",
+        "abdeg",
+        "abcdg",
+        "bcfg",
+        "acdfg",
+        "acdefg",
+        "abc",
+        "abcdefg",
+        "abcdfg",
+        "abcefg",
+        "cdefg",
+        "adef",
+        "bcdeg",
+        "adefg",
+        "aefg",
+      ];
+      const segmentPaths = {
+        a: "M6 0h22",
+        b: "M32 5v23",
+        c: "M32 38v23",
+        d: "M6 66h22",
+        e: "M2 38v23",
+        f: "M2 5v23",
+        g: "M6 33h22",
+      };
+      function drawHex(value) {
+        const segments = Object.entries(segmentPaths)
+          .map(
+            ([key, path]) =>
+              `<path d="${path}" opacity="${hexSegments[value].includes(key) ? 1 : 0.09}"/>`,
+          )
+          .join("");
+        paintDemo(
+          `<rect x="69" y="38" width="282" height="192" rx="12"/><rect x="94" y="61" width="232" height="112" rx="5" fill="#0a1710"/>${svgLabel("HEX", 109, 82)}${svgLabel("0x", 129, 133)}<g transform="translate(194 83)" stroke-width="5" stroke-linecap="square">${segments}</g>${svgLabel("DEC " + String(value).padStart(2, "0"), 257, 149)}<path class="svg-muted" d="M88 194h54 M280 194h54"/>${chip(187, 184, 34)}`,
+        );
+      }
+      // Two-link inverse kinematics keeps the arm connected while the gripper moves.
+      function drawRobot(hand, gap, box, opacity = 1, replacement = false) {
+        const base = { x: 150, y: 195 },
+          l1 = 106,
+          l2 = 106;
+        const dx = hand.x - base.x,
+          dy = hand.y - base.y,
+          r = Math.hypot(dx, dy);
+        const angle =
+          Math.atan2(dy, dx) -
+          Math.acos(
+            Math.max(
+              -1,
+              Math.min(1, (l1 * l1 + r * r - l2 * l2) / (2 * l1 * r)),
+            ),
+          );
+        const elbow = {
+          x: base.x + l1 * Math.cos(angle),
+          y: base.y + l1 * Math.sin(angle),
+        };
+        const arm = `M${base.x} ${base.y}L${elbow.x} ${elbow.y}L${hand.x} ${hand.y}`;
+        paintDemo(
+          `<path class="svg-muted" d="M120 228h60 M291 206h58 M44 214v39h60v-39"/><path d="M125 225l8-20h34l8 20z"/><path d="${arm}" stroke-width="14" opacity=".18"/><path d="${arm}" stroke-width="3"/><circle cx="150" cy="195" r="13"/><circle cx="${elbow.x}" cy="${elbow.y}" r="12"/><circle cx="${hand.x}" cy="${hand.y}" r="7"/><path d="M${hand.x - gap} ${hand.y + 6}v20h5 M${hand.x + gap} ${hand.y + 6}v20h-5"/><g opacity="${opacity}"><rect x="${box.x - 13}" y="${box.y - 13}" width="26" height="26" rx="3"/><path class="svg-muted" d="M${box.x - 13} ${box.y - 4}h26"/></g>${replacement ? '<rect x="307" y="179" width="26" height="26" rx="3"/>' : ""}${svgLabel(demoText("PICK / RELEASE", "RECOGER / SOLTAR"), 42, 33)}`,
+        );
+      }
+      function drawProcess(t, removed = false) {
+        const down = ease(t / 0.3),
+          lift = ease((t - 0.35) / 0.35),
+          across = ease((t - 0.7) / 0.3);
+        const x = mix(210, 83, across),
+          y = mix(mix(61, 143, down), 61, lift);
+        const attached = t >= 0.35;
+        const bx = attached ? x : 210,
+          by = attached ? y + 28 : 166;
+        paintDemo(
+          `<rect x="47" y="182" width="328" height="32" rx="16"/><circle cx="66" cy="198" r="10"/><circle cx="356" cy="198" r="10"/><path class="svg-muted" d="M81 198h260 M92 214v19 M330 214v19"/><rect x="87" y="151" width="30" height="30" rx="3"/><rect x="305" y="151" width="30" height="30" rx="3"/><path d="M311 164l6 6 9-12"/>${removed ? '<rect x="195" y="151" width="30" height="30" rx="3" stroke-dasharray="3 5" opacity=".2"/>' : `<path d="M${bx} ${by - 15}l17 29h-34z" stroke="#ff9b89"/><path d="M${bx} ${by - 6}v9 M${bx} ${by + 8}v1" stroke="#ff9b89"/>`}<path d="M${x} 37V${y} M${x - 19} ${y + 5}v31h5 M${x + 19} ${y + 5}v31h-5" opacity="${removed ? 0.3 : 1}"/><path class="svg-muted" d="M56 107h53v-17 M56 107v-17"/>${svgLabel(demoText(removed ? "DEFECT REMOVED" : "SHAPE INSPECTION", removed ? "DEFECTO RETIRADO" : "INSPECCIÓN DE FORMA"), 47, 254)}`,
+        );
+      }
+      // Illustrative closed-loop second-order response, not a measurement of a real system.
+      const pendulumAngle = (seconds) => {
+        const zeta = 0.5,
+          wn = 3.5,
+          wd = wn * Math.sqrt(1 - zeta * zeta);
+        return (
+          0.65 *
+          Math.exp(-zeta * wn * seconds) *
+          (Math.cos(wd * seconds) + ((zeta * wn) / wd) * Math.sin(wd * seconds))
+        );
+      };
+      function drawControl(progress, idle = false) {
+        const time = progress * 5.5,
+          theta = idle ? 0 : pendulumAngle(time),
+          angle = (theta * 180) / Math.PI;
+        const x = 95 + 85 * Math.sin(theta),
+          y = 68 + 85 * Math.cos(theta);
+        let trace = "";
+        if (!idle) {
+          for (let i = 0; i <= Math.round(progress * 160); i++) {
+            const px = 207 + i,
+              py = 125 - (58 * pendulumAngle((i / 160) * 5.5)) / 0.65;
+            trace +=
+              (i ? "L" : "M") + px.toFixed(2) + " " + py.toFixed(2) + " ";
+          }
+        }
+        paintDemo(
+          `<path class="svg-muted" d="M62 57h66 M95 68v90"/><circle cx="95" cy="68" r="6"/><path d="M95 68L${x} ${y}" stroke-width="3"/><circle cx="${x}" cy="${y}" r="12" fill="#101f1b"/><rect x="192" y="48" width="193" height="149" rx="7"/><path class="svg-muted" d="M207 125h161 M207 83h161 M207 167h161 M245 60v122 M286 60v122 M327 60v122"/><path d="M207 125h161" stroke-dasharray="4 5" opacity=".65"/><path d="${trace}"/><circle cx="${idle ? 207 : 207 + 160 * progress}" cy="${125 - (58 * theta) / 0.65}" r="3" class="svg-fill"/>${svgLabel(demoText("ANGLE θ", "ÁNGULO θ"), 204, 38)}${svgLabel(demoText("Target 0°", "Objetivo 0°"), 207, 187)}${svgLabel("t (s)", 344, 214)}${centered((Math.abs(angle) < 0.05 ? 0 : angle).toFixed(1) + "°", 95, 182)}<path class="svg-muted" d="M285 204v30H95v-29 M89 213l6-8 6 8"/>${centered(demoText("FEEDBACK", "REALIMENTACIÓN"), 210, 256)}`,
+        );
+      }
+      function drawDigital(step) {
+        const a = step >> 1,
+          b = step & 1,
+          result = a & b;
+        paintDemo(
+          `${chip(180, 93, 70)}${centered("RTL", 215, 128)}<path class="svg-muted" d="M109 81h35v35h27 M109 175h35v-31h27 M259 128h43"/><rect x="55" y="60" width="54" height="42" rx="5"/><rect x="55" y="154" width="54" height="42" rx="5"/>${centered("A = " + a, 82, 81)}${centered("B = " + b, 82, 175)}<rect x="302" y="105" width="66" height="46" rx="5" fill="${result ? "currentColor" : "none"}" fill-opacity=".12"/>${centered("Q = " + result, 335, 128)}<circle cx="335" cy="173" r="7" fill="${result ? "currentColor" : "none"}" opacity="${result ? 1 : 0.3}"/>${centered("Q = A AND B", 210, 228)}`,
+        );
+      }
+      function drawSoftware(progress = 0, done = false) {
+        paintDemo(
+          `${screen}<path class="svg-muted" d="M92 88h236"/><circle cx="105" cy="78" r="2"/><circle cx="117" cy="78" r="2"/><path d="M127 111l-13 13 13 13 M158 111l13 13-13 13 M149 106l-11 36"/><path class="svg-muted" d="M192 111h106 M192 128h77 M192 145h92"/><rect x="109" y="157" width="198" height="7" rx="3" class="svg-muted"/><rect x="109" y="157" width="${198 * progress}" height="7" rx="3" class="svg-fill"/>${done ? '<rect x="276" y="182" width="88" height="47" rx="7" fill="#101f1b"/><path d="M298 205l9 9 17-19"/>' : ""}${svgLabel(demoText(done ? "RESULT READY" : "INPUT → PROCESS → OUTPUT", done ? "RESULTADO LISTO" : "ENTRADA → PROCESO → SALIDA"), 59, 250)}`,
+        );
+      }
+      function drawNetwork(progress = 0, started = false) {
+        const points = [
+            [91, 68],
+            [210, 127],
+            [328, 208],
+            [210, 127],
+            [91, 68],
+          ],
+          position = progress * 4;
+        const i = Math.min(3, Math.floor(position)),
+          fraction = Math.min(1, position - i);
+        const x = mix(points[i][0], points[i + 1][0], fraction),
+          y = mix(points[i][1], points[i + 1][1], fraction);
+        paintDemo(
+          `<path class="svg-muted" d="M210 127L91 68 M210 127l118-59 M210 127L91 208 M210 127l118 81"/>${chip(182, 99, 56)}<rect x="63" y="48" width="56" height="40" rx="6"/><rect x="300" y="48" width="56" height="40" rx="6"/><rect x="63" y="188" width="56" height="40" rx="6"/><rect x="300" y="188" width="56" height="40" rx="6"/>${started ? `<rect x="${x - 6}" y="${y - 4}" width="12" height="8" rx="2" fill="currentColor"/>` : ""}${centered(demoText(progress >= 0.5 ? "REPLY" : "PACKET", progress >= 0.5 ? "RESPUESTA" : "PAQUETE"), 210, 251)}`,
+        );
+      }
+      function drawOverview(progress = 0, started = false) {
+        const p = progress * 2,
+          segment = Math.min(1, Math.floor(p)),
+          fraction = Math.min(1, p - segment);
+        const x = mix(segment ? 210 : 67, segment ? 352 : 210, fraction);
+        paintDemo(
+          `<path class="svg-muted" d="M94 135h75 M251 135h75 M210 92V65"/>${chip(178, 103, 64)}<rect x="40" y="111" width="54" height="48" rx="7"/><circle cx="67" cy="135" r="12"/><rect x="326" y="108" width="53" height="48" rx="5"/><path d="M337 121l9 8-9 8 M352 141h14 M340 164h25 M184 225h52"/><path d="M182 48l28-16 28 16-28 16z M182 48v22l28 16 28-16V48"/>${started ? `<circle cx="${x}" cy="135" r="5" class="svg-fill"/>` : ""}${centered(demoText("CAPTURE → COMPUTE → DISPLAY", "CAPTURAR → PROCESAR → MOSTRAR"), 210, 253)}`,
+        );
+      }
+      function mountDemo() {
+        cancelDemo();
+        demoState = { holding: false, step: 0, counter: -1 };
+        const defaults = {
+          all: () => drawOverview(),
+          embedded: () => drawHex(0),
+          robotics: () => drawRobot({ x: 240, y: 90 }, 19, { x: 320, y: 192 }),
+          software: () => drawSoftware(),
+          digital: () => drawDigital(0),
+          control: () => drawControl(0, true),
+          process: () => drawProcess(0),
+          networks: () => drawNetwork(),
+        };
+        defaults[active]();
+        setDemoHint();
+        demoStatus(
+          demoText(
+            "Interactive illustration · tap or use Enter",
+            "Ilustración interactiva · tocá o usá Enter",
+          ),
+        );
+      }
+      function activateDemo() {
+        if (demoState.busy && active === "robotics") return;
+        demoStatus(
+          demoText("Demonstration running…", "Demostración en curso…"),
+        );
+        switch (active) {
+          case "robotics": {
+            const releasing = demoState.holding;
+            animateDemo(
+              releasing ? 2400 : 2000,
+              (t) => {
+                if (!releasing) {
+                  const reaching = ease(t / 0.42),
+                    lifting = ease((t - 0.57) / 0.43);
+                  const hand = {
+                    x: mix(mix(240, 320, reaching), 230, lifting),
+                    y: mix(mix(90, 172, reaching), 72, lifting),
+                  };
+                  const gap = mix(19, 14, ease((t - 0.42) / 0.15));
+                  const box =
+                    t < 0.57
+                      ? { x: 320, y: 192 }
+                      : { x: hand.x, y: hand.y + 20 };
+                  drawRobot(hand, gap, box);
+                } else {
+                  const moving = ease(t / 0.42),
+                    fall = clamp((t - 0.45) / 0.28),
+                    returning = ease((t - 0.75) / 0.25);
+                  const hand = {
+                    x: mix(mix(230, 75, moving), 240, returning),
+                    y: mix(mix(72, 98, moving), 90, returning),
+                  };
+                  const box =
+                    t < 0.45
+                      ? { x: hand.x, y: hand.y + 20 }
+                      : { x: 75, y: mix(118, 242, fall * fall) };
+                  drawRobot(
+                    hand,
+                    t < 0.45 ? 14 : 19,
+                    box,
+                    1 - ease((t - 0.68) / 0.14),
+                    t >= 0.9,
+                  );
+                }
+              },
+              () => {
+                demoState.holding = !releasing;
+                setDemoHint();
+                demoStatus(
+                  demoText(
+                    releasing
+                      ? "Box released. A new box is ready."
+                      : "Box held. Tap again to release.",
+                    releasing
+                      ? "Caja soltada. Hay una caja nueva lista."
+                      : "Caja recogida. Tocá de nuevo para soltarla.",
+                  ),
+                );
+              },
+            );
+            break;
+          }
+          case "embedded": {
+            if (motionPreference.matches) {
+              demoState.counter = (demoState.counter + 1) % 16;
+              drawHex(demoState.counter);
+              demoStatus(
+                "HEX " +
+                  demoState.counter.toString(16).toUpperCase() +
+                  " · DEC " +
+                  demoState.counter,
+              );
+            } else {
+              let previous = -1;
+              animateDemo(
+                6400,
+                (t) => {
+                  const value = Math.min(15, Math.floor(t * 16));
+                  if (value !== previous) {
+                    drawHex(value);
+                    previous = value;
+                  }
+                },
+                () =>
+                  demoStatus(
+                    demoText(
+                      "HEX F = decimal 15. Tap to restart at 0.",
+                      "HEX F = decimal 15. Tocá para reiniciar en 0.",
+                    ),
+                  ),
+              );
+            }
+            break;
+          }
+          case "process":
+            animateDemo(
+              2400,
+              (t) => drawProcess(t),
+              () => {
+                drawProcess(1, true);
+                demoStatus(
+                  demoText(
+                    "Triangular unit removed; square units remain.",
+                    "Unidad triangular retirada; las unidades cuadradas permanecen.",
+                  ),
+                );
+              },
+            );
+            break;
+          case "control":
+            animateDemo(
+              5500,
+              (t) => drawControl(t),
+              () =>
+                demoStatus(
+                  demoText(
+                    "Simulated angle settled at 0°. Tap to repeat.",
+                    "Ángulo simulado estabilizado en 0°. Tocá para repetir.",
+                  ),
+                ),
+            );
+            break;
+          case "digital":
+            demoState.step = (demoState.step + 1) % 4;
+            drawDigital(demoState.step);
+            demoStatus(
+              "A = " +
+                (demoState.step >> 1) +
+                " · B = " +
+                (demoState.step & 1) +
+                " · Q = " +
+                ((demoState.step >> 1) & (demoState.step & 1)),
+            );
+            break;
+          case "software":
+            animateDemo(
+              1800,
+              (t) => drawSoftware(t),
+              () => {
+                drawSoftware(1, true);
+                demoStatus(
+                  demoText(
+                    "Input processed. Output ready.",
+                    "Entrada procesada. Salida lista.",
+                  ),
+                );
+              },
+            );
+            break;
+          case "networks":
+            animateDemo(
+              2600,
+              (t) => drawNetwork(t, true),
+              () =>
+                demoStatus(
+                  demoText(
+                    "Packet delivered; reply received.",
+                    "Paquete entregado; respuesta recibida.",
+                  ),
+                ),
+            );
+            break;
+          default:
+            animateDemo(
+              1800,
+              (t) => drawOverview(t, true),
+              () =>
+                demoStatus(
+                  demoText(
+                    "Signal captured, processed and displayed.",
+                    "Señal capturada, procesada y mostrada.",
+                  ),
+                ),
+            );
+        }
+      }
       let language = "en",
         active = "all";
       try {
@@ -1458,13 +1839,7 @@
         );
         document.querySelector("#hero-title").innerHTML = pick(d.title);
         document.querySelector("#about").textContent = pick(d.about);
-        let illustration = scenes[active]();
-        if (language === "es")
-          illustration = illustration.replace(
-            />([^<>]+)</g,
-            (_, text) => ">" + term(text) + "<",
-          );
-        document.querySelector("#scene").innerHTML = illustration;
+        mountDemo();
         document.querySelector("#scene-label").textContent = pick(
           d.label,
         ).toUpperCase();
@@ -1542,6 +1917,11 @@
           render(true);
         }),
       );
+      document.querySelector("#scene").addEventListener("click", activateDemo);
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) mountDemo();
+      });
+      motionPreference.addEventListener("change", mountDemo);
       render(true);
     </script>
   </body>
