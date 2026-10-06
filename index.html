@@ -1468,8 +1468,8 @@
             "Tocá para mover el péndulo y ver cómo se estabiliza",
           ),
           process: demoText(
-            "Tap to run a new batch: five units, then inspect and record the defect",
-            "Tocá para iniciar un lote nuevo: cinco unidades y luego inspeccionar y registrar el defecto",
+            "Run a six-unit batch: five pass, then document the marked defect",
+            "Procesá seis unidades: cinco pasan y luego se documenta la marcada como defectuosa",
           ),
           networks: demoText(
             "Send three data packets: shortest route, failure, then recovery",
@@ -1542,31 +1542,29 @@
           `<path class="svg-muted" d="M120 228h60 M291 206h58 M44 214v39h60v-39"/><path d="M125 225l8-20h34l8 20z"/><path d="${arm}" stroke-width="14" opacity=".18"/><path d="${arm}" stroke-width="3"/><circle cx="150" cy="195" r="13"/><circle cx="${elbow.x}" cy="${elbow.y}" r="12"/><circle cx="${hand.x}" cy="${hand.y}" r="7"/><path d="M${hand.x - gap} ${hand.y + 6}H${hand.x + gap} M${hand.x - gap} ${hand.y + 6}v20h5 M${hand.x + gap} ${hand.y + 6}v20h-5"/><g opacity="${opacity}"><rect x="${box.x - 13}" y="${box.y - 13}" width="26" height="26" rx="3"/><path class="svg-muted" d="M${box.x - 13} ${box.y - 4}h26"/></g>${replacement ? '<rect x="307" y="179" width="26" height="26" rx="3"/>' : ""}${svgLabel(demoText("PICK / RELEASE", "RECOGER / SOLTAR"), 42, 33)}`,
         );
       }
-      function drawProcess(t, completed = false) {
+      function drawProcess(t) {
         const batchProgress = clamp(t / 0.68),
           inspectionProgress = clamp((t - 0.68) / 0.32),
-          down = ease(inspectionProgress / 0.3),
           lift = ease((inspectionProgress - 0.35) / 0.35),
           defectVisible = t >= 0.68,
           goodCount = Math.min(5, Math.floor(batchProgress * 5)),
-          processedCount = goodCount + (defectVisible ? 1 : 0),
-          yieldValue = processedCount ? goodCount + "/" + processedCount + " · " + ((goodCount / processedCount) * 100).toFixed(1) + "%" : "—",
-          handY = mix(mix(61, 143, down), 107, lift),
-          defectY = defectVisible && inspectionProgress >= 0.35 ? mix(158, 131, lift) : 158,
-          photoDone = inspectionProgress >= 0.58,
-          measureDone = inspectionProgress >= 0.78,
-          saveDone = inspectionProgress >= 0.96;
-        const units = Array.from({ length: 5 }, (_, i) => {
-          const unitX = 54 + ((i * 61 + batchProgress * 110) % 310),
-            accepted = i < goodCount;
-          return `<rect x="${unitX}" y="146" width="21" height="27" rx="3" fill="#10231f" stroke="${accepted ? "#72dfb1" : "currentColor"}" stroke-width="1.5"/>${accepted ? `<path d="M${unitX + 4} 159l4 4 9-10" stroke="#72dfb1" stroke-width="1.4" fill="none"/>` : ""}`;
+          defectY = defectVisible && inspectionProgress >= 0.35 ? mix(158, 145, lift) : 158,
+          photoDone = t >= 0.91,
+          measureDone = t >= 0.95,
+          saveDone = t >= 0.985;
+        const units = Array.from({ length: 6 }, (_, i) => {
+          const unitX = 50 + i * 43 + batchProgress * 50,
+            accepted = i < goodCount,
+            defective = i === 5;
+          if (defective && t >= 0.76) return "";
+          return `<rect x="${unitX}" y="146" width="24" height="27" rx="3" fill="#10231f" stroke="${defective ? "#ff7979" : accepted ? "#72dfb1" : "currentColor"}" stroke-width="${defective ? 1.7 : 1.4}"/>${defective ? `<path d="M${unitX + 12} 150l8 14h-16z" fill="none" stroke="#ff7979" stroke-width="1.3"/><path d="M${unitX + 12} 154v5m0 2v1" stroke="#ff7979" stroke-width="1.2"/>` : accepted ? `<path d="M${unitX + 4} 159l4 4 10-11" stroke="#72dfb1" stroke-width="1.4" fill="none"/>` : ""}`;
         }).join("");
-        const stage = (x, label, done, icon) => `<g opacity="${defectVisible ? 1 : 0.55}"><rect x="${x}" y="82" width="42" height="31" rx="4" fill="#10231f" stroke="${done ? "#72dfb1" : "currentColor"}"/><path d="${icon}" stroke="${done ? "#72dfb1" : "currentColor"}" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><text x="${x + 21}" y="122" text-anchor="middle" dominant-baseline="central" fill="${done ? "#72dfb1" : "currentColor"}" font-family="ui-monospace,monospace" font-size="6" font-weight="400" letter-spacing="0">${label}</text></g>`;
-        const docs = `${stage(147, "PHOTO", photoDone, "M157 89h22v15h-22z M163 89l3-4h6l3 4 M168 94a4 4 0 1 0 0 8a4 4 0 0 0 0-8")}${stage(190, "MEASURE", measureDone, "M201 88v16m4-16v16m-4-11h12m-12 6h12m0-11v16")}${stage(233, "SAVE", saveDone, "M244 88h12l5 5v12h-17z M247 88v6h9v-6 M247 103v-6h9v6")}`;
-        const yieldWidget = `<rect x="259" y="37" width="139" height="31" rx="6" fill="#10231f" stroke="currentColor"/><text x="270" y="50" fill="currentColor" font-family="ui-monospace,monospace" font-size="8" font-weight="400" letter-spacing=".4">YIELD</text><text x="388" y="59" text-anchor="end" fill="#d9f6eb" font-family="ui-monospace,monospace" font-size="8" font-weight="400" letter-spacing="0">${yieldValue}</text>`;
-        const defect = defectVisible ? `<path d="M210 ${defectY - 13}l13 24h-26z" fill="#10231f" stroke="#ff9b89" stroke-width="1.7"/><path d="M210 ${defectY - 5}v7m0 3v1" stroke="#ff9b89" stroke-width="1.5"/>` : "";
+        const stage = (x, label, done, icon) => `<g opacity="${t >= 0.76 ? 1 : 0.55}"><rect x="${x}" y="76" width="40" height="28" rx="4" fill="#10231f" stroke="${done ? "#72dfb1" : "currentColor"}"/><path d="${icon}" stroke="${done ? "#72dfb1" : "currentColor"}" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><text x="${x + 20}" y="113" text-anchor="middle" fill="${done ? "#72dfb1" : "currentColor"}" stroke="none" font-family="system-ui,sans-serif" font-size="7" font-weight="400" letter-spacing="0">${label}</text></g>`;
+        const docs = `${stage(263, demoText("PHOTO", "FOTO"), photoDone, "M271 83h24v15h-24z M277 83l3-4h7l3 4 M283 88a4 4 0 1 0 0 8a4 4 0 0 0 0-8")}${stage(307, demoText("MEASURE", "MEDIR"), measureDone, "M317 82v16m4-16v16m-4-11h13m-13 6h13m0-11v16")}${stage(351, demoText("RECORD", "REGISTRAR"), saveDone, "M360 82h12l5 5v12h-17z M363 82v6h9v-6 M363 97v-6h9v6")}`;
+        const defect = t >= 0.76 ? `<g><rect x="315" y="${defectY - 13}" width="24" height="27" rx="3" fill="#10231f" stroke="#ff7979" stroke-width="1.7"/><path d="M327 ${defectY - 9}l8 14h-16z" fill="none" stroke="#ff7979" stroke-width="1.3"/><path d="M327 ${defectY - 5}v5m0 2v1" stroke="#ff7979" stroke-width="1.2"/></g>` : "";
+        const yieldWidget = `<rect x="259" y="37" width="139" height="31" rx="6" fill="#10231f" stroke="currentColor"/><text x="269" y="49" fill="currentColor" stroke="none" font-family="system-ui,sans-serif" font-size="8" font-weight="600">YIELD</text><text x="269" y="61" fill="#d9f6eb" stroke="none" font-family="system-ui,sans-serif" font-size="8" font-weight="400">${goodCount} / 6 ${demoText("good", "buenas")} · ${((goodCount / 6) * 100).toFixed(1)}%</text>`;
         paintDemo(
-          `${yieldWidget}${docs}<rect x="47" y="182" width="328" height="32" rx="16"/><circle cx="66" cy="198" r="10"/><circle cx="356" cy="198" r="10"/><path class="svg-muted" d="M81 198h260 M92 214v19 M330 214v19"/>${units}${defect}<path d="M210 37V${handY + 5} M191 ${handY + 5}h38 M191 ${handY + 5}v31h5 M229 ${handY + 5}v31h-5" opacity="${defectVisible ? 1 : 0.18}"/><path class="svg-muted" d="M56 107h53v-17 M56 107v-17"/>${svgLabel(demoText("FIVE UNITS → INSPECT DEFECT", "CINCO UNIDADES → INSPECCIONAR DEFECTO"), 47, 254, 'font-size="8" font-weight="400" letter-spacing=".07em"')}`,
+          `${yieldWidget}${docs}<rect x="47" y="182" width="328" height="32" rx="16"/><circle cx="66" cy="198" r="10"/><circle cx="356" cy="198" r="10"/><path class="svg-muted" d="M81 198h260 M92 214v19 M330 214v19"/>${units}${defect}<path d="M327 119v${Math.max(0, defectY - 132)}m-3-3 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 2" opacity="${t >= 0.76 ? .9 : 0}"/>${svgLabel(demoText("6 UNITS · 5 PASS · 1 DEFECT", "6 UNIDADES · 5 PASAN · 1 DEFECTO"), 47, 254, 'font-size="8" font-weight="400" letter-spacing=".04em" stroke="none"')}`,
         );
       }
       // Illustrative closed-loop second-order response, not a measurement of a real system.
@@ -1946,10 +1944,10 @@
             demoState.processMeasureAnnounced = false;
             demoState.processSaveAnnounced = false;
             animateDemo(
-              6500,
+              8000,
               (t) => drawProcess(t),
               () => {
-                drawProcess(1, true);
+                drawProcess(1);
                 demoStatus(
                   demoText(
                     "Five good units, one defect photographed, measured and saved. Yield: 5/6 = 83.3%.",
