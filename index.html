@@ -1375,6 +1375,8 @@
       let demoTimer = 0;
       let demoState = {};
       let softwareMode = "reaction";
+      // Best reaction time lives only in this page session; never write it to storage.
+      let reactionBest = null;
       const demoText = (en, es) => (language === "es" ? es : en);
       const mix = (a, b, t) => a + (b - a) * t;
       const clamp = (n) => Math.max(0, Math.min(1, n));
@@ -1619,9 +1621,13 @@
           falseStart: demoText("WAIT UNTIL THE SIGNAL", "ESPERÁ LA SEÑAL"),
         };
         const color = colors[phase] || colors.idle;
-        const bigSize = phase === "result" ? 28 : 21;
+        const bigSize = phase === "result" ? 23 : 17;
+        const bestLabel = demoText("SESSION BEST", "MEJOR DE LA SESIÓN");
+        const bestValue = reactionBest === null ? "—" : `${reactionBest} ms`;
+        const light = (name, x, color) =>
+          `<rect x="${x}" y="169" width="14" height="6" rx="3" fill="${phase === name ? color : "#b6c9c3"}" opacity="${phase === name ? 1 : 0.25}" stroke="none"/>`;
         paintDemo(
-          `${svgLabel(demoText("REACTION / TIME", "TIEMPO / REACCIÓN"), 41, 29)}<rect x="53" y="46" width="314" height="172" rx="12"/><path class="svg-muted" d="M72 71h276 M72 194h276"/><circle cx="210" cy="130" r="57" stroke="${color}" stroke-width="2" opacity=".38"/><circle cx="210" cy="130" r="43" stroke="${color}" stroke-width="2" fill="${color}" fill-opacity="${phase === "go" ? 0.2 : 0.04}"/><circle cx="210" cy="130" r="31" stroke="${color}" stroke-width="1" opacity=".75"/>${svgLabel(labels[phase] || labels.idle, 210, 127, `text-anchor="middle" dominant-baseline="central" font-size="${bigSize}" font-weight="700" letter-spacing="0" fill="${color}"`)}${centered(sub[phase] || sub.idle, 210, 161)}${svgLabel(demoText("START", "INICIO"), 77, 88)}${svgLabel(demoText("SIGNAL", "SEÑAL"), 307, 184)}<circle cx="77" cy="101" r="4" fill="${phase === "go" ? color : "none"}"/><circle cx="307" cy="171" r="4" fill="${phase === "go" ? color : "none"}"/>${centered(demoText("CLICK / REACT", "TOCÁ / REACCIONÁ"), 210, 246)}`,
+          `${svgLabel(demoText("REACTION / TIME", "TIEMPO / REACCIÓN"), 41, 29)}<rect x="53" y="46" width="314" height="172" rx="12"/><path class="svg-muted" d="M70 78h280"/>${svgLabel(bestLabel, 70, 66, 'font-size="10" letter-spacing=".04em"')}${svgLabel(bestValue, 350, 66, 'text-anchor="end" font-size="12" font-weight="700" letter-spacing="0"') }<rect x="73" y="89" width="274" height="65" rx="8" fill="${color}" fill-opacity=".1" stroke="${color}" stroke-width="2"/><rect x="80" y="96" width="260" height="51" rx="5" fill="none" stroke="${color}" stroke-width=".7" opacity=".45"/>${svgLabel(labels[phase] || labels.idle, 210, 116, `text-anchor="middle" dominant-baseline="central" font-size="${bigSize}" font-weight="700" letter-spacing="0" fill="${color}"`)}${centered(sub[phase] || sub.idle, 210, 137)}${light("red", 183, colors.red)}${light("yellow", 203, colors.yellow)}${light("go", 223, colors.go)}${centered(demoText("CLICK / REACT", "TOCÁ / REACCIONÁ"), 210, 197)}`,
         );
       }
       function beginReactionRound() {
@@ -1910,6 +1916,7 @@
               const result = Math.round(performance.now() - demoState.goAt);
               demoState.reactionPhase = "result";
               demoState.reactionMs = result;
+              if (reactionBest === null || result < reactionBest) reactionBest = result;
               drawReaction("result", result);
               setDemoHint();
               demoStatus(
