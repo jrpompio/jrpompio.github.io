@@ -1569,9 +1569,25 @@
       function drawControl(progress, idle = false) {
         const time = progress * 5.5,
           theta = idle ? 0 : pendulumAngle(time),
-          angle = (theta * 180) / Math.PI;
+          angle = (theta * 180) / Math.PI,
+          gearAngle = idle ? 0 : -(angle * 0.85),
+          motorAngle = -gearAngle * (20 / 15);
         const x = 95 + 85 * Math.sin(theta),
           y = 68 + 85 * Math.cos(theta);
+        const gear = (cx, cy, radius, teeth, rotation) => {
+          const points = [];
+          for (let i = 0; i < teeth * 4; i++) {
+            const a = (i / (teeth * 4)) * Math.PI * 2;
+            const r = i % 4 < 2 ? radius * 0.76 : radius;
+            points.push(`${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`);
+          }
+          const spokes = [0, 120, 240].map((deg) => {
+            const a = (deg * Math.PI) / 180;
+            const px = cx + radius * 0.65 * Math.cos(a), py = cy + radius * 0.65 * Math.sin(a);
+            return `M${cx} ${cy}L${px.toFixed(1)} ${py.toFixed(1)}`;
+          }).join(" ");
+          return `<g transform="rotate(${rotation.toFixed(1)} ${cx} ${cy})"><polygon points="${points.join(" ")}" fill="#101f1b"/><circle cx="${cx}" cy="${cy}" r="${(radius * 0.67).toFixed(1)}" fill="#101f1b"/><path d="${spokes}" stroke-width="2"/><circle cx="${cx}" cy="${cy}" r="4" fill="currentColor"/></g>`;
+        };
         let trace = "";
         if (!idle) {
           for (let i = 0; i <= Math.round(progress * 160); i++) {
@@ -1582,7 +1598,7 @@
           }
         }
         paintDemo(
-          `<path class="svg-muted" d="M62 57h66 M95 68v90"/><circle cx="95" cy="68" r="6"/><path d="M95 68L${x} ${y}" stroke-width="3"/><circle cx="${x}" cy="${y}" r="12" fill="#101f1b"/><rect x="192" y="48" width="193" height="149" rx="7"/><path class="svg-muted" d="M207 125h161 M207 83h161 M207 167h161 M245 60v122 M286 60v122 M327 60v122"/><path d="M207 125h161" stroke-dasharray="4 5" opacity=".65"/><path d="${trace}"/><circle cx="${idle ? 207 : 207 + 160 * progress}" cy="${125 - (58 * theta) / 0.65}" r="3" class="svg-fill"/>${svgLabel(demoText("ANGLE θ", "ÁNGULO θ"), 204, 38)}${svgLabel(demoText("Target 0°", "Objetivo 0°"), 207, 187)}${svgLabel("t (s)", 344, 214)}${centered((Math.abs(angle) < 0.05 ? 0 : angle).toFixed(1) + "°", 95, 182)}<path class="svg-muted" d="M285 204v30H95v-29 M89 213l6-8 6 8"/>${centered(demoText("FEEDBACK", "REALIMENTACIÓN"), 210, 256)}`,
+          `${svgLabel(demoText("PENDULUM / COUNTER-ROTATING GEAR", "PÉNDULO / ENGRANE CONTRARROTANTE"), 41, 29)}<path class="svg-muted" d="M63 44h99 M95 44v8"/>${gear(95, 68, 20, 12, gearAngle)}${gear(129, 68, 15, 10, motorAngle)}<path d="M95 68L${x.toFixed(1)} ${y.toFixed(1)}" stroke-width="3"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12" fill="#101f1b"/><path class="svg-muted" d="M${x - 7} ${y}h14"/><rect x="192" y="48" width="193" height="149" rx="7"/><path class="svg-muted" d="M207 125h161 M207 83h161 M207 167h161 M245 60v122 M286 60v122 M327 60v122"/><path d="M207 125h161" stroke-dasharray="4 5" opacity=".65"/><path d="${trace}"/><circle cx="${idle ? 207 : 207 + 160 * progress}" cy="${125 - (58 * theta) / 0.65}" r="3" class="svg-fill"/>${svgLabel(demoText("ANGLE θ", "ÁNGULO θ"), 204, 38)}${svgLabel(demoText("Target 0°", "Objetivo 0°"), 207, 187)}${svgLabel("t (s)", 344, 214)}${centered((Math.abs(angle) < 0.05 ? 0 : angle).toFixed(1) + "°", 95, 182)}<path class="svg-muted" d="M285 204v30H95v-29 M89 213l6-8 6 8"/>${centered(demoText("GEAR COUNTER-ROTATES TO RETURN TO ZERO", "EL ENGRANE CONTRARRESTA EL GIRO HACIA CERO"), 210, 256)}`,
         );
       }
       function drawDigital(step) {
@@ -1703,20 +1719,46 @@
         demoFrame = requestAnimationFrame(tick);
       }
       function drawNetwork(progress = 0, started = false) {
-        const points = [
-            [91, 68],
-            [210, 127],
-            [328, 208],
-            [210, 127],
-            [91, 68],
-          ],
-          position = progress * 4;
-        const i = Math.min(3, Math.floor(position)),
-          fraction = Math.min(1, position - i);
-        const x = mix(points[i][0], points[i + 1][0], fraction),
-          y = mix(points[i][1], points[i + 1][1], fraction);
+        const primary = [[104, 111], [173, 69], [250, 69]],
+          backup = [[104, 153], [173, 195], [276, 195], [322, 153]];
+        const pointAt = (points, amount) => {
+          const lengths = [];
+          let total = 0;
+          for (let i = 0; i < points.length - 1; i++) {
+            const length = Math.hypot(points[i + 1][0] - points[i][0], points[i + 1][1] - points[i][1]);
+            lengths.push(length); total += length;
+          }
+          let distance = Math.max(0, Math.min(1, amount)) * total;
+          for (let i = 0; i < lengths.length; i++) {
+            if (distance <= lengths[i] || i === lengths.length - 1) {
+              const t = lengths[i] ? distance / lengths[i] : 0;
+              return [mix(points[i][0], points[i + 1][0], t), mix(points[i][1], points[i + 1][1], t)];
+            }
+            distance -= lengths[i];
+          }
+          return points[points.length - 1];
+        };
+        const failed = started && progress >= 0.3,
+          rerouted = started && progress >= 0.46;
+        let packet = null;
+        if (started && progress < 0.3) packet = pointAt(primary, progress / 0.3);
+        else if (rerouted) packet = pointAt(backup, (progress - 0.46) / 0.54);
+        if (failed && !demoState.networkFailureAnnounced) {
+          demoState.networkFailureAnnounced = true;
+          demoStatus(demoText("Primary route lost. Finding another path…", "Ruta principal caída. Buscando otra ruta…"));
+        }
+        if (rerouted && !demoState.networkRerouteAnnounced) {
+          demoState.networkRerouteAnnounced = true;
+          demoStatus(demoText("Data rerouted through backup node.", "Datos desviados por el nodo alternativo."));
+        }
+        const sensorLabel = demoText("HUMIDITY", "HUMEDAD"),
+          hubLabel = demoText("CENTRAL", "CENTRAL"),
+          primaryState = failed ? "#ff7979" : "currentColor",
+          routeInfo = started
+            ? rerouted ? demoText("BACKUP ROUTE ACTIVE", "RUTA ALTERNA ACTIVA") : failed ? demoText("ROUTE LOST", "RUTA CAÍDA") : demoText("SENDING DATA", "ENVIANDO DATOS")
+            : demoText("SENSOR NETWORK", "RED DE SENSORES");
         paintDemo(
-          `<path class="svg-muted" d="M210 127L91 68 M210 127l118-59 M210 127L91 208 M210 127l118 81"/>${chip(182, 99, 56)}<rect x="63" y="48" width="56" height="40" rx="6"/><rect x="300" y="48" width="56" height="40" rx="6"/><rect x="63" y="188" width="56" height="40" rx="6"/><rect x="300" y="188" width="56" height="40" rx="6"/>${started ? `<rect x="${x - 6}" y="${y - 4}" width="12" height="8" rx="2" fill="currentColor"/>` : ""}${centered(demoText(progress >= 0.5 ? "REPLY" : "PACKET", progress >= 0.5 ? "RESPUESTA" : "PAQUETE"), 210, 251)}`,
+          `${svgLabel(routeInfo, 42, 29)}<path d="M104 111L173 69h77" stroke="${primaryState}" stroke-width="${failed ? 1.5 : 2}" stroke-dasharray="${failed ? "5 5" : "none"}" opacity="${failed ? 0.55 : 0.9}"/><path class="svg-muted" d="M104 153L173 195h103l46-42 M250 69l72 42"/><path d="M104 153L173 195h103l46-42" stroke="currentColor" stroke-width="${rerouted ? 2.5 : 1}" opacity="${rerouted ? 0.95 : 0.16}"/><rect x="34" y="91" width="70" height="83" rx="8"/><path d="M69 105c-8 10-10 15-10 20a10 10 0 0 0 20 0c0-5-2-10-10-20z" fill="currentColor" fill-opacity=".12"/><path d="M69 111c-5 7-6 10-6 14a6 6 0 0 0 12 0c0-4-1-7-6-14z" fill="currentColor" stroke="none"/><text class="svg-text" x="69" y="151" text-anchor="middle">68%</text>${centered(sensorLabel, 69, 187)}<rect x="151" y="51" width="44" height="36" rx="6"/><path d="M159 66h28 M159 73h18"/><rect x="151" y="177" width="44" height="36" rx="6"/><path d="M159 192h28 M159 199h18"/><text class="svg-text" x="173" y="47" text-anchor="middle">A</text><text class="svg-text" x="173" y="226" text-anchor="middle">B</text><rect x="322" y="96" width="70" height="74" rx="9"/><path d="M338 115h38 M338 125h28"/><rect x="338" y="139" width="38" height="17" rx="4" fill="currentColor" fill-opacity=".12"/><text class="svg-text" x="357" y="151" text-anchor="middle">68%</text>${centered(hubLabel, 357, 185)}${failed ? `<path d="M258 62l14 14m0-14-14 14" stroke="#ff7979" stroke-width="3"/><rect x="252" y="56" width="26" height="26" rx="4" fill="none" stroke="#ff7979"/>` : ""}${packet ? `<rect x="${packet[0] - 5}" y="${packet[1] - 4}" width="10" height="8" rx="2" fill="${rerouted ? "#72dfb1" : "currentColor"}" stroke="none"/>` : ""}${centered(started && progress >= 0.98 ? demoText("READING DELIVERED", "LECTURA RECIBIDA") : demoText("SENSOR → GATEWAY → CENTRAL", "SENSOR → NODO → CENTRAL"), 210, 252)}`,
         );
       }
       function drawOverview(progress = 0, started = false) {
@@ -1881,8 +1923,8 @@
               () =>
                 demoStatus(
                   demoText(
-                    "Simulated angle settled at 0°. Tap to repeat.",
-                    "Ángulo simulado estabilizado en 0°. Tocá para repetir.",
+                    "The counter-rotating gear brings the pendulum back to 0°.",
+                    "El engrane contrarrotante devuelve el péndulo a 0°.",
                   ),
                 ),
             );
@@ -1930,14 +1972,16 @@
             }
             break;
           case "networks":
+            demoState.networkFailureAnnounced = false;
+            demoState.networkRerouteAnnounced = false;
             animateDemo(
-              2600,
+              5200,
               (t) => drawNetwork(t, true),
               () =>
                 demoStatus(
                   demoText(
-                    "Packet delivered; reply received.",
-                    "Paquete entregado; respuesta recibida.",
+                    "Humidity reading delivered through the backup route.",
+                    "Lectura de humedad recibida por la ruta alterna.",
                   ),
                 ),
             );
