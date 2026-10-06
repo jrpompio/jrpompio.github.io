@@ -1593,7 +1593,7 @@
           `${chip(180, 93, 70)}${centered("RTL", 215, 128)}<path class="svg-muted" d="M109 81h35v35h27 M109 175h35v-31h27 M259 128h43"/><rect x="55" y="60" width="54" height="42" rx="5"/><rect x="55" y="154" width="54" height="42" rx="5"/>${centered("A = " + a, 82, 81)}${centered("B = " + b, 82, 175)}<rect x="302" y="105" width="66" height="46" rx="5" fill="${result ? "currentColor" : "none"}" fill-opacity=".12"/>${centered("Q = " + result, 335, 128)}<circle cx="335" cy="173" r="7" fill="${result ? "currentColor" : "none"}" opacity="${result ? 1 : 0.3}"/>${centered("Q = A AND B", 210, 228)}`,
         );
       }
-      // Reaction test: red, then yellow, then green after a random 0–1500 ms.
+      // Reaction test: red, then yellow, then green after a random 0–3000 ms.
       // The reaction clock starts only when green appears.
       function drawReaction(phase = "idle", result = 0) {
         const colors = {
@@ -1654,7 +1654,7 @@
             drawReaction("go");
             setDemoHint();
             demoStatus(demoText("GO! React now.", "¡YA! Reaccioná ahora."));
-          }, Math.random() * 1500);
+          }, Math.random() * 3000);
         }, 500);
       }
       // A compact Flappy-style game controlled by touch, click, or Space.
