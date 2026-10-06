@@ -1542,17 +1542,31 @@
           `<path class="svg-muted" d="M120 228h60 M291 206h58 M44 214v39h60v-39"/><path d="M125 225l8-20h34l8 20z"/><path d="${arm}" stroke-width="14" opacity=".18"/><path d="${arm}" stroke-width="3"/><circle cx="150" cy="195" r="13"/><circle cx="${elbow.x}" cy="${elbow.y}" r="12"/><circle cx="${hand.x}" cy="${hand.y}" r="7"/><path d="M${hand.x - gap} ${hand.y + 6}H${hand.x + gap} M${hand.x - gap} ${hand.y + 6}v20h5 M${hand.x + gap} ${hand.y + 6}v20h-5"/><g opacity="${opacity}"><rect x="${box.x - 13}" y="${box.y - 13}" width="26" height="26" rx="3"/><path class="svg-muted" d="M${box.x - 13} ${box.y - 4}h26"/></g>${replacement ? '<rect x="307" y="179" width="26" height="26" rx="3"/>' : ""}${svgLabel(demoText("PICK / RELEASE", "RECOGER / SOLTAR"), 42, 33)}`,
         );
       }
-      function drawProcess(t, removed = false) {
-        const down = ease(t / 0.3),
-          lift = ease((t - 0.35) / 0.35),
-          across = ease((t - 0.7) / 0.3);
+      function drawProcess(t, completed = false) {
+        const batchProgress = clamp(t / 0.68),
+          inspectionProgress = clamp((t - 0.68) / 0.32),
+          down = ease(inspectionProgress / 0.3),
+          lift = ease((inspectionProgress - 0.35) / 0.35),
+          across = ease((inspectionProgress - 0.7) / 0.3),
+          defectVisible = t >= 0.68,
+          removed = completed || inspectionProgress >= 1,
+          goodCount = Math.min(5, Math.floor(batchProgress * 5)),
+          processedCount = goodCount + (defectVisible ? 1 : 0),
+          yieldValue = processedCount ? `${goodCount}/${processedCount} · ${((goodCount / processedCount) * 100).toFixed(1)}%` : "—";
         const x = mix(210, 83, across),
           y = mix(mix(61, 143, down), 61, lift);
-        const attached = t >= 0.35;
+        const attached = inspectionProgress >= 0.35;
         const bx = attached ? x : 210,
           by = attached ? y + 28 : 166;
+        const goodUnits = Array.from({ length: 5 }, (_, i) => {
+          const unitX = 52 + ((i * 63 + batchProgress * 125) % 312);
+          const approved = i < goodCount;
+          return `<rect x="${unitX}" y="188" width="15" height="15" rx="2" fill="#10231f" stroke="${approved ? "#72dfb1" : "currentColor"}" stroke-width="1.4"/>${approved ? `<path d="M${unitX + 3} 195l3 3 6-7" stroke="#72dfb1" stroke-width="1.2" fill="none"/>` : ""}`;
+        }).join("");
+        const documentation = `<rect x="235" y="79" width="163" height="60" rx="6" fill="#10231f" stroke="currentColor" stroke-opacity=".65"/><text x="246" y="94" fill="currentColor" font-family="ui-monospace,monospace" font-size="8" letter-spacing=".6">${demoText("DEFECT RECORD", "REGISTRO DEL DEFECTO")}</text><g opacity="${defectVisible ? 1 : 0.45}"><rect x="245" y="100" width="45" height="31" rx="4" fill="#10231f" stroke="${inspectionProgress >= 0.58 ? "#72dfb1" : "currentColor"}"/><path d="M256 108h22v15h-22z M262 108l3-4h5l3 4 M267 113a4 4 0 1 0 0 8a4 4 0 0 0 0-8" stroke="${inspectionProgress >= 0.58 ? "#72dfb1" : "currentColor"}" fill="none" stroke-width="1.3"/><text x="267" y="137" fill="${inspectionProgress >= 0.58 ? "#72dfb1" : "currentColor"}" text-anchor="middle" font-family="ui-monospace,monospace" font-size="6">PHOTO</text></g><g opacity="${defectVisible ? 1 : 0.45}"><rect x="296" y="100" width="45" height="31" rx="4" fill="#10231f" stroke="${inspectionProgress >= 0.78 ? "#72dfb1" : "currentColor"}"/><path d="M307 106v16m4-16v16m-4-11h13m-13 6h13m0-11v16" stroke="${inspectionProgress >= 0.78 ? "#72dfb1" : "currentColor"}" fill="none" stroke-width="1.3"/><text x="318" y="137" fill="${inspectionProgress >= 0.78 ? "#72dfb1" : "currentColor"}" text-anchor="middle" font-family="ui-monospace,monospace" font-size="6">MEASURE</text></g><g opacity="${defectVisible ? 1 : 0.45}"><rect x="347" y="100" width="45" height="31" rx="4" fill="#10231f" stroke="${inspectionProgress >= 0.96 ? "#72dfb1" : "currentColor"}"/><path d="M358 106h12l5 5v11h-17z M361 106v6h9v-6 M361 121v-6h9v6" stroke="${inspectionProgress >= 0.96 ? "#72dfb1" : "currentColor"}" fill="none" stroke-width="1.3"/><text x="369" y="137" fill="${inspectionProgress >= 0.96 ? "#72dfb1" : "currentColor"}" text-anchor="middle" font-family="ui-monospace,monospace" font-size="6">SAVE</text></g>`;
+        const yieldWidget = `<rect x="259" y="37" width="139" height="31" rx="6" fill="#10231f" stroke="currentColor"/><text x="270" y="50" fill="currentColor" font-family="ui-monospace,monospace" font-size="8" letter-spacing=".7">YIELD</text><text x="388" y="59" text-anchor="end" fill="#d9f6eb" font-family="ui-monospace,monospace" font-size="10" font-weight="700">${yieldValue}</text>`;
         paintDemo(
-          `<rect x="47" y="182" width="328" height="32" rx="16"/><circle cx="66" cy="198" r="10"/><circle cx="356" cy="198" r="10"/><path class="svg-muted" d="M81 198h260 M92 214v19 M330 214v19"/><rect x="87" y="151" width="30" height="30" rx="3"/><rect x="305" y="151" width="30" height="30" rx="3"/><path d="M311 164l6 6 9-12"/>${removed ? '<rect x="195" y="151" width="30" height="30" rx="3" stroke-dasharray="3 5" opacity=".2"/>' : `<path d="M${bx} ${by - 15}l17 29h-34z" stroke="#ff9b89"/><path d="M${bx} ${by - 6}v9 M${bx} ${by + 8}v1" stroke="#ff9b89"/>`}<path d="M${x} 37V${y + 5} M${x - 19} ${y + 5}H${x + 19} M${x - 19} ${y + 5}v31h5 M${x + 19} ${y + 5}v31h-5" opacity="${removed ? 0.3 : 1}"/><path class="svg-muted" d="M56 107h53v-17 M56 107v-17"/>${svgLabel(demoText(removed ? "DEFECT REMOVED" : "SHAPE INSPECTION", removed ? "DEFECTO RETIRADO" : "INSPECCIÓN DE FORMA"), 47, 254)}`,
+          `${yieldWidget}${documentation}<rect x="47" y="182" width="328" height="32" rx="16"/><circle cx="66" cy="198" r="10"/><circle cx="356" cy="198" r="10"/><path class="svg-muted" d="M81 198h260 M92 214v19 M330 214v19"/><rect x="87" y="151" width="30" height="30" rx="3"/><rect x="305" y="151" width="30" height="30" rx="3"/><path d="M311 164l6 6 9-12"/>${goodUnits}${defectVisible ? `<path d="M${bx} ${by - 15}l17 29h-34z" stroke="#ff9b89"/><path d="M${bx} ${by - 6}v9 M${bx} ${by + 8}v1" stroke="#ff9b89"/>` : ""}<path d="M${x} 37V${y + 5} M${x - 19} ${y + 5}H${x + 19} M${x - 19} ${y + 5}v31h5 M${x + 19} ${y + 5}v31h-5" opacity="${removed ? 0.3 : 1}"/><path class="svg-muted" d="M56 107h53v-17 M56 107v-17"/>${svgLabel(demoText(removed ? "DEFECT RECORDED" : defectVisible ? "INSPECTING DEFECT" : "FIVE GOOD UNITS FIRST", removed ? "DEFECTO REGISTRADO" : defectVisible ? "INSPECCIONANDO DEFECTO" : "CINCO BUENAS PRIMERO"), 47, 254)}`,
         );
       }
       // Illustrative closed-loop second-order response, not a measurement of a real system.
@@ -1784,7 +1798,7 @@
         const node = (id, x, y, offline = false) =>
           `<rect x="${x - 15}" y="${y - 14}" width="30" height="28" rx="6" fill="#10231f" stroke="${offline ? "#ff7979" : "currentColor"}" stroke-width="${offline ? 2 : 1.5}"/><text x="${x}" y="${y + 1}" text-anchor="middle" dominant-baseline="central" fill="#f2fff9" stroke="none" font-family="ui-monospace,monospace" font-size="12" font-weight="700" letter-spacing="0">${id}</text>${offline ? `<circle cx="${x + 14}" cy="${y - 13}" r="5" fill="#ff7979" stroke="none"/><path d="M${x + 12} ${y - 15}l4 4m0-4-4 4" stroke="#10231f" stroke-width="1.5"/>` : ""}`;
         paintDemo(
-          `${svgLabel(routeInfo, 42, 29)}<rect x="111" y="43" width="128" height="16" rx="8" fill="#10231f" stroke="currentColor" stroke-opacity=".65"/><path d="M158 51h34" stroke="#d9f6eb" stroke-width="1.5"/><circle cx="158" cy="51" r="2.5" fill="#d9f6eb"/><circle cx="175" cy="51" r="2.5" fill="#d9f6eb"/><circle cx="192" cy="51" r="2.5" fill="#d9f6eb"/><path class="svg-muted" d="M86 118L133 76h85l74 54h57 M86 145L133 184 M133 76v108 M218 76v108 M133 76L175.5 130L218 76 M133 184L175.5 130L218 184"/><path d="M86 118L133 76h85" stroke="currentColor" stroke-width="2.4" opacity=".95"/><path d="M218 76l74 54h57" stroke="${failed ? "#ff7979" : "currentColor"}" stroke-width="${failed ? 2 : 2.4}" stroke-dasharray="${failed ? "5 4" : "none"}" opacity="${failed ? .9 : .95}"/><path d="M86 145L133 184L175.5 130L218 184l74-54h57" stroke="${rerouted ? "#72dfb1" : "currentColor"}" stroke-width="${rerouted ? 2.6 : 1}" opacity="${rerouted ? .98 : .18}"/><rect x="26" y="102" width="60" height="58" rx="8"/><path d="M56 108c-7 9-8 13-8 17a8 8 0 0 0 16 0c0-4-1-8-8-17z" fill="currentColor" fill-opacity=".14"/><path d="M56 113c-4 6-5 9-5 12a5 5 0 0 0 10 0c0-3-1-6-5-12z" fill="currentColor" stroke="none"/><text class="svg-text" x="56" y="151" text-anchor="middle">${sensorValue}</text>${node("A", 133, 76)}${node("B", 218, 76, failed)}${node("C", 133, 184)}${node("D", 218, 184)}${node("E", 175.5, 130)}${node("GW", 292, 130)}<rect x="350" y="101" width="60" height="58" rx="7"/><rect x="358" y="108" width="44" height="31" rx="3"/><path d="M363 116h34 M363 122h26"/><text class="svg-text" x="380" y="134" text-anchor="middle">${centralValue}</text><path d="M373 144h14l4 7h-22z"/>${centered(demoText("CONTROL", "CENTRAL"), 380, 174)}${centered(demoText("CENTER", "DE MANEJO"), 380, 185)}${centered(sensorLabel, 56, 180)}${[firstDelivered, failed, complete].map((shown, i) => shown ? `<rect x="${354 + i * 17}" y="196" width="15" height="13" rx="3" fill="${i === 1 ? "#ff7979" : "#72dfb1"}" stroke="none"/><text x="${361.5 + i * 17}" y="205.5" text-anchor="middle" fill="#10231f" font-family="ui-monospace,monospace" font-size="7" font-weight="700">${i + 1}${i === 1 ? "×" : "✓"}</text>` : "").join("")}${packet ? `<rect x="${packet[0] - 7}" y="${packet[1] - 6}" width="14" height="12" rx="3" fill="${packetNumber === 2 && failed ? "#ff7979" : "#72dfb1"}" stroke="#10231f" stroke-width=".7"/><text x="${packet[0]}" y="${packet[1] + 2.5}" text-anchor="middle" fill="#10231f" font-family="ui-monospace,monospace" font-size="8" font-weight="700">${packetNumber}</text>` : ""}${centered(complete ? demoText("1 & 3 DELIVERED · 2 FAILED", "1 Y 3 LLEGARON · 2 FALLÓ") : demoText("SHORTEST ROUTE · BACKUP VIA C–E–D", "RUTA MÁS CORTA · RESPALDO POR C–E–D"), 210, 252)}`,
+          `${svgLabel(routeInfo, 42, 29)}<path class="svg-muted" d="M86 118L133 76h85l74 54h57 M86 145L133 184 M133 76v108 M218 76v108 M218 76L175.5 130 M133 184L175.5 130L218 184"/><path d="M86 118L133 76h85" stroke="currentColor" stroke-width="2.4" opacity=".95"/><path d="M218 76l74 54h57" stroke="${failed ? "#ff7979" : "currentColor"}" stroke-width="${failed ? 2 : 2.4}" stroke-dasharray="${failed ? "5 4" : "none"}" opacity="${failed ? .9 : .95}"/><path d="M86 145L133 184L175.5 130L218 184l74-54h57" stroke="${rerouted ? "#72dfb1" : "currentColor"}" stroke-width="${rerouted ? 2.6 : 1}" opacity="${rerouted ? .98 : .18}"/><rect x="26" y="102" width="60" height="58" rx="8"/><path d="M56 108c-7 9-8 13-8 17a8 8 0 0 0 16 0c0-4-1-8-8-17z" fill="currentColor" fill-opacity=".14"/><path d="M56 113c-4 6-5 9-5 12a5 5 0 0 0 10 0c0-3-1-6-5-12z" fill="currentColor" stroke="none"/><text class="svg-text" x="56" y="151" text-anchor="middle">${sensorValue}</text>${node("A", 133, 76)}${node("B", 218, 76, failed)}${node("C", 133, 184)}${node("D", 218, 184)}${node("E", 175.5, 130)}${node("GW", 292, 130)}<rect x="350" y="101" width="60" height="58" rx="7"/><rect x="358" y="108" width="44" height="31" rx="3"/><path d="M363 116h34 M363 122h26"/><text class="svg-text" x="380" y="134" text-anchor="middle">${centralValue}</text><path d="M373 144h14l4 7h-22z"/>${centered(demoText("CONTROL", "CENTRAL"), 380, 174)}${centered(demoText("CENTER", "DE MANEJO"), 380, 185)}${centered(sensorLabel, 56, 180)}${[firstDelivered, failed, complete].map((shown, i) => shown ? `<rect x="${354 + i * 17}" y="196" width="15" height="13" rx="3" fill="${i === 1 ? "#ff7979" : "#72dfb1"}" stroke="none"/><text x="${361.5 + i * 17}" y="205.5" text-anchor="middle" fill="#10231f" font-family="ui-monospace,monospace" font-size="7" font-weight="700">${i + 1}${i === 1 ? "×" : "✓"}</text>` : "").join("")}${packet ? `<rect x="${packet[0] - 7}" y="${packet[1] - 6}" width="14" height="12" rx="3" fill="${packetNumber === 2 && failed ? "#ff7979" : "#72dfb1"}" stroke="#10231f" stroke-width=".7"/><text x="${packet[0]}" y="${packet[1] + 2.5}" text-anchor="middle" fill="#10231f" font-family="ui-monospace,monospace" font-size="8" font-weight="700">${packetNumber}</text>` : ""}${centered(complete ? demoText("1 & 3 DELIVERED · 2 FAILED", "1 Y 3 LLEGARON · 2 FALLÓ") : demoText("SHORTEST ROUTE · BACKUP VIA C–E–D", "RUTA MÁS CORTA · RESPALDO POR C–E–D"), 210, 252)}`,
         );
       }
       function drawOverview(progress = 0, started = false) {
@@ -1928,15 +1942,18 @@
             break;
           }
           case "process":
+            demoState.processPhotoAnnounced = false;
+            demoState.processMeasureAnnounced = false;
+            demoState.processSaveAnnounced = false;
             animateDemo(
-              2400,
+              6500,
               (t) => drawProcess(t),
               () => {
                 drawProcess(1, true);
                 demoStatus(
                   demoText(
-                    "Triangular unit removed; square units remain.",
-                    "Unidad triangular retirada; las unidades cuadradas permanecen.",
+                    "Five good units, one defect photographed, measured and saved. Yield: 5/6 = 83.3%.",
+                    "Cinco unidades buenas; el defecto fue fotografiado, medido y guardado. Yield: 5/6 = 83.3%.",
                   ),
                 );
               },
