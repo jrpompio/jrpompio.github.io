@@ -654,6 +654,31 @@
         text-align: inherit;
         position: relative;
       }
+      .software-tabs {
+        position: relative;
+        display: flex;
+        gap: 6px;
+        padding: 10px 16px 0;
+      }
+      .software-tabs[hidden] { display: none; }
+      .software-tabs button {
+        border: 1px solid #ffffff35;
+        border-radius: 999px;
+        padding: 7px 12px;
+        background: transparent;
+        color: #b6c9c3;
+        font: 11px/1.2 system-ui, sans-serif;
+        cursor: pointer;
+      }
+      .software-tabs button[aria-selected="true"] {
+        color: var(--glow);
+        border-color: var(--glow);
+        background: #ffffff0c;
+      }
+      .software-tabs button:focus-visible {
+        outline: 2px solid var(--glow);
+        outline-offset: 2px;
+      }
       #scene:focus-visible {
         outline: 2px solid var(--glow);
         outline-offset: -5px;
@@ -756,6 +781,10 @@
             <div class="visual-top">
               <span id="scene-label">SYSTEM / OVERVIEW</span
               ><span aria-hidden="true">JR—01</span>
+            </div>
+            <div class="software-tabs" id="software-tabs" role="tablist" aria-label="Software demos" hidden>
+              <button type="button" id="tab-reaction" role="tab" aria-selected="true" tabindex="0" data-software-mode="reaction">Reaction time</button>
+              <button type="button" id="tab-flappy" role="tab" aria-selected="false" tabindex="-1" data-software-mode="flappy">Flappy</button>
             </div>
             <button type="button" id="scene" aria-describedby="scene-status">
               <span id="scene-art" aria-hidden="true"></span
@@ -1345,6 +1374,7 @@
       let demoFrame = 0;
       let demoTimer = 0;
       let demoState = {};
+      let softwareMode = "reaction";
       const demoText = (en, es) => (language === "es" ? es : en);
       const mix = (a, b, t) => a + (b - a) * t;
       const clamp = (n) => Math.max(0, Math.min(1, n));
@@ -1414,27 +1444,19 @@
           robotics: demoState.holding
             ? demoText("Tap to release the box", "Tocá para soltar la caja")
             : demoText("Tap to pick up the box", "Tocá para recoger la caja"),
-          software:
-            demoState.reactionPhase === "waiting"
-              ? demoText(
-                  "Wait for green, then react",
-                  "Esperá la luz verde y reaccioná",
-                )
+          software: softwareMode === "flappy"
+            ? demoState.game?.started
+              ? demoText("Tap or press Space to flap", "Tocá o presioná espacio para volar")
+              : demoState.game?.over
+                ? demoText("Tap to try again · Space to flap", "Tocá para reintentar · espacio para volar")
+                : demoText("Tap or press Space to start and flap", "Tocá o presioná espacio para empezar y volar")
+            : ["red", "yellow"].includes(demoState.reactionPhase)
+              ? demoText("Wait for green, then react", "Esperá la luz verde y reaccioná")
               : demoState.reactionPhase === "go"
-                ? demoText(
-                    "GO! Tap or press Enter/Space now",
-                    "¡YA! Tocá o presioná Enter/espacio",
-                  )
-                : demoState.reactionPhase === "result" ||
-                    demoState.reactionPhase === "falseStart"
-                  ? demoText(
-                      "Tap to try another round",
-                      "Tocá para intentar otra vez",
-                    )
-                  : demoText(
-                      "Tap, click or press Enter to begin",
-                      "Tocá, hacé clic o presioná Enter para empezar",
-                    ),
+                ? demoText("GO! Tap or press Enter/Space now", "¡YA! Tocá o presioná Enter/espacio")
+                : demoState.reactionPhase === "result" || demoState.reactionPhase === "falseStart"
+                  ? demoText("Tap to try another round", "Tocá para intentar otra vez")
+                  : demoText("Tap, click or press Enter to begin", "Tocá, hacé clic o presioná Enter para empezar"),
           digital: demoText(
             "Tap to change inputs A and B",
             "Tocá para cambiar las entradas A y B",
@@ -1569,26 +1591,29 @@
           `${chip(180, 93, 70)}${centered("RTL", 215, 128)}<path class="svg-muted" d="M109 81h35v35h27 M109 175h35v-31h27 M259 128h43"/><rect x="55" y="60" width="54" height="42" rx="5"/><rect x="55" y="154" width="54" height="42" rx="5"/>${centered("A = " + a, 82, 81)}${centered("B = " + b, 82, 175)}<rect x="302" y="105" width="66" height="46" rx="5" fill="${result ? "currentColor" : "none"}" fill-opacity=".12"/>${centered("Q = " + result, 335, 128)}<circle cx="335" cy="173" r="7" fill="${result ? "currentColor" : "none"}" opacity="${result ? 1 : 0.3}"/>${centered("Q = A AND B", 210, 228)}`,
         );
       }
-      // A simple reaction-time test with a randomized cue delay.
-      // Its timeout is cancelled when the view or language changes.
-      function drawSoftware(phase = "idle", result = 0) {
+      // Reaction test: red, then yellow, then green after a random 0–1500 ms.
+      // The reaction clock starts only when green appears.
+      function drawReaction(phase = "idle", result = 0) {
         const colors = {
-          idle: "#668fff",
-          waiting: "#f1ba55",
+          idle: "#ff595e",
+          red: "#ff595e",
+          yellow: "#f1ba55",
           go: "#45dc8b",
           result: "#45dc8b",
           falseStart: "#ff7979",
         };
         const labels = {
           idle: demoText("TAP TO BEGIN", "TOCÁ PARA INICIAR"),
-          waiting: demoText("WAIT FOR GREEN", "ESPERÁ LA LUZ VERDE"),
+          red: demoText("RED · GET READY", "ROJO · PREPARATE"),
+          yellow: demoText("WAIT FOR GREEN", "ESPERÁ LA LUZ VERDE"),
           go: "GO!",
           result: result + " ms",
           falseStart: demoText("TOO SOON", "MUY PRONTO"),
         };
         const sub = {
           idle: demoText("REACTION TIME", "TIEMPO DE REACCIÓN"),
-          waiting: demoText("DON'T CLICK YET", "NO TOQUÉS TODAVÍA"),
+          red: demoText("GET READY", "PREPARATE"),
+          yellow: demoText("DON'T CLICK YET", "NO TOQUÉS TODAVÍA"),
           go: demoText("TAP NOW", "TOCÁ AHORA"),
           result: demoText("YOUR REACTION", "TU REACCIÓN"),
           falseStart: demoText("WAIT UNTIL THE SIGNAL", "ESPERÁ LA SEÑAL"),
@@ -1600,29 +1625,76 @@
         );
       }
       function beginReactionRound() {
-        demoState.reactionPhase = "waiting";
+        demoState.reactionPhase = "red";
         demoState.reactionMs = 0;
-        drawSoftware("waiting");
+        drawReaction("red");
         setDemoHint();
         demoStatus(
           demoText(
-            "Wait for the green signal. React only when it appears.",
-            "Esperá la señal verde. Reaccioná cuando aparezca.",
+            "Red → yellow → green. React only when green appears.",
+            "Rojo → amarillo → verde. Reaccioná solo cuando aparezca el verde.",
           ),
         );
-        demoTimer = window.setTimeout(
-          () => {
-            if (active !== "software" || demoState.reactionPhase !== "waiting")
-              return;
+        demoTimer = window.setTimeout(() => {
+          if (active !== "software" || softwareMode !== "reaction" || demoState.reactionPhase !== "red") return;
+          demoState.reactionPhase = "yellow";
+          drawReaction("yellow");
+          setDemoHint();
+          demoTimer = window.setTimeout(() => {
+            if (active !== "software" || softwareMode !== "reaction" || demoState.reactionPhase !== "yellow") return;
             demoState.reactionPhase = "go";
             demoState.goAt = performance.now();
             demoTimer = 0;
-            drawSoftware("go");
+            drawReaction("go");
             setDemoHint();
             demoStatus(demoText("GO! React now.", "¡YA! Reaccioná ahora."));
-          },
-          1400 + Math.random() * 1800,
+          }, Math.random() * 1500);
+        }, 500);
+      }
+      // A compact Flappy-style game controlled by touch, click, or Space.
+      function drawFlappy(game = {}) {
+        const ready = !game.started && !game.over;
+        const ballY = game.y ?? 135;
+        const pipeX = game.pipeX ?? 310;
+        const gapY = game.gapY ?? 137;
+        const gap = 86, pipeWidth = 34;
+        const topHeight = gapY - gap / 2, bottomY = gapY + gap / 2;
+        const score = game.score ?? 0;
+        const label = game.over
+          ? demoText("GAME OVER · TAP TO RESTART", "FIN DEL JUEGO · TOCÁ PARA REINICIAR")
+          : ready
+            ? demoText("TAP TO START", "TOCÁ PARA EMPEZAR")
+            : demoText("FLAP THROUGH THE GAPS", "VOLÁ ENTRE LOS TUBOS");
+        paintDemo(
+          `<path class="svg-muted" d="M36 222h348"/><path d="M${pipeX} 35h${pipeWidth}v${topHeight - 35}h-9v-10h-16v10h-9z M${pipeX} ${bottomY}h${pipeWidth}v${222 - bottomY}h-9v-10h-16v10h-9z"/><circle cx="92" cy="${ballY}" r="11" fill="#ff4b4b" stroke="#ff7777" stroke-width="2"/><circle cx="96" cy="${ballY - 3}" r="2" fill="#fff" stroke="none"/><path d="M87 ${ballY + 1}l-8 4 9 2" fill="#ffd166"/><rect x="329" y="43" width="52" height="28" rx="8" fill="#101f1b" stroke="none"/><text class="svg-text" x="355" y="62" text-anchor="middle">${String(score).padStart(2, "0")}</text>${svgLabel("CODE / FLIGHT", 41, 29)}${centered(label, 210, 252)}`,
         );
+      }
+      function startSoftwareGame() {
+        cancelDemo();
+        demoState.game = { started: true, over: false, y: 135, velocity: -150, pipeX: 310, gapY: 137, score: 0, lastTime: 0, scored: false };
+        demoStatus(demoText("Game started. Tap or press Space to flap.", "Juego iniciado. Tocá o presioná espacio para saltar."));
+        function tick(now) {
+          const game = demoState.game;
+          if (!game?.started || active !== "software" || softwareMode !== "flappy") return;
+          const dt = game.lastTime ? Math.min((now - game.lastTime) / 1000, 0.04) : 0;
+          game.lastTime = now;
+          game.velocity += 390 * dt;
+          game.y += game.velocity * dt;
+          game.pipeX -= 105 * dt;
+          if (game.pipeX < 54 && !game.scored) { game.score += 1; game.scored = true; }
+          if (game.pipeX < 28) { game.pipeX = 420; game.gapY = 84 + Math.random() * 88; game.scored = false; }
+          const withinPipe = game.pipeX < 103 && game.pipeX + 34 > 81;
+          const outsideGap = game.y - 11 < game.gapY - 43 || game.y + 11 > game.gapY + 43;
+          if (game.y < 38 || game.y > 222 || (withinPipe && outsideGap)) {
+            game.started = false; game.over = true; demoFrame = 0; drawFlappy(game);
+            demoStatus(demoText(`Collision! Score: ${game.score}. Tap to try again.`, `¡Choque! Puntos: ${game.score}. Tocá para intentarlo de nuevo.`));
+            setDemoHint();
+            return;
+          }
+          drawFlappy(game);
+          demoFrame = requestAnimationFrame(tick);
+        }
+        demoFrame = requestAnimationFrame(tick);
       }
       function drawNetwork(progress = 0, started = false) {
         const points = [
@@ -1663,7 +1735,7 @@
           all: () => drawOverview(),
           embedded: () => drawHex(0),
           robotics: () => drawRobot({ x: 240, y: 90 }, 19, { x: 320, y: 192 }),
-          software: () => drawSoftware(),
+          software: () => softwareMode === "flappy" ? drawFlappy() : drawReaction(),
           digital: () => drawDigital(0),
           control: () => drawControl(0, true),
           process: () => drawProcess(0),
@@ -1680,6 +1752,15 @@
       }
       function activateDemo() {
         if (demoState.busy && active === "robotics") return;
+        if (active === "software" && softwareMode === "flappy") {
+          if (!demoState.game?.started) startSoftwareGame();
+          else {
+            demoState.game.velocity = -150;
+            demoStatus(demoText("Flap! Keep clear of the pipes.", "¡Salto! Evitá los tubos."));
+          }
+          setDemoHint();
+          return;
+        }
         demoStatus(
           demoText("Demonstration running…", "Demostración en curso…"),
         );
@@ -1813,11 +1894,11 @@
             );
             break;
           case "software":
-            if (demoState.reactionPhase === "waiting") {
+            if (["red", "yellow"].includes(demoState.reactionPhase)) {
               clearTimeout(demoTimer);
               demoTimer = 0;
               demoState.reactionPhase = "falseStart";
-              drawSoftware("falseStart");
+              drawReaction("falseStart");
               setDemoHint();
               demoStatus(
                 demoText(
@@ -1829,7 +1910,7 @@
               const result = Math.round(performance.now() - demoState.goAt);
               demoState.reactionPhase = "result";
               demoState.reactionMs = result;
-              drawSoftware("result", result);
+              drawReaction("result", result);
               setDemoHint();
               demoStatus(
                 demoText(
@@ -1930,6 +2011,15 @@
         document.querySelector("#hero-title").innerHTML = pick(d.title);
         document.querySelector("#about").textContent = pick(d.about);
         mountDemo();
+        document.querySelector("#software-tabs").hidden = active !== "software";
+        document.querySelectorAll("[data-software-mode]").forEach((tab) => {
+          const selected = tab.dataset.softwareMode === softwareMode;
+          tab.setAttribute("aria-selected", String(selected));
+          tab.tabIndex = selected ? 0 : -1;
+          tab.textContent = tab.dataset.softwareMode === "reaction"
+            ? demoText("Reaction time", "Tiempo de reacción")
+            : "Flappy";
+        });
         document.querySelector("#scene-label").textContent = pick(
           d.label,
         ).toUpperCase();
@@ -2008,6 +2098,31 @@
         }),
       );
       document.querySelector("#scene").addEventListener("click", activateDemo);
+      document.querySelectorAll("[data-software-mode]").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          if (softwareMode === tab.dataset.softwareMode) return;
+          softwareMode = tab.dataset.softwareMode;
+          document.querySelectorAll("[data-software-mode]").forEach((item) => {
+            const selected = item.dataset.softwareMode === softwareMode;
+            item.setAttribute("aria-selected", String(selected));
+            item.tabIndex = selected ? 0 : -1;
+          });
+          mountDemo();
+        });
+      });
+      document.querySelector("#software-tabs").addEventListener("keydown", (event) => {
+        const tabs = [...document.querySelectorAll("[data-software-mode]")];
+        const current = tabs.indexOf(document.activeElement);
+        let next = current;
+        if (event.key === "ArrowRight") next = (current + 1) % tabs.length;
+        else if (event.key === "ArrowLeft") next = (current - 1 + tabs.length) % tabs.length;
+        else if (event.key === "Home") next = 0;
+        else if (event.key === "End") next = tabs.length - 1;
+        else return;
+        event.preventDefault();
+        tabs[next].click();
+        tabs[next].focus();
+      });
       document.addEventListener("visibilitychange", () => {
         if (document.hidden) mountDemo();
       });
