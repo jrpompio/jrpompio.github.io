@@ -1571,21 +1571,22 @@
         );
       }
       // Illustrative closed-loop second-order response, not a measurement of a real system.
+      const PENDULUM_START_ANGLE = -Math.PI / 2;
       const pendulumAngle = (seconds) => {
         const zeta = 0.5,
           wn = 3.5,
           wd = wn * Math.sqrt(1 - zeta * zeta);
         return (
-          0.65 *
+          PENDULUM_START_ANGLE *
           Math.exp(-zeta * wn * seconds) *
           (Math.cos(wd * seconds) + ((zeta * wn) / wd) * Math.sin(wd * seconds))
         );
       };
       function drawControl(progress, idle = false) {
         const time = progress * 5.5,
-          theta = idle ? 0 : pendulumAngle(time),
+          theta = pendulumAngle(time),
           angle = (theta * 180) / Math.PI,
-          gearAngle = idle ? 0 : -(angle * 0.85),
+          gearAngle = -(angle * 0.85),
           motorAngle = -gearAngle * (20 / 15);
         const x = 95 + 85 * Math.sin(theta),
           y = 68 + 85 * Math.cos(theta);
@@ -1607,13 +1608,13 @@
         if (!idle) {
           for (let i = 0; i <= Math.round(progress * 160); i++) {
             const px = 207 + i,
-              py = 125 - (58 * pendulumAngle((i / 160) * 5.5)) / 0.65;
+              py = 125 - (58 * pendulumAngle((i / 160) * 5.5)) / (Math.PI / 2);
             trace +=
               (i ? "L" : "M") + px.toFixed(2) + " " + py.toFixed(2) + " ";
           }
         }
         paintDemo(
-          `${svgLabel(demoText("PENDULUM / COUNTER-ROTATING GEAR", "PÉNDULO / ENGRANE CONTRARROTANTE"), 41, 29)}<path class="svg-muted" d="M63 44h99 M95 44v8"/>${gear(95, 68, 20, 12, gearAngle)}${gear(129, 68, 15, 10, motorAngle)}<path d="M95 68L${x.toFixed(1)} ${y.toFixed(1)}" stroke-width="3"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12" fill="#101f1b"/><path class="svg-muted" d="M${x - 7} ${y}h14"/><rect x="192" y="48" width="193" height="149" rx="7"/><path class="svg-muted" d="M207 125h161 M207 83h161 M207 167h161 M245 60v122 M286 60v122 M327 60v122"/><path d="M207 125h161" stroke-dasharray="4 5" opacity=".65"/><path d="${trace}"/><circle cx="${idle ? 207 : 207 + 160 * progress}" cy="${125 - (58 * theta) / 0.65}" r="3" class="svg-fill"/>${svgLabel(demoText("ANGLE θ", "ÁNGULO θ"), 204, 38)}${svgLabel(demoText("Target 0°", "Objetivo 0°"), 207, 187)}${svgLabel("t (s)", 344, 214)}${centered((Math.abs(angle) < 0.05 ? 0 : angle).toFixed(1) + "°", 95, 182)}<path class="svg-muted" d="M285 204v30H95v-29 M89 213l6-8 6 8"/>${centered(demoText("GEAR COUNTER-ROTATES TO RETURN TO ZERO", "EL ENGRANE CONTRARRESTA EL GIRO HACIA CERO"), 210, 256)}`,
+          `${svgLabel(demoText("PENDULUM / COUNTER-ROTATING GEAR", "PÉNDULO / ENGRANE CONTRARROTANTE"), 41, 29)}<path class="svg-muted" d="M63 44h99 M95 44v8"/>${gear(95, 68, 20, 12, gearAngle)}${gear(129, 68, 15, 10, motorAngle)}<path d="M95 68L${x.toFixed(1)} ${y.toFixed(1)}" stroke-width="3"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12" fill="#101f1b"/><path class="svg-muted" d="M${x - 7} ${y}h14"/><rect x="192" y="48" width="193" height="149" rx="7"/><path class="svg-muted" d="M207 125h161 M207 83h161 M207 167h161 M245 60v122 M286 60v122 M327 60v122"/><path d="M207 125h161" stroke-dasharray="4 5" opacity=".65"/><path d="${trace}"/><circle cx="${idle ? 207 : 207 + 160 * progress}" cy="${125 - (58 * theta) / (Math.PI / 2)}" r="3" class="svg-fill"/>${svgLabel(demoText("ANGLE θ", "ÁNGULO θ"), 204, 38)}${svgLabel(demoText("Target 0°", "Objetivo 0°"), 326, 118)}${svgLabel("t (s)", 344, 214)}${centered((Math.abs(angle) < 0.05 ? 0 : angle).toFixed(1) + "°", 95, 182)}<path class="svg-muted" d="M285 204v30H95v-29 M89 213l6-8 6 8"/>${centered(demoText("GEAR COUNTER-ROTATES TO RETURN TO ZERO", "EL ENGRANE CONTRARRESTA EL GIRO HACIA CERO"), 210, 256)}`,
         );
       }
       function drawDigital(step) {
