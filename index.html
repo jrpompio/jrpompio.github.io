@@ -1460,8 +1460,8 @@
                   ? demoText("Tap to try another round", "Tocá para intentar otra vez")
                   : demoText("Tap, click or press Enter to begin", "Tocá, hacé clic o presioná Enter para empezar"),
           digital: demoText(
-            "Tap to change inputs A and B",
-            "Tocá para cambiar las entradas A y B",
+            "Left: cycle inputs 00 → 01 → 10 → 11 · Right: select AND / OR / XOR",
+            "Izquierda: cambiar entradas 00 → 01 → 10 → 11 · Derecha: elegir AND / OR / XOR",
           ),
           control: demoText(
             "Tap to move the pendulum and watch it settle",
@@ -1619,12 +1619,23 @@
           `${svgLabel(demoText("PENDULUM + GEARS", "PÉNDULO + ENGRANES"), 41, 29)}<path class="svg-muted" d="M63 44h99 M95 44v8"/>${gear(95, 68, 20, 12, gearAngle)}${gear(129, 68, 15, 10, motorAngle)}<path d="M95 68L${x.toFixed(1)} ${y.toFixed(1)}" stroke-width="3"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12" fill="#101f1b"/><path class="svg-muted" d="M${x - 7} ${y}h14"/><rect x="192" y="48" width="193" height="149" rx="7"/><path class="svg-muted" d="M207 125h161 M207 83h161 M207 167h161 M245 60v122 M286 60v122 M327 60v122"/><path d="M207 125h161" stroke-dasharray="4 5" opacity=".65"/><path d="${trace}"/><circle cx="${idle ? 207 : 207 + 160 * progress}" cy="${125 - (58 * theta) / (Math.PI / 2)}" r="3" class="svg-fill"/>${svgLabel(demoText("ANGLE θ", "ÁNGULO θ"), 207, 72, 'font-size="8" letter-spacing=".04em"')}${svgLabel(demoText("Target 0°", "Objetivo 0°"), targetTextX, 118, 'font-size="8" letter-spacing=".02em"')}${svgLabel("t (s)", 344, 214)}${centered((Math.abs(angle) < 0.05 ? 0 : angle).toFixed(1) + "°", 95, 182)}<path class="svg-muted" d="M285 204v30H95v-29 M89 213l6-8 6 8"/>${centered(demoText("GEAR COUNTER-ROTATES TO RETURN TO ZERO", "EL ENGRANE CONTRARRESTA EL GIRO HACIA CERO"), 210, 256)}`,
         );
       }
-      function drawDigital(step) {
+      function drawDigital(step, operation = 0) {
         const a = step >> 1,
           b = step & 1,
-          result = a & b;
+          names = ["AND", "OR", "XOR"],
+          results = [a & b, a | b, a ^ b],
+          selected = ((operation % names.length) + names.length) % names.length,
+          result = results[selected];
+        const gates = names.map((name, index) => {
+          const y = 65 + index * 42,
+            centerY = y + 17,
+            active = index === selected;
+          return `<rect x="143" y="${y}" width="78" height="34" rx="5" fill="${active ? "currentColor" : "#10231f"}" fill-opacity="${active ? ".14" : "1"}" stroke="currentColor" opacity="${active ? 1 : 0.55}"/><text class="svg-text" x="153" y="${centerY + 4}">${name}</text><circle cx="207" cy="${centerY}" r="8" fill="${active ? "currentColor" : "#10231f"}"/><text x="207" y="${centerY + 3}" text-anchor="middle" fill="${active ? "#10231f" : "currentColor"}" stroke="none" font-family="ui-monospace,monospace" font-size="8" font-weight="700">${results[index]}</text>`;
+        }).join("");
+        const gateWires = names.map((_, index) => `<path d="M221 ${82 + index * 42}H270" stroke="currentColor" stroke-width="${index === selected ? 2.3 : 1.2}" opacity="${index === selected ? 1 : 0.25}"/>`).join("");
+        const muxLabel = `<text x="300" y="116" text-anchor="middle" fill="currentColor" stroke="none" font-family="system-ui,sans-serif" font-size="9" font-weight="600">MUX</text><text x="300" y="132" text-anchor="middle" fill="currentColor" stroke="none" font-family="ui-monospace,monospace" font-size="7" font-weight="400">${names[selected]}</text>`;
         paintDemo(
-          `${chip(180, 93, 70)}${centered("RTL", 215, 128)}<path class="svg-muted" d="M109 81h35v35h27 M109 175h35v-31h27 M259 128h43"/><rect x="55" y="60" width="54" height="42" rx="5"/><rect x="55" y="154" width="54" height="42" rx="5"/>${centered("A = " + a, 82, 81)}${centered("B = " + b, 82, 175)}<rect x="302" y="105" width="66" height="46" rx="5" fill="${result ? "currentColor" : "none"}" fill-opacity=".12"/>${centered("Q = " + result, 335, 128)}<circle cx="335" cy="173" r="7" fill="${result ? "currentColor" : "none"}" opacity="${result ? 1 : 0.3}"/>${centered("Q = A AND B", 210, 228)}`,
+          `${svgLabel(demoText("1-BIT ALU · PARALLEL LOGIC", "ALU DE 1 BIT · LÓGICA EN PARALELO"), 35, 29)}<rect x="35" y="66" width="64" height="38" rx="5"/><rect x="35" y="154" width="64" height="38" rx="5"/>${centered("A = " + a, 67, 85)}${centered("B = " + b, 67, 173)}<path class="svg-muted" d="M99 85h14 M113 75v84 M99 173h31 M130 89v84 M113 75h30 M130 89h13 M113 117h30 M130 131h13 M113 159h30 M130 173h13"/>${gates}${gateWires}<path d="M270 62H316L335 124L316 186H270Z" fill="#10231f"/><path d="M270 62H316L335 124L316 186H270Z" fill="none" stroke="currentColor"/><path d="M335 124h16" stroke="currentColor" stroke-width="2.3"/><rect x="351" y="103" width="57" height="42" rx="5" fill="${result ? "currentColor" : "#10231f"}" fill-opacity="${result ? ".2" : "1"}"/><text x="379.5" y="128" text-anchor="middle" dominant-baseline="central" fill="currentColor" stroke="none" font-family="ui-monospace,monospace" font-size="11" font-weight="600">Q = ${result}</text>${muxLabel}${centered(`AB ${a}${b} · AND ${results[0]} · OR ${results[1]} · XOR ${results[2]}`, 210, 224)}`,
         );
       }
       // Reaction test: red, then yellow, then green after a random 0–3000 ms.
@@ -1819,6 +1830,7 @@
         demoState = {
           holding: false,
           step: 0,
+          operation: 0,
           counter: -1,
           reactionPhase: "idle",
           reactionMs: 0,
@@ -1828,7 +1840,7 @@
           embedded: () => drawHex(0),
           robotics: () => drawRobot({ x: 240, y: 90 }, 19, { x: 320, y: 192 }),
           software: () => softwareMode === "flappy" ? drawFlappy() : drawReaction(),
-          digital: () => drawDigital(0),
+          digital: () => drawDigital(0, 0),
           control: () => drawControl(0, true),
           process: () => drawProcess(0),
           networks: () => drawNetwork(),
@@ -1836,13 +1848,15 @@
         defaults[active]();
         setDemoHint();
         demoStatus(
-          demoText(
-            "Interactive illustration · tap or use Enter",
-            "Ilustración interactiva · tocá o usá Enter",
-          ),
+          active === "digital"
+            ? "A = 0 · B = 0 · AND · Q = 0"
+            : demoText(
+                "Interactive illustration · tap or use Enter",
+                "Ilustración interactiva · tocá o usá Enter",
+              ),
         );
       }
-      function activateDemo() {
+      function activateDemo(event) {
         if (demoState.busy && active === "robotics") return;
         if (active === "software" && softwareMode === "flappy") {
           if (!demoState.game?.started) startSoftwareGame();
@@ -1977,16 +1991,18 @@
             );
             break;
           case "digital":
-            demoState.step = (demoState.step + 1) % 4;
-            drawDigital(demoState.step);
-            demoStatus(
-              "A = " +
-                (demoState.step >> 1) +
-                " · B = " +
-                (demoState.step & 1) +
-                " · Q = " +
-                ((demoState.step >> 1) & (demoState.step & 1)),
-            );
+            {
+              const sceneBounds = document.querySelector("#scene").getBoundingClientRect(),
+                rightSide = event?.key === "ArrowRight" || (!event?.key && event?.clientX >= sceneBounds.left + sceneBounds.width / 2);
+              if (rightSide) demoState.operation = (demoState.operation + 1) % 3;
+              else demoState.step = (demoState.step + 1) % 4;
+              const a = demoState.step >> 1,
+                b = demoState.step & 1,
+                operationName = ["AND", "OR", "XOR"][demoState.operation],
+                result = [a & b, a | b, a ^ b][demoState.operation];
+              drawDigital(demoState.step, demoState.operation);
+              demoStatus(`A = ${a} · B = ${b} · ${operationName} · Q = ${result}`);
+            }
             break;
           case "software":
             if (["red", "yellow"].includes(demoState.reactionPhase)) {
@@ -2196,7 +2212,14 @@
           render(true);
         }),
       );
-      document.querySelector("#scene").addEventListener("click", activateDemo);
+      const sceneButton = document.querySelector("#scene");
+      sceneButton.addEventListener("click", activateDemo);
+      sceneButton.addEventListener("keydown", (event) => {
+        if (active === "digital" && ["ArrowLeft", "ArrowRight"].includes(event.key)) {
+          event.preventDefault();
+          activateDemo(event);
+        }
+      });
       document.querySelectorAll("[data-software-mode]").forEach((tab) => {
         tab.addEventListener("click", () => {
           if (softwareMode === tab.dataset.softwareMode) return;
