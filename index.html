@@ -1554,17 +1554,20 @@
           saveDone = t >= 0.985;
         const units = Array.from({ length: 6 }, (_, i) => {
           const unitX = 50 + i * 43 + batchProgress * 50,
-            accepted = i < goodCount,
-            defective = i === 5;
+            accepted = i > 0 && i >= 6 - goodCount,
+            defective = i === 0,
+            defectDetected = defective && t >= 0.68;
           if (defective && t >= 0.76) return "";
-          return `<rect x="${unitX}" y="146" width="24" height="27" rx="3" fill="#10231f" stroke="${defective ? "#ff7979" : accepted ? "#72dfb1" : "currentColor"}" stroke-width="${defective ? 1.7 : 1.4}"/>${defective ? `<path d="M${unitX + 12} 150l8 14h-16z" fill="none" stroke="#ff7979" stroke-width="1.3"/><path d="M${unitX + 12} 154v5m0 2v1" stroke="#ff7979" stroke-width="1.2"/>` : accepted ? `<path d="M${unitX + 4} 159l4 4 10-11" stroke="#72dfb1" stroke-width="1.4" fill="none"/>` : ""}`;
+          return `<rect x="${unitX}" y="146" width="24" height="27" rx="3" fill="#10231f" stroke="${defectDetected ? "#ff7979" : accepted ? "#72dfb1" : "currentColor"}" stroke-width="${defectDetected ? 1.7 : 1.4}"/>${defectDetected ? `<path d="M${unitX + 12} 150l8 14h-16z" fill="none" stroke="#ff7979" stroke-width="1.3"/><path d="M${unitX + 12} 154v5m0 2v1" stroke="#ff7979" stroke-width="1.2"/>` : accepted ? `<path d="M${unitX + 4} 159l4 4 10-11" stroke="#72dfb1" stroke-width="1.4" fill="none"/>` : ""}`;
         }).join("");
         const stage = (x, label, done, icon) => `<g opacity="${t >= 0.76 ? 1 : 0.55}"><rect x="${x}" y="76" width="40" height="28" rx="4" fill="#10231f" stroke="${done ? "#72dfb1" : "currentColor"}"/><path d="${icon}" stroke="${done ? "#72dfb1" : "currentColor"}" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><text x="${x + 20}" y="113" text-anchor="middle" fill="${done ? "#72dfb1" : "currentColor"}" stroke="none" font-family="system-ui,sans-serif" font-size="7" font-weight="400" letter-spacing="0">${label}</text></g>`;
-        const docs = `${stage(263, demoText("PHOTO", "FOTO"), photoDone, "M271 83h24v15h-24z M277 83l3-4h7l3 4 M283 88a4 4 0 1 0 0 8a4 4 0 0 0 0-8")}${stage(307, demoText("MEASURE", "MEDIR"), measureDone, "M317 82v16m4-16v16m-4-11h13m-13 6h13m0-11v16")}${stage(351, demoText("RECORD", "REGISTRAR"), saveDone, "M360 82h12l5 5v12h-17z M363 82v6h9v-6 M363 97v-6h9v6")}`;
-        const defect = t >= 0.76 ? `<g><rect x="315" y="${defectY - 13}" width="24" height="27" rx="3" fill="#10231f" stroke="#ff7979" stroke-width="1.7"/><path d="M327 ${defectY - 9}l8 14h-16z" fill="none" stroke="#ff7979" stroke-width="1.3"/><path d="M327 ${defectY - 5}v5m0 2v1" stroke="#ff7979" stroke-width="1.2"/></g>` : "";
+        const docs = `${stage(55, demoText("PHOTO", "FOTO"), photoDone, "M63 83h24v15h-24z M69 83l3-4h7l3 4 M75 88a4 4 0 1 0 0 8a4 4 0 0 0 0-8")}${stage(99, demoText("MEASURE", "MEDIR"), measureDone, "M109 82v16m4-16v16m-4-11h13m-13 6h13m0-11v16")}${stage(143, demoText("RECORD", "REGISTRAR"), saveDone, "M152 82h12l5 5v12h-17z M155 82v6h9v-6 M155 97v-6h9v6")}`;
+        const defectX = 50 + batchProgress * 50,
+          defectCenter = defectX + 12,
+          defect = t >= 0.76 ? `<g><rect x="${defectX}" y="${defectY - 13}" width="24" height="27" rx="3" fill="#10231f" stroke="#ff7979" stroke-width="1.7"/><path d="M${defectCenter} ${defectY - 9}l8 14h-16z" fill="none" stroke="#ff7979" stroke-width="1.3"/><path d="M${defectCenter} ${defectY - 5}v5m0 2v1" stroke="#ff7979" stroke-width="1.2"/></g>` : "";
         const yieldWidget = `<rect x="259" y="37" width="139" height="31" rx="6" fill="#10231f" stroke="currentColor"/><text x="269" y="49" fill="currentColor" stroke="none" font-family="system-ui,sans-serif" font-size="8" font-weight="600">YIELD</text><text x="269" y="61" fill="#d9f6eb" stroke="none" font-family="system-ui,sans-serif" font-size="8" font-weight="400">${goodCount} / 6 ${demoText("good", "buenas")} · ${((goodCount / 6) * 100).toFixed(1)}%</text>`;
         paintDemo(
-          `${yieldWidget}${docs}<rect x="47" y="182" width="328" height="32" rx="16"/><circle cx="66" cy="198" r="10"/><circle cx="356" cy="198" r="10"/><path class="svg-muted" d="M81 198h260 M92 214v19 M330 214v19"/>${units}${defect}<path d="M327 119v${Math.max(0, defectY - 132)}m-3-3 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 2" opacity="${t >= 0.76 ? .9 : 0}"/>${svgLabel(demoText("6 UNITS · 5 PASS · 1 DEFECT", "6 UNIDADES · 5 PASAN · 1 DEFECTO"), 47, 254, 'font-size="8" font-weight="400" letter-spacing=".04em" stroke="none"')}`,
+          `${yieldWidget}${docs}<rect x="47" y="182" width="328" height="32" rx="16"/><circle cx="66" cy="198" r="10"/><circle cx="356" cy="198" r="10"/><path class="svg-muted" d="M81 198h260 M92 214v19 M330 214v19"/>${units}${defect}<path d="M119 119L${defectCenter} ${defectY - 17}m-3-3 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 2" opacity="${t >= 0.76 ? .9 : 0}"/>${svgLabel(demoText("6-UNIT BATCH · RIGHT → LEFT · DEFECT LAST", "LOTE DE 6 · DERECHA → IZQUIERDA · DEFECTO AL FINAL"), 47, 254, 'font-size="8" font-weight="400" letter-spacing=".04em" stroke="none"')}`,
         );
       }
       // Illustrative closed-loop second-order response, not a measurement of a real system.
