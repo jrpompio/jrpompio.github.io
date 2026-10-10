@@ -1464,8 +1464,8 @@
             "Izquierda: cambiar entradas 00 → 01 → 10 → 11 · Derecha: elegir AND / OR / XOR",
           ),
           control: demoText(
-            "Tap to move the pendulum and watch it settle",
-            "Tocá para mover el péndulo y ver cómo se estabiliza",
+            "Tap for a random target: −45°, 0° or 45°",
+            "Tocá para elegir un objetivo al azar: −45°, 0° o 45°",
           ),
           process: demoText(
             "Run a six-unit batch: five pass, then document the marked defect",
@@ -1572,52 +1572,58 @@
       }
       // Illustrative closed-loop second-order response, not a measurement of a real system.
       const PENDULUM_START_ANGLE = -Math.PI / 2;
-      const PENDULUM_LENGTH = 60;
-      const pendulumAngle = (seconds) => {
-        const zeta = 0.5,
-          wn = 3.5,
+      const PENDULUM_LENGTH = 48;
+      const CONTROL_TARGETS = [-45, 0, 45].map((degrees) => (degrees * Math.PI) / 180);
+      const pendulumAngle = (seconds, start, target) => {
+        const zeta = 0.58,
+          wn = 2.3,
           wd = wn * Math.sqrt(1 - zeta * zeta);
-        return (
-          PENDULUM_START_ANGLE *
-          Math.exp(-zeta * wn * seconds) *
-          (Math.cos(wd * seconds) + ((zeta * wn) / wd) * Math.sin(wd * seconds))
-        );
+        const displacement = start - target;
+        return target + displacement * Math.exp(-zeta * wn * seconds) *
+          (Math.cos(wd * seconds) + ((zeta * wn) / wd) * Math.sin(wd * seconds));
       };
-      function drawControl(progress, idle = false) {
-        const time = progress * 5.5,
-          theta = pendulumAngle(time),
+      function drawControl(progress, startAngle, targetAngle, gearStartRotation = 0, idle = false) {
+        const time = progress * 4.5,
+          theta = idle ? startAngle : pendulumAngle(time, startAngle, targetAngle),
           angle = (theta * 180) / Math.PI,
-          gearAngle = -(angle * 0.85),
+          gearAngle = gearStartRotation - (((theta - startAngle) * 180) / Math.PI) * 0.85,
           motorAngle = -gearAngle * (20 / 15);
         const x = 95 + PENDULUM_LENGTH * Math.sin(theta),
           y = 68 + PENDULUM_LENGTH * Math.cos(theta),
-          targetTextX = language === "es" ? 278 : 292;
-        const gear = (cx, cy, radius, teeth, rotation) => {
+          targetY = 125 - (58 * targetAngle) / (Math.PI / 2),
+          targetTextX = 355;
+        const gear = (cx, cy, radius, teeth, rotation, clockwise) => {
           const points = [];
           for (let i = 0; i < teeth * 4; i++) {
             const a = (i / (teeth * 4)) * Math.PI * 2;
             const r = i % 4 < 2 ? radius * 0.76 : radius;
-            points.push(`${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`);
+            points.push(`${(r * Math.cos(a)).toFixed(1)},${(r * Math.sin(a)).toFixed(1)}`);
           }
           const spokes = [0, 120, 240].map((deg) => {
             const a = (deg * Math.PI) / 180;
-            const px = cx + radius * 0.65 * Math.cos(a), py = cy + radius * 0.65 * Math.sin(a);
-            return `M${cx} ${cy}L${px.toFixed(1)} ${py.toFixed(1)}`;
+            const px = radius * 0.65 * Math.cos(a), py = radius * 0.65 * Math.sin(a);
+            return `M0 0L${px.toFixed(1)} ${py.toFixed(1)}`;
           }).join(" ");
-          return `<g transform="rotate(${rotation.toFixed(1)} ${cx} ${cy})"><polygon points="${points.join(" ")}" fill="#101f1b"/><circle cx="${cx}" cy="${cy}" r="${(radius * 0.67).toFixed(1)}" fill="#101f1b"/><path d="${spokes}" stroke-width="2"/><circle cx="${cx}" cy="${cy}" r="4" fill="currentColor"/></g>`;
+          const arrow = clockwise
+            ? `<path d="M${-radius * 0.48} ${-radius * 0.62}A${radius * 0.78} ${radius * 0.78} 0 0 1 ${radius * 0.48} ${-radius * 0.62}"/>`
+            : `<path d="M${radius * 0.48} ${-radius * 0.62}A${radius * 0.78} ${radius * 0.78} 0 0 0 ${-radius * 0.48} ${-radius * 0.62}"/>`;
+          return `<g transform="translate(${cx} ${cy}) rotate(${rotation.toFixed(1)})"><polygon points="${points.join(" ")}" fill="#101f1b"/><circle r="${(radius * 0.67).toFixed(1)}" fill="#101f1b"/><path d="${spokes}" stroke-width="2"/><path d="${arrow}" fill="none" stroke="currentColor" stroke-width="1.8" marker-end="url(#control-gear-arrow)"/><circle r="4" fill="currentColor"/></g>`;
         };
+        const primaryClockwise = gearAngle >= gearStartRotation;
         let trace = "";
         if (!idle) {
           for (let i = 0; i <= Math.round(progress * 160); i++) {
             const px = 207 + i,
-              py = 125 - (58 * pendulumAngle((i / 160) * 5.5)) / (Math.PI / 2);
+              traceAngle = pendulumAngle((i / 160) * 4.5, startAngle, targetAngle),
+              py = 125 - (58 * traceAngle) / (Math.PI / 2);
             trace +=
               (i ? "L" : "M") + px.toFixed(2) + " " + py.toFixed(2) + " ";
           }
         }
         paintDemo(
-          `<path class="svg-muted" d="M63 44h99 M95 44v8"/>${gear(95, 68, 20, 12, gearAngle)}${gear(129, 68, 15, 10, motorAngle)}<path d="M95 68L${x.toFixed(1)} ${y.toFixed(1)}" stroke-width="3"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12" fill="#101f1b"/><path class="svg-muted" d="M${x - 7} ${y}h14"/><rect x="192" y="48" width="193" height="149" rx="7"/><path class="svg-muted" d="M207 125h161 M207 83h161 M207 167h161 M245 60v122 M286 60v122 M327 60v122"/><path d="M207 125h161" stroke-dasharray="4 5" opacity=".65"/><path d="${trace}"/><circle cx="${idle ? 207 : 207 + 160 * progress}" cy="${125 - (58 * theta) / (Math.PI / 2)}" r="3" class="svg-fill"/>${svgLabel(demoText("ANGLE θ", "ÁNGULO θ"), 207, 72, 'font-size="8" letter-spacing=".04em"')}${svgLabel(demoText("Target 0°", "Objetivo 0°"), targetTextX, 118, 'font-size="8" letter-spacing=".02em"')}${svgLabel("t (s)", 344, 214)}${centered((Math.abs(angle) < 0.05 ? 0 : angle).toFixed(1) + "°", 95, 182)}<path class="svg-muted" d="M285 204v30H95v-29 M89 213l6-8 6 8"/>`,
+          `<defs><marker id="control-gear-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="3.5" markerHeight="3.5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="currentColor" stroke="none"/></marker></defs><path class="svg-muted" d="M63 44h99 M95 44v8"/>${gear(95, 68, 20, 12, gearAngle, primaryClockwise)}${gear(129, 68, 15, 10, motorAngle, !primaryClockwise)}<path d="M95 68L${x.toFixed(1)} ${y.toFixed(1)}" stroke-width="3"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12" fill="#101f1b"/><path class="svg-muted" d="M${x - 7} ${y}h14"/><rect x="192" y="48" width="193" height="149" rx="7"/><path class="svg-muted" d="M207 83h161 M207 167h161 M245 60v122 M286 60v122 M327 60v122"/><path d="M207 ${targetY.toFixed(1)}h161" stroke-dasharray="4 5" opacity=".8"/><path d="${trace}"/><circle cx="${idle ? 207 : 207 + 160 * progress}" cy="${125 - (58 * theta) / (Math.PI / 2)}" r="3" class="svg-fill"/>${svgLabel(demoText("ANGLE θ", "ÁNGULO θ"), 207, 72, 'font-size="8" letter-spacing=".04em"')}${svgLabel(`${demoText("Target", "Objetivo")} ${(targetAngle * 180 / Math.PI).toFixed(0)}°`, targetTextX, targetY - 7, 'text-anchor="end" font-size="8" letter-spacing=".02em"')}${svgLabel("t (s)", 344, 214)}${centered((Math.abs(angle) < 0.05 ? 0 : angle).toFixed(1) + "°", 95, 182)}<path class="svg-muted" d="M285 204v30H95v-29 M89 213l6-8 6 8"/>`,
         );
+        return { angle: theta, gearRotation: gearAngle };
       }
       function drawDigital(step, operation = 0) {
         const a = step >> 1,
@@ -1824,6 +1830,8 @@
           step: 0,
           operation: 0,
           counter: -1,
+          controlAngle: PENDULUM_START_ANGLE,
+          controlGearRotation: 0,
           reactionPhase: "idle",
           reactionMs: 0,
         };
@@ -1833,7 +1841,7 @@
           robotics: () => drawRobot({ x: 240, y: 90 }, 19, { x: 320, y: 192 }),
           software: () => softwareMode === "flappy" ? drawFlappy() : drawReaction(),
           digital: () => drawDigital(0, 0),
-          control: () => drawControl(0, true),
+          control: () => drawControl(0, demoState.controlAngle, demoState.controlAngle, demoState.controlGearRotation, true),
           process: () => drawProcess(0),
           networks: () => drawNetwork(),
         };
@@ -1849,7 +1857,7 @@
         );
       }
       function activateDemo(event) {
-        if (demoState.busy && active === "robotics") return;
+        if (demoState.busy && ["robotics", "control"].includes(active)) return;
         if (active === "software" && softwareMode === "flappy") {
           if (!demoState.game?.started) startSoftwareGame();
           else {
@@ -1970,18 +1978,30 @@
             );
             break;
           case "control":
-            animateDemo(
-              5500,
-              (t) => drawControl(t),
-              () =>
-                demoStatus(
-                  demoText(
-                    "The counter-rotating gear brings the pendulum back to 0°.",
-                    "El engrane contrarrotante devuelve el péndulo a 0°.",
-                  ),
-                ),
-            );
-            break;
+            {
+              const startAngle = demoState.controlAngle ?? PENDULUM_START_ANGLE,
+                targetOptions = CONTROL_TARGETS.filter((angle) => Math.abs(angle - startAngle) > 0.01),
+                targetAngle = targetOptions[Math.floor(Math.random() * targetOptions.length)],
+                gearStartRotation = demoState.controlGearRotation ?? 0;
+              animateDemo(
+                4500,
+                (t) => {
+                  const state = drawControl(t, startAngle, targetAngle, gearStartRotation);
+                  demoState.controlAngle = state.angle;
+                  demoState.controlGearRotation = state.gearRotation;
+                },
+                () => {
+                  demoState.controlAngle = targetAngle;
+                  demoStatus(
+                    demoText(
+                      `Settled at ${(targetAngle * 180 / Math.PI).toFixed(0)}°. Tap for another target.`,
+                      `Estabilizado en ${(targetAngle * 180 / Math.PI).toFixed(0)}°. Tocá para otro objetivo.`,
+                    ),
+                  );
+                },
+              );
+              break;
+            }
           case "digital":
             {
               const sceneBounds = document.querySelector("#scene").getBoundingClientRect(),
