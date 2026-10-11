@@ -1431,8 +1431,8 @@
       function setDemoHint() {
         const hints = {
           all: demoText(
-            "Tap to simulate a system response",
-            "Tocá para simular la respuesta de un sistema",
+            "Tap to run the engineering flow",
+            "Tocá para ejecutar el flujo de ingeniería",
           ),
           embedded: motionPreference.matches
             ? demoText(
@@ -1862,12 +1862,12 @@
           : `<circle cx="371" cy="171" r="4" fill="#10231f"/>`;
         paintDemo(
           `<defs><marker id="overview-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="3" markerHeight="3" orient="auto"><path d="M0 0L10 5L0 10Z" fill="currentColor" stroke="none"/></marker></defs>
-          <path class="svg-muted" d="M90 72h31 M211 72h42 M337 94v14H167V99"/>
-          <path d="M90 72h31" opacity="${commandActive ? 1 : .16}"/><path d="M211 72h42" opacity="${plantActive ? 1 : .16}"/><path d="M337 94v14H167V99" opacity="${measureActive ? .9 : .16}" stroke-dasharray="3 4"/>
+          <path class="svg-muted" d="M90 72h31 M211 72h42 M337 94v14H167V99 M295 106v6h-39v7 M256 165h14"/>
+          <path d="M90 72h31" marker-end="url(#overview-arrow)" opacity="${commandActive ? 1 : .16}"/><path d="M211 72h42" marker-end="url(#overview-arrow)" opacity="${plantActive ? 1 : .16}"/><path d="M337 94v14H167V99" opacity="${measureActive ? .9 : .16}" stroke-dasharray="3 4"/><path d="M295 106v6h-39v7" marker-end="url(#overview-arrow)" opacity="${measureActive ? 1 : .16}"/><path d="M256 165h14" marker-end="url(#overview-arrow)" opacity="${recorded ? 1 : .16}"/>
           <rect x="24" y="48" width="66" height="48" rx="7"/><rect x="24" y="48" width="66" height="48" rx="7" fill="currentColor" fill-opacity="${commandActive ? .08 : 0}"/><path d="M35 58h14" opacity=".55"/>${label("INPUT", "ENTRADA", 35, 59, 'font-size="6.5" letter-spacing=".45"')}${centered(`${setpoint}%`, 57, 78)}
-          <rect x="121" y="48" width="90" height="51" rx="7"/><rect x="121" y="48" width="90" height="51" rx="7" fill="currentColor" fill-opacity="${controllerActive ? .1 : 0}"/>${label("CONTROL", "CONTROL", 131, 59, 'font-size="6.5" letter-spacing=".35"')}${centered(`OUT ${controllerActive ? controllerOutput : "—"}%`, 166, 78)}<path class="svg-muted" d="M132 88h68"/>
-          <rect x="253" y="48" width="84" height="58" rx="7"/><rect x="253" y="48" width="84" height="58" rx="7" fill="currentColor" fill-opacity="${plantActive ? .1 : 0}"/>${label("PLANT", "SISTEMA", 263, 59, 'font-size="6.5" letter-spacing=".45"')}<circle cx="274" cy="80" r="10"/><circle cx="274" cy="80" r="3" fill="currentColor" stroke="none"/><path d="M274 70v6 M284 80h-6 M274 90v-6 M264 80h6" transform="rotate(${rotorAngle} 274 80)"/><path class="svg-muted" d="M291 80h34"/><text class="svg-text" x="328" y="83" text-anchor="end" font-size="8" letter-spacing="0">${plantActive ? `${output}%` : "0%"}</text>
-          <rect x="24" y="119" width="232" height="91" rx="7"/><path class="svg-muted" d="M30 145h216 M30 169h216 M30 192h216 M84 127v76 M138 127v76 M192 127v76"/>${label("RESPONSE", "RESPUESTA", 31, 133, 'font-size="6.5" letter-spacing=".45"')}
+          <rect x="121" y="48" width="90" height="51" rx="7"/><rect x="121" y="48" width="90" height="51" rx="7" fill="currentColor" fill-opacity="${controllerActive ? .1 : 0}"/>${label("CODE + HARDWARE", "CÓDIGO + HARDWARE", 130, 59, 'font-size="5.8" letter-spacing=".15"')}${centered(`OUT ${controllerActive ? controllerOutput : "—"}%`, 166, 78)}<path class="svg-muted" d="M132 88h68"/>
+          <rect x="253" y="48" width="84" height="58" rx="7"/><rect x="253" y="48" width="84" height="58" rx="7" fill="currentColor" fill-opacity="${plantActive ? .1 : 0}"/>${label("SIM / EMU", "SIM / EMU", 263, 59, 'font-size="6.5" letter-spacing=".45"')}<circle cx="274" cy="80" r="10"/><circle cx="274" cy="80" r="3" fill="currentColor" stroke="none"/><path d="M274 70v6 M284 80h-6 M274 90v-6 M264 80h6" transform="rotate(${rotorAngle} 274 80)"/><path class="svg-muted" d="M291 80h34"/><text class="svg-text" x="328" y="83" text-anchor="end" font-size="8" letter-spacing="0">${plantActive ? `${output}%` : "0%"}</text>
+          <rect x="24" y="119" width="232" height="91" rx="7"/><path class="svg-muted" d="M30 145h216 M30 169h216 M30 192h216 M84 127v76 M138 127v76 M192 127v76"/>${label("MODEL RESPONSE", "RESPUESTA DEL MODELO", 31, 133, 'font-size="6.5" letter-spacing=".35"')}
           <path d="M30 ${targetY.toFixed(1)}H246" stroke-dasharray="3 4" opacity="${started ? .7 : .22}"/><path d="${trace}" fill="none" stroke-width="2.2" opacity="${measureActive ? 1 : 0}"/>${measureActive ? `<circle cx="${dotX.toFixed(1)}" cy="${dotY.toFixed(1)}" r="3.3" class="svg-fill"/>` : ""}
           <rect x="270" y="119" width="132" height="91" rx="7"/><path class="svg-muted" d="M282 145h108 M282 158h83 M282 171h66"/>${label("RUN LOG", "REGISTRO", 282, 134, 'font-size="6.5" letter-spacing=".45"')}<text class="svg-text" x="282" y="194" font-size="8" letter-spacing="0">${recorded ? `${setpoint}% · ${output}%` : demoText("Awaiting run", "En espera")}</text>${completionMark}${movingSignal}`,
         );
@@ -2118,8 +2118,8 @@
               () =>
                 demoStatus(
                   demoText(
-                    "Simulation settled near its target; response logged.",
-                    "La simulación llegó al objetivo; respuesta registrada.",
+                    "Simulation / emulation complete; response logged.",
+                    "Simulación / emulación completa; respuesta registrada.",
                   ),
                 ),
             );
@@ -2197,7 +2197,7 @@
             : "Flappy";
         });
         document.querySelector("#scene-label").textContent = active === "all"
-          ? demoText("SYSTEM SIMULATION", "SIMULACIÓN DEL SISTEMA")
+          ? demoText("ENGINEERING FLOW", "FLUJO DE INGENIERÍA")
           : pick(d.label).toUpperCase();
         document.querySelector("#scene-caption").textContent = pick(d.caption);
         document.querySelector("#skills").replaceChildren(
