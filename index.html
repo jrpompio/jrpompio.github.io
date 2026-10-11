@@ -1813,34 +1813,35 @@
       }
       function drawOverview(progress = 0, started = false) {
         const t = started ? clamp(progress) : 0,
-          specToSplit = [[90, 122], [102, 122]],
-          toSoftware = [[102, 122], [112, 84], [190, 84]],
-          toHardware = [[102, 122], [112, 164], [190, 164]],
-          softwareToSim = [[190, 84], [196, 84], [196, 122], [203, 122]],
-          hardwareToSim = [[190, 164], [196, 164], [196, 122], [203, 122]],
-          simToTest = [[271, 122], [281, 122]],
-          testToRecord = [[347, 122], [359, 122]],
-          simulation = started ? clamp((t - 0.48) / 0.2) : 0,
+          specToSoftware = [[210, 49], [210, 56], [125, 56], [125, 64]],
+          softwareToSim = [[195, 91], [225, 91]],
+          simToSoftware = [[225, 105], [195, 105]],
+          toHardware = [[210, 124], [210, 146]],
+          hardwareToTest = [[210, 182], [210, 200]],
+          testToRecord = [[210, 235], [210, 247]],
+          simulation = started ? clamp((t - 0.13) / 0.29) : 0,
           simulatedResponse = (x) =>
             Math.max(0, 1 - Math.exp(-4 * x) * (Math.cos(8 * x) + 0.2 * Math.sin(8 * x))),
-          simTraceCount = Math.round(simulation * 12),
+          simTraceCount = Math.round(simulation * 15),
           simTrace = Array.from({ length: simTraceCount + 1 }, (_, i) => {
-            const x = i / 12,
-              px = 213 + x * 49,
-              py = 137 - simulatedResponse(x) * 17;
+            const x = i / 15,
+              px = 286 + x * 63,
+              py = 109 - simulatedResponse(x) * 14;
             return `${i ? "L" : "M"}${px.toFixed(1)} ${py.toFixed(1)}`;
           }).join(" "),
-          testProgress = started ? clamp((t - 0.7) / 0.2) : 0,
-          testTraceCount = Math.round(testProgress * 22),
+          testProgress = started ? clamp((t - 0.65) / 0.2) : 0,
+          testTraceCount = Math.round(testProgress * 32),
           testTrace = Array.from({ length: testTraceCount + 1 }, (_, i) => {
-            const x = 286 + i * 2.35,
-              y = 126 - 10 * Math.sin(i * 0.58) * Math.exp(-i / 13);
+            const x = 132 + i * 3.2,
+              y = 222 - 6 * Math.sin(i * 0.45) * Math.exp(-i / 15);
             return `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`;
           }).join(" "),
-          verified = started && t >= 0.9,
+          verified = started && t >= 0.85,
           recorded = started && t >= 1,
-          simActive = started && t >= 0.48,
-          testActive = started && t >= 0.7,
+          softwareActive = started && t >= 0.12,
+          simActive = started && t >= 0.13,
+          hardwareActive = started && t >= 0.42,
+          testActive = started && t >= 0.65,
           label = (en, es, x, y, extra = "") => svgLabel(demoText(en, es), x, y, extra),
           pointOnPath = (points, fraction) => {
             const lengths = points.slice(1).map((point, i) => {
@@ -1861,33 +1862,34 @@
           path = (points, extra = "") =>
             `<path d="M${points.map((point) => point.join(" ")).join("L")}" ${extra}/>`;
         let signal = "";
-        if (started && t < 0.14) {
-          const [x, y] = pointOnPath(specToSplit, t / 0.14);
+        if (started && t < 0.12) {
+          const [x, y] = pointOnPath(specToSoftware, t / 0.12);
           signal = `<circle cx="${x}" cy="${y}" r="4" class="svg-fill"/>`;
-        } else if (started && t < 0.38) {
-          const [sx, sy] = pointOnPath(toSoftware, (t - 0.14) / 0.24),
-            [hx, hy] = pointOnPath(toHardware, (t - 0.14) / 0.24);
-          signal = `<circle cx="${sx}" cy="${sy}" r="3.5" class="svg-fill"/><circle cx="${hx}" cy="${hy}" r="3.5" class="svg-fill"/>`;
-        } else if (started && t < 0.48) {
-          const [sx, sy] = pointOnPath(softwareToSim, (t - 0.38) / 0.1),
-            [hx, hy] = pointOnPath(hardwareToSim, (t - 0.38) / 0.1);
-          signal = `<circle cx="${sx}" cy="${sy}" r="3.5" class="svg-fill"/><circle cx="${hx}" cy="${hy}" r="3.5" class="svg-fill"/>`;
-        } else if (started && t < 0.7) {
-          const [x, y] = pointOnPath(simToTest, (t - 0.48) / 0.22);
+        } else if (started && t < 0.42) {
+          const progress = clamp((t - 0.13) / 0.29),
+            forward = progress < 0.5,
+            [x, y] = pointOnPath(forward ? softwareToSim : simToSoftware, forward ? progress * 2 : (progress - 0.5) * 2);
+          signal = `<circle cx="${x}" cy="${y}" r="3.7" class="svg-fill"/>`;
+        } else if (started && t < 0.58) {
+          const [x, y] = pointOnPath(toHardware, (t - 0.42) / 0.16);
+          signal = `<circle cx="${x}" cy="${y}" r="4" class="svg-fill"/>`;
+        } else if (started && t < 0.85) {
+          const [x, y] = pointOnPath(hardwareToTest, (t - 0.58) / 0.27);
           signal = `<circle cx="${x}" cy="${y}" r="4" class="svg-fill"/>`;
         } else if (started && t < 1) {
-          const [x, y] = pointOnPath(testToRecord, (t - 0.9) / 0.1);
+          const [x, y] = pointOnPath(testToRecord, (t - 0.85) / 0.15);
           signal = `<circle cx="${x}" cy="${y}" r="4" class="svg-fill"/>`;
         }
-        const flowPaths = [specToSplit, toSoftware, toHardware, softwareToSim, hardwareToSim, simToTest, testToRecord];
+        const flowPaths = [specToSoftware, softwareToSim, simToSoftware, toHardware, hardwareToTest, testToRecord];
         paintDemo(
-          `<defs><marker id="overview-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="3" markerHeight="3" orient="auto"><path d="M0 0L10 5L0 10Z" fill="currentColor" stroke="none"/></marker></defs>${flowPaths.map((points) => path(points, 'class="svg-muted"')).join("")}${path(specToSplit, `opacity="${started && t >= 0.14 ? 1 : 0}"`)}${path(toSoftware, `opacity="${started && t >= 0.2 ? 1 : 0}"`)}${path(toHardware, `opacity="${started && t >= 0.26 ? 1 : 0}"`)}${path(softwareToSim, `opacity="${simActive ? 1 : 0}"`)}${path(hardwareToSim, `opacity="${simActive ? 1 : 0}"`)}${path(simToTest, `opacity="${testActive ? 1 : 0}" marker-end="url(#overview-arrow)"`)}${path(testToRecord, `opacity="${recorded ? 1 : 0}" marker-end="url(#overview-arrow)"`)}
-          <rect x="24" y="88" width="66" height="72" rx="8"/><path d="M69 88v13h13 M69 88l13 13"/><path class="svg-muted" d="M35 111h37 M35 120h29 M35 129h22"/><rect x="35" y="139" width="7" height="7" rx="2"/><path d="M37 142l2 2 4-5" opacity=".75"/>${label("SPEC", "REQ.", 35, 103, 'font-size="7" letter-spacing=".6"')}
-          <rect x="112" y="56" width="78" height="56" rx="7" fill="${t >= 0.2 ? "currentColor" : "#10231f"}" fill-opacity="${t >= 0.2 ? ".1" : "1"}"/><rect x="112" y="56" width="78" height="56" rx="7" opacity="${t >= 0.2 ? 1 : .58}"/>${label("SOFTWARE", "SOFTWARE", 120, 70, 'font-size="6.2" letter-spacing=".35"')}<text x="120" y="92" font-family="ui-monospace,monospace" font-size="11" fill="currentColor" stroke="none">{ }</text><path class="svg-muted" d="M141 83h41 M141 92h32 M120 101h52"/>
-          <rect x="112" y="136" width="78" height="56" rx="7" fill="${t >= 0.26 ? "currentColor" : "#10231f"}" fill-opacity="${t >= 0.26 ? ".1" : "1"}"/><rect x="112" y="136" width="78" height="56" rx="7" opacity="${t >= 0.26 ? 1 : .58}"/>${label("HARDWARE", "HARDWARE", 120, 150, 'font-size="6.2" letter-spacing=".35"')}<rect x="143" y="158" width="24" height="21" rx="3"/><path class="svg-muted" d="M148 153v5 M155 153v5 M162 153v5 M148 179v5 M155 179v5 M162 179v5 M138 163h5 M138 171h5 M167 163h5 M167 171h5"/>
-          <rect x="203" y="83" width="68" height="78" rx="8" fill="${simActive ? "currentColor" : "#10231f"}" fill-opacity="${simActive ? ".08" : "1"}"/><rect x="203" y="83" width="68" height="78" rx="8"/>${label("SIMULATION", "SIMULACIÓN", 210, 94, 'font-size="5.1" letter-spacing=".2"')}${label("EMULATION", "EMULACIÓN", 210, 101, 'font-size="5.1" letter-spacing=".2"')}<rect x="209" y="106" width="56" height="39" rx="4"/><path class="svg-muted" d="M213 116h48 M213 132h48 M226 110v31 M243 110v31"/><path d="${simTrace}" fill="none" stroke-width="1.6" opacity="${simActive ? 1 : .12}"/><circle cx="261" cy="152" r="4" fill="${simActive ? "currentColor" : "#10231f"}"/><path d="M258 152l2 2 4-5" stroke="#10231f" stroke-width="1.1" opacity="${simActive ? 1 : .35}"/>
-          <rect x="281" y="83" width="66" height="78" rx="8"/><path class="svg-muted" d="M286 120h56 M286 139h56 M300 112v37 M319 112v37 M338 112v37"/><path d="M286 125h56" stroke-dasharray="3 4" opacity=".65"/><path d="${testTrace}" fill="none" stroke-width="2" opacity="${testActive ? 1 : .14}"/>${label("VERIFY", "VERIF.", 287, 97, 'font-size="6.2" letter-spacing=".3"')}<circle cx="337" cy="94" r="4.5" fill="${verified ? "currentColor" : "#10231f"}"/><path d="M335 94l1.5 1.5 3-3.5" stroke="${verified ? "#10231f" : "currentColor"}" stroke-width="1.1" opacity="${verified ? 1 : .45}"/>
-          <rect x="359" y="88" width="55" height="72" rx="8"/><path d="M393 88v12h12 M393 88l12 12"/><path class="svg-muted" d="M367 111h36 M367 120h29 M367 129h22"/><path d="M390 142l3 3 6-8" stroke-width="1.8" opacity="${recorded ? 1 : .22}"/>${label("RECORD", "REGISTRO", 366, 103, 'font-size="5.8" letter-spacing=".2"')}${signal}`,
+          `<defs><marker id="overview-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="3" markerHeight="3" orient="auto"><path d="M0 0L10 5L0 10Z" fill="currentColor" stroke="none"/></marker></defs>${flowPaths.map((points) => path(points, 'class="svg-muted"')).join("")}${path(specToSoftware, `opacity="${started && t >= 0.12 ? 1 : 0}"`)}${path(softwareToSim, `opacity="${simActive ? 1 : 0}" marker-end="url(#overview-arrow)"`)}${path(simToSoftware, `opacity="${simActive ? 1 : 0}" marker-end="url(#overview-arrow)"`)}${path(toHardware, `opacity="${hardwareActive ? 1 : 0}" marker-end="url(#overview-arrow)"`)}${path(hardwareToTest, `opacity="${testActive ? 1 : 0}" marker-end="url(#overview-arrow)"`)}${path(testToRecord, `opacity="${recorded ? 1 : 0}" marker-end="url(#overview-arrow)"`)}
+          <rect x="157" y="15" width="106" height="34" rx="7" fill="${started && t >= 0.05 ? "currentColor" : "#10231f"}" fill-opacity="${started && t >= 0.05 ? ".1" : "1"}"/><rect x="157" y="15" width="106" height="34" rx="7"/>${label("REQUIREMENT", "REQUISITO", 170, 36, 'font-size="7" letter-spacing=".55"')}
+          <rect x="55" y="64" width="140" height="60" rx="8" fill="${softwareActive ? "currentColor" : "#10231f"}" fill-opacity="${softwareActive ? ".08" : "1"}"/><rect x="55" y="64" width="140" height="60" rx="8"/>${label("SOFTWARE", "SOFTWARE", 67, 81, 'font-size="7" letter-spacing=".45"')}<text x="68" y="105" font-family="ui-monospace,monospace" font-size="13" fill="currentColor" stroke="none">{ }</text><path class="svg-muted" d="M91 94h87 M91 101h72 M91 108h80"/>
+          <rect x="225" y="64" width="140" height="60" rx="8" fill="${simActive ? "currentColor" : "#10231f"}" fill-opacity="${simActive ? ".08" : "1"}"/><rect x="225" y="64" width="140" height="60" rx="8"/>${label("SIMULATION / EMULATION", "SIMULACIÓN / EMULACIÓN", 237, 81, 'font-size="6.1" letter-spacing=".22"')}<rect x="281" y="87" width="74" height="27" rx="4"/><path class="svg-muted" d="M286 94h64 M286 107h64 M302 90v22 M321 90v22 M340 90v22"/><path d="${simTrace}" fill="none" stroke-width="1.8" opacity="${simActive ? 1 : .12}"/>
+          <path d="M195 91h30" marker-end="url(#overview-arrow)" opacity="${simActive ? 1 : .18}"/><path d="M225 105h-30" marker-end="url(#overview-arrow)" opacity="${simActive ? 1 : .18}"/>
+          <rect x="145" y="146" width="130" height="36" rx="8" fill="${hardwareActive ? "currentColor" : "#10231f"}" fill-opacity="${hardwareActive ? ".08" : "1"}"/><rect x="145" y="146" width="130" height="36" rx="8"/>${label("HARDWARE", "HARDWARE", 159, 168, 'font-size="7" letter-spacing=".45"')}<rect x="237" y="154" width="22" height="20" rx="3"/><path class="svg-muted" d="M242 150v4 M248 150v4 M254 150v4 M242 174v4 M248 174v4 M254 174v4 M233 159h4 M233 168h4 M259 159h4 M259 168h4"/>
+          <rect x="90" y="200" width="240" height="35" rx="8" fill="${testActive ? "currentColor" : "#10231f"}" fill-opacity="${testActive ? ".08" : "1"}"/><rect x="90" y="200" width="240" height="35" rx="8"/>${label("TEST · SOFTWARE + HARDWARE", "PRUEBAS · SOFTWARE + HARDWARE", 106, 222, 'font-size="6.3" letter-spacing=".22"')}<path class="svg-muted" d="M255 210h53 M255 219h42 M255 228h48"/><path d="M311 218l5 5 9-12" stroke-width="2" opacity="${verified ? 1 : .18}"/>
+          <rect x="157" y="247" width="106" height="21" rx="6" fill="${recorded ? "currentColor" : "#10231f"}" fill-opacity="${recorded ? ".12" : "1"}"/><rect x="157" y="247" width="106" height="21" rx="6"/>${label("DOCUMENTATION", "DOCUMENTACIÓN", 171, 261, 'font-size="6.4" letter-spacing=".3"')}<path d="M250 255l3 3 5-6" stroke-width="1.4" opacity="${recorded ? 1 : .18}"/>${signal}`,
         );
       }
       function mountDemo() {
@@ -2136,8 +2138,8 @@
               () =>
                 demoStatus(
                   demoText(
-                    "Simulation / emulation passed verification and was recorded.",
-                    "La simulación / emulación pasó la verificación y quedó registrada.",
+                    "Software and hardware tests passed; results documented.",
+                    "Software y hardware pasaron las pruebas; resultados documentados.",
                   ),
                 ),
             );
