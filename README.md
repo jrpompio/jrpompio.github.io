@@ -1,10 +1,25 @@
-# Personal portfolio
+# Junior Ruiz Sánchez — engineering portfolio
 
-Static portfolio published with GitHub Pages at https://jrpompio.github.io/.
+Published with GitHub Pages at [jrpompio.github.io](https://jrpompio.github.io/).
 
-This repository contains only the public portfolio page. Private CV files and project notes remain in a separate private repository.
+A bilingual, buildless HTML/CSS/JavaScript portfolio. English is the default; Spanish is available. Select an engineering discipline to change the introduction, color, projects and interactive illustration. Share a view with `#embedded`, `#software`, `#digital`, etc.
 
-In the **Software** discipline, choose one of the two tabs above the illustration:
+## Files
 
-- **Reaction time:** start at red, wait through yellow until green, then click/tap or press Enter/Space as quickly as possible. The rectangular signal's yellow-to-green delay is randomized from 0 to 3000 ms; clicking early is a false start. Your best time appears above the signal for this page session only and resets when you reload. No persistent storage is used for the record.
-- **Flappy:** guide the red ball through the pipes by clicking, tapping, or pressing Space. Click/tap or press Space again after a collision to restart.
+- `index.html`: page structure and native controls.
+- `assets/portfolio.css`: workbench design and responsive layout.
+- `assets/portfolio.js`: both languages, project content and interactive SVG scenes.
+
+The private CV project holds the editable source and maintenance documentation. Copy these three files together when updating this repository. GitHub Pages publishes the root of `main`; no build step or dependencies are required. Private CVs, references and application records are not included.
+
+## Interactive laboratory
+
+**Embedded:** Firmware illustrates cross-compilation, MCU programming, I²C acquisition, signal observation and a Python interface. Embedded Linux illustrates academic team work integrating an existing IMX477 camera driver on Jetson Nano, rebuilding the module and correcting its Bayer configuration. Both have step-by-step and play/pause controls. HEX preserves the seven-segment counter. These are illustrative scenes, not live measurements; technical context is expandable.
+
+**Software:** reaction time (red → yellow → green, random wait0–3000ms, best time in page memory only) and Flappy with a red ball. Other views retain robotics, a1-bit ALU, control response, inspection and network failover illustrations.
+
+Motion starts on request and respects reduced-motion preferences. View Transitions and container queries progressively enhance the basic page. No analytics or telemetry was added.
+
+## Guidance
+
+Implementation informed by [Modern Web Guidance](https://github.com/GoogleChrome/modern-web-guidance), in particular motion, same-document transitions, size-aware styling, responsive design and typography. Guidance documentation is CC-BY4.0. No CLI package is required at runtime.
