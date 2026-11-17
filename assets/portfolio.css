@@ -788,10 +788,12 @@ body:has(#project-dialog[open]) { overflow:hidden; }
 .visual { view-transition-name:workbench-art; }
 
 /* Keep illustration typography overrides effective: CSS class shorthands must not override SVG font-size attributes. */
-.visual svg { font:11px ui-monospace,monospace; letter-spacing:1px; }
+.visual svg { font:11px ui-monospace,monospace; }
 .hero { align-items:start; }
 #intro { padding-top:22px; }
 h1 { font-size:clamp(2.35rem,1.3rem + 2.6vw,3.5rem); }
 body[data-discipline="embedded"] .visual svg { aspect-ratio:420 / 225; }
 body[data-discipline="embedded"] #scene-status { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
 @media(max-width:700px) { #intro { padding-top:0; } }
+
+body[data-discipline="embedded"][data-embedded="hex"] .visual svg { aspect-ratio:1.55; }
