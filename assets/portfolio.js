@@ -1,5 +1,5 @@
 import { createInspection } from './demos/inspection.js';
-import { showProcessor } from './demos/processors.js?v=vantage-1';
+import { showProcessor } from './demos/processors.js?v=chips-2';
 import { createNetwork } from './demos/network.js';
 import { UI, DISCIPLINES, PROJECTS, SPANISH_TERMS, EXPERIENCE } from "./content.js";
 import { createWorkbench, flowCopy } from "./demos/workbench.js?v=vantage-1";
@@ -34,7 +34,7 @@ import { createScrollEffects } from "./scroll-effects.js";
       let softwareMode = "reaction";
       let embeddedMode = "firmware";
       let digitalMode = 'alu';
-      let clockTick = 0, operand = 2, selectedCell = 0;
+      let clockTick = 0, operand = 2, selectedCell = -1;
       let network, inspection;
       let expandedProjects = false;
       // Best reaction time lives only in this page session; never write it to storage.
@@ -98,8 +98,8 @@ import { createScrollEffects } from "./scroll-effects.js";
       }
       function setDemoHint() {
         const hints = {
-          all: demoText("Tap to advance one step", "Tocá para avanzar un paso"),
-          embedded: embeddedMode !== "hex" ? demoText("Tap to advance one step", "Tocá para avanzar un paso") : motionPreference.matches
+          all: demoText("Tap to play or pause", "Tocá para reproducir o pausar"),
+          embedded: embeddedMode !== "hex" ? demoText("Tap to play or pause", "Tocá para reproducir o pausar") : motionPreference.matches
             ? demoText(
                 "Tap to advance one hexadecimal digit",
                 "Tocá para avanzar un dígito hexadecimal",
@@ -108,9 +108,7 @@ import { createScrollEffects } from "./scroll-effects.js";
                 "Tap to start or restart: 0 → F",
                 "Tocá para iniciar o reiniciar: 0 → F",
               ),
-          robotics: demoState.holding
-            ? demoText("Tap to release the box", "Tocá para soltar la caja")
-            : demoText("Tap to pick up the box", "Tocá para recoger la caja"),
+          robotics: demoText("Tap to pick up and release the box","Tocá para recoger y soltar la caja"),
           software: softwareMode === "flappy"
             ? demoState.game?.started
               ? demoText("Tap or press Space to flap", "Tocá o presioná espacio para volar")
@@ -226,7 +224,6 @@ import { createScrollEffects } from "./scroll-effects.js";
             if(kind === "all") {
               const copy=flowCopy(language)[stage];
               document.querySelector("#flow-stage").textContent=copy[0];
-              document.querySelector("#flow-position").textContent=`${stage+1} / ${flowCopy(language).length}`;
               demoStatus(copy[1]);scrollEffects.mark(stage);
             } else demoStatus(embeddedStages()[stage]);
           }});
@@ -239,6 +236,8 @@ import { createScrollEffects } from "./scroll-effects.js";
         const stage=Math.min(4,Math.floor(progress*4+.00001));
         document.querySelector("#embedded-stage").textContent=embeddedStages()[stage];
         document.querySelector("#camera-compare").hidden = embeddedMode !== "linux" || stage !== 4;
+        document.querySelector("#before-image").textContent = demoText("Before","Antes");
+        document.querySelector("#after-image").textContent = demoText("After","Después");
         document.querySelector("#compare-label").textContent = demoText("Compare the original and corrected image","Compará la imagen original y la corregida");
         document.querySelector("#embedded-position").textContent=`${stage+1} / 5`;
       }
@@ -249,7 +248,7 @@ import { createScrollEffects } from "./scroll-effects.js";
       }
       function playEmbedded() {
         if (demoState.busy) { cancelDemo(); embeddedLabels(); return; }
-        if (motionPreference.matches) { advanceEmbedded(); return; }
+        if (motionPreference.matches) { drawEmbedded(1); embeddedLabels(); return; }
         const from = demoState.embeddedProgress >= 1 ? 0 : demoState.embeddedProgress || 0;
         animateDemo(7200*(1-from),t=>drawEmbedded(from+(1-from)*t),()=>embeddedLabels());
         embeddedLabels();
@@ -349,12 +348,13 @@ import { createScrollEffects } from "./scroll-effects.js";
           const y = 65 + index * 42,
             centerY = y + 17,
             active = index === selected;
-          return `<rect x="143" y="${y}" width="78" height="34" rx="5" fill="${active ? "currentColor" : "#10231f"}" fill-opacity="${active ? ".14" : "1"}" stroke="currentColor" opacity="${active ? 1 : 0.55}"/><text class="svg-text" x="153" y="${centerY + 4}">${name}</text><circle cx="207" cy="${centerY}" r="8" fill="${active ? "currentColor" : "#10231f"}"/><text x="207" y="${centerY + 3}" text-anchor="middle" fill="${active ? "#10231f" : "currentColor"}" stroke="none" font-family="ui-monospace,monospace" font-size="8" font-weight="700">${results[index]}</text>`;
+          const gate = index === 0 ? "M143 0h49a17 17 0 0 1 0 34h-49z" : "M143 0q43-1 68 17-25 18-68 17 12-17 0-34z";
+          return `<g transform="translate(0 ${y})"><path d="${gate}" stroke="currentColor"/>${index===2?'<path d="M138 0q12 17 0 34"/>':''}</g><text class="svg-text" x="153" y="${centerY + 4}">${name}</text><circle cx="207" cy="${centerY}" r="8" fill="${active ? "currentColor" : "#10231f"}"/><text x="207" y="${centerY + 3}" text-anchor="middle" fill="${active ? "#10231f" : "currentColor"}" stroke="none" font-family="ui-monospace,monospace" font-size="8" font-weight="700">${results[index]}</text>`;
         }).join("");
-        const gateWires = names.map((_, index) => `<path d="M221 ${82 + index * 42}H270" stroke="currentColor" stroke-width="${index === selected ? 2.3 : 1.2}" opacity="${index === selected ? 1 : 0.25}"/>`).join("");
+        const gateWires = names.map((_, index) => `<path d="M214 ${82 + index * 42}H270" stroke="currentColor" stroke-width="${index === selected ? 2.3 : 1.2}" opacity="${index === selected ? 1 : 0.25}"/>`).join("");
         const muxLabel = `<text x="300" y="116" text-anchor="middle" fill="currentColor" stroke="none" font-family="system-ui,sans-serif" font-size="9" font-weight="600">MUX</text><text x="300" y="132" text-anchor="middle" fill="currentColor" stroke="none" font-family="ui-monospace,monospace" font-size="7" font-weight="400">${names[selected]}</text>`;
         paintDemo(
-          `${svgLabel(demoText("1-BIT ALU", "ALU DE 1 BIT"), 35, 29)}<rect x="35" y="66" width="64" height="38" rx="5"/><rect x="35" y="154" width="64" height="38" rx="5"/>${centered("A = " + a, 67, 85)}${centered("B = " + b, 67, 173)}<path class="svg-muted" d="M99 85h14 M113 75v84 M99 173h31 M130 89v84 M113 75h30 M130 89h13 M113 117h30 M130 131h13 M113 159h30 M130 173h13"/>${gates}${gateWires}<path d="M270 62H316L335 124L316 186H270Z" fill="#10231f"/><path d="M270 62H316L335 124L316 186H270Z" fill="none" stroke="currentColor"/><path d="M335 124h16" stroke="currentColor" stroke-width="2.3"/><rect x="351" y="103" width="57" height="42" rx="5" fill="${result ? "currentColor" : "#10231f"}" fill-opacity="${result ? ".2" : "1"}"/><text x="379.5" y="128" text-anchor="middle" dominant-baseline="central" fill="currentColor" stroke="none" font-family="ui-monospace,monospace" font-size="11" font-weight="600">Q = ${result}</text>${muxLabel}`,
+          `<rect x="9" y="40" width="402" height="168" rx="8" class="svg-muted"/>${Array.from({length:18},(_,i)=>`<path class="svg-muted" d="M${30+21*i} 33v7m0 168v7"/>`).join("")}${svgLabel(demoText("1-BIT ALU", "ALU DE 1 BIT"), 35, 29)}<rect x="35" y="66" width="64" height="38" rx="5"/><rect x="35" y="154" width="64" height="38" rx="5"/>${centered("A = " + a, 67, 85)}${centered("B = " + b, 67, 173)}<path class="svg-muted" d="M99 85h14 M113 75v84 M99 173h31 M130 89v84 M113 75h30 M130 89h13 M113 117h30 M130 131h13 M113 159h30 M130 173h13"/>${gates}${gateWires}<path d="M270 62H316L335 124L316 186H270Z" fill="#10231f"/><path d="M270 62H316L335 124L316 186H270Z" fill="none" stroke="currentColor"/><path d="M335 124h16" stroke="currentColor" stroke-width="2.3"/><rect x="351" y="103" width="57" height="42" rx="5" fill="${result ? "currentColor" : "#10231f"}" fill-opacity="${result ? ".2" : "1"}"/><text x="379.5" y="128" text-anchor="middle" dominant-baseline="central" fill="currentColor" stroke="none" font-family="ui-monospace,monospace" font-size="11" font-weight="600">Q = ${result}</text>${muxLabel}`,
         );
       }
       // Reaction test: red, then yellow, then green after a random 0–3000 ms.
@@ -469,20 +469,13 @@ import { createScrollEffects } from "./scroll-effects.js";
       }
       function updateFlowControls() {
         document.querySelector("#flow-play").textContent=demoState.busy?demoText("Pause","Pausar"):demoState.flowProgress>0 && demoState.flowProgress<1?demoText("Resume","Continuar"):demoText("Run sequence","Reproducir");
-        document.querySelector("#flow-prev").setAttribute("aria-label",demoText("Previous step","Paso anterior"));
-        document.querySelector("#flow-next").textContent=demoText("Next step →","Siguiente →");
         document.querySelector("#flow-reset").setAttribute("aria-label",demoText("Reset demonstration","Reiniciar demostración"));
         document.querySelector("#flow-follow").textContent=demoText("Follow scroll","Seguir scroll");
-      }
-      function advanceFlow() {
-        scrollEffects.follow(false);cancelDemo();
-        drawOverview(((Math.floor((demoState.flowProgress||0)*5+.00001)+1)%6)/5);
-        updateFlowControls();
       }
       function playFlow() {
         scrollEffects.follow(false);
         if(demoState.busy) {cancelDemo();updateFlowControls();return;}
-        if(motionPreference.matches) {advanceFlow();return;}
+        if(motionPreference.matches) {drawOverview(1);updateFlowControls();return;}
         const from=demoState.flowProgress>=1?0:demoState.flowProgress||0;
         animateDemo(9000*(1-from),t=>drawOverview(from+(1-from)*t),updateFlowControls);
         updateFlowControls();
@@ -567,10 +560,12 @@ import { createScrollEffects } from "./scroll-effects.js";
         );
         switch (active) {
           case "robotics": {
-            const releasing = demoState.holding;
+
             animateDemo(
-              releasing ? 2400 : 2000,
-              (t) => {
+              5100,
+              (progress) => {
+                const releasing = progress >= .5;
+                const t = releasing ? (progress-.5)*2 : progress*2;
                 if (!releasing) {
                   const reaching = ease(t / 0.42),
                     lifting = ease((t - 0.57) / 0.43);
@@ -606,24 +601,13 @@ import { createScrollEffects } from "./scroll-effects.js";
                 }
               },
               () => {
-                demoState.holding = !releasing;
-                setDemoHint();
-                demoStatus(
-                  demoText(
-                    releasing
-                      ? "Box released. A new box is ready."
-                      : "Box held. Tap again to release.",
-                    releasing
-                      ? "Caja soltada. Hay una caja nueva lista."
-                      : "Caja recogida. Tocá de nuevo para soltarla.",
-                  ),
-                );
+                demoStatus(demoText("Cycle complete. Tap to repeat.","Ciclo completo. Tocá para repetir."));
               },
             );
             break;
           }
           case "embedded": {
-            if (embeddedMode !== "hex") { advanceEmbedded(); break; }
+            if (embeddedMode !== "hex") { playEmbedded(); break; }
             if (motionPreference.matches) {
               demoState.counter = (demoState.counter + 1) % 16;
               drawHex(demoState.counter);
@@ -747,7 +731,7 @@ import { createScrollEffects } from "./scroll-effects.js";
             demoState.networkFailureAnnounced = false;
             demoState.networkRerouteAnnounced = false;
             animateDemo(
-              7500,
+              9400,
               (t) => drawNetwork(t, true),
               () =>
                 demoStatus(
@@ -759,7 +743,7 @@ import { createScrollEffects } from "./scroll-effects.js";
             );
             break;
           case "all":
-            advanceFlow();
+            playFlow();
             break;
         }
       }
@@ -973,10 +957,15 @@ import { createScrollEffects } from "./scroll-effects.js";
         if(next===undefined)return;
         event.preventDefault();tabs[next].focus();tabs[next].click();
       });
-      document.querySelector("#clock-next").onclick=()=>{clockTick=(clockTick+1)%(digitalMode==="cpu"?10:5);drawProcessor();};
+      document.querySelector("#clock-next").onclick=()=>{clockTick=(clockTick+1)%(digitalMode==="cpu"?10:11);drawProcessor();};
       document.querySelector("#clock-reset").onclick=()=>{clockTick=0;drawProcessor();};
       document.querySelector("#clock-operand").onclick=()=>{operand=(operand+1)%10;clockTick=0;digitalControls();};
       function inspectCell(event) {
+        const block = event.target.closest("[data-block]");
+        if (block) {
+          document.querySelector(".cpu-detail").textContent = block.dataset.block;
+          return;
+        }
         const cell = event.target.closest("[data-cell]");
         if (!cell) return;
         selectedCell = Number(cell.dataset.cell);
@@ -987,11 +976,11 @@ import { createScrollEffects } from "./scroll-effects.js";
       for (const event of ["click","focusin","pointerover"]) {
         document.querySelector("#processor-model").addEventListener(event,inspectCell);
       }
-      document.querySelector("#compare-slider").oninput=event=>document.querySelector(".chart-pair").style.setProperty("--split",event.target.value+"%");
-      document.querySelector("#flow-prev").onclick=()=>{
-        cancelDemo();scrollEffects.follow(false);
-        drawOverview(Math.max(0,Math.floor((demoState.flowProgress||0)*5+.00001)-1)/5);updateFlowControls();
-      };
+      document.querySelector("#compare-slider").oninput=()=>document.querySelector(".chart-pair").style.setProperty("--split",document.querySelector("#compare-slider").value+"%");
+      const compareSlider=document.querySelector("#compare-slider");
+      for(const [id,value] of [["before-image",100],["after-image",0]]) {
+        document.getElementById(id).onclick=()=>{compareSlider.value=value;compareSlider.oninput();};
+      }
       const sceneButton = document.querySelector("#scene");
       sceneButton.addEventListener("click", activateDemo);
       sceneButton.addEventListener("keydown", (event) => {
@@ -1130,10 +1119,9 @@ import { createScrollEffects } from "./scroll-effects.js";
       }
 
       document.querySelector("#flow-play").addEventListener("click",playFlow);
-      document.querySelector("#flow-next").addEventListener("click",advanceFlow);
       document.querySelector("#flow-reset").addEventListener("click",()=>{scrollEffects.follow(false);cancelDemo();drawOverview(0);updateFlowControls();});
       document.querySelector("#flow-follow").addEventListener("click",()=>{
         cancelDemo();scrollEffects.follow(!scrollEffects.isFollowing());updateFlowControls();
       });
       render(true);
-      scrollEffects.follow(true);
+      scrollEffects.follow(false);

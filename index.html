@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="assets/vantage.css?v=vantage-1" />
+    <link rel="stylesheet" href="assets/vantage.css?v=chips-2" />
 
   </head>
   <body>
@@ -111,19 +111,20 @@
               ><span id="scene-hint"></span>
             </button>
             <div id="node-inspector" hidden><div id="node-buttons"></div><output id="node-reading"></output></div>
+            <div class="camera-compare" id="camera-compare" hidden>
+              <label id="compare-label" for="compare-slider"></label>
+              <div class="chart-pair"><i></i><i></i><input aria-labelledby="compare-label" id="compare-slider" type="range" min="0" max="100" value="50"></div>
+              <div class="demo-buttons"><button type="button" id="before-image">Before</button><button type="button" id="after-image">After</button></div>
+            </div>
             <div id="flow-controls" class="embedded-controls flow-controls">
-              <div class="stage-row"><span id="flow-stage"></span><span id="flow-position" aria-hidden="true"></span></div>
-              <div class="demo-buttons"><button type="button" id="flow-play">Run sequence</button><button type="button" id="flow-prev">←</button><button type="button" id="flow-next">Next step →</button><button type="button" id="flow-reset" aria-label="Reset demonstration">↺</button></div>
+              <div class="stage-row"><span id="flow-stage"></span></div>
+              <div class="demo-buttons"><button type="button" id="flow-play">Run sequence</button><button type="button" id="flow-reset" aria-label="Reset demonstration">↺</button></div>
               <button type="button" id="flow-follow" class="follow-scroll" aria-pressed="false">Follow scroll</button>
             </div>
             <div id="embedded-controls" class="embedded-controls" hidden>
               <div class="stage-row"><span id="embedded-stage"></span><span id="embedded-position" aria-hidden="true"></span></div>
               <div class="demo-buttons"><button type="button" id="embedded-play">Run sequence</button><button type="button" id="embedded-next">Next step →</button><button type="button" id="embedded-reset" aria-label="Reset demonstration">↺</button></div>
               <label class="rate-control" id="rate-control"><span id="rate-label">Sample rate</span><input type="range" id="sample-rate" min="1" max="8" value="3" /><output for="sample-rate" id="rate-value">3 Hz</output></label>
-            </div>
-            <div class="camera-compare" id="camera-compare" hidden>
-              <div class="chart-pair" aria-hidden="true"><i></i><i></i></div>
-              <label><span id="compare-label"></span><input id="compare-slider" type="range" min="0" max="100" value="50"/></label>
             </div>
             <details class="demo-notes" id="embedded-notes" hidden><summary id="embedded-notes-title">About this demo</summary><p id="embedded-notes-body"></p></details>
             </div>
@@ -221,6 +222,6 @@
       </footer>
     </div>
     <dialog id="project-dialog" aria-labelledby="detail-title"><div class="detail-top"><span class="section-label" id="detail-category"></span><button type="button" id="close-project" aria-label="Close project">×</button></div><h2 id="detail-title"></h2><p id="detail-description"></p><div id="detail-tech" class="tags"></div><a id="detail-link"></a></dialog>
-    <script type="module" src="assets/portfolio.js?v=vantage-1"></script>
+    <script type="module" src="assets/portfolio.js?v=chips-2"></script>
   </body>
 </html>

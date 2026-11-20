@@ -125,3 +125,28 @@ h1,h2,h3 { min-width:0; overflow-wrap:break-word }
 .systolic button.computing { background:color-mix(in srgb,var(--glow) 12%,var(--surface)) }
 .systolic button:nth-child(odd)::after { content:'→'; position:absolute; left:100%; top:30%; width:22px; color:var(--muted); text-align:center }
 .systolic button:nth-child(-n+2)::before { content:'↓'; position:absolute; top:100%; left:50%; color:var(--muted); line-height:12px }
+
+/* Package outline, pin rows, internal buses and one common clock edge. */
+.chip-die { position:relative; border:2px solid #586775; border-radius:9px; margin:20px 14px; padding:10px; background:var(--deep); }
+.chip-die::before,.chip-die::after { content:""; position:absolute; top:-8px; left:8%; width:84%; height:6px; background:repeating-linear-gradient(90deg,var(--muted) 0 3px,transparent 3px 14px) }
+.chip-die::after { top:auto; bottom:-8px }
+.cpu-die,.timing { width:100%; display:block }
+.cpu-die .bus { fill:none; stroke:#647381; stroke-width:2 }
+.cpu-die rect { fill:#23303b; stroke:#788893 }
+.cpu-die text { fill:var(--ink); text-anchor:middle; font:11px system-ui,sans-serif }
+.cpu-die .on rect,.cpu-die .bus .on { stroke:var(--glow); stroke-width:3 }
+.timing { color:var(--glow); background:var(--deep); min-height:38px; max-height:66px }
+.die-memory { text-align:center; border-bottom:1px solid var(--rule); padding:4px; color:var(--muted) }
+.pe-array { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; background:repeating-linear-gradient(90deg,transparent 0 12%,var(--rule) 12% 12.5%,transparent 12.5% 25%); margin:10px 0 }
+.pe-array button { min-height:42px; background:var(--surface); border:1px solid var(--rule); border-radius:3px }
+.pe-array button.computing { color:var(--deep); background:var(--glow) }
+.pe-array button[aria-pressed=true] { outline:2px solid var(--ink); outline-offset:-3px }
+.cell-value { display:block; font-size:.85rem; text-align:center }
+#scene-panel:has(#camera-compare:not([hidden])) #scene { display:none }
+.chart-pair { height:auto; aspect-ratio:3/2; margin-bottom:10px; --split:50% }
+.chart-pair i { background:linear-gradient(to right,#f18b7c 25%,#e5c969 25% 50%,#92cfad 50% 75%,#88b9df 75%) center bottom / 100% 24% no-repeat,#293c50 }
+.chart-pair i::after { content:"↑"; color:#fff; position:absolute; inset:5% 0 24%; text-align:center; font:600 clamp(60px,22cqw,140px)/1.2 system-ui }
+.chart-pair i:first-child { filter:hue-rotate(95deg) }
+.chart-pair input[type=range] { position:absolute; inset:0; width:100%; height:100%; margin:0; opacity:0; cursor:ew-resize; z-index:2 }
+.chart-pair:focus-within { outline:2px solid white }
+.chart-pair::before { content:"↔"; position:absolute; z-index:1; top:50%; left:clamp(14px,var(--split),calc(100% - 14px)); transform:translate(-50%,-50%); border-radius:4px; background:#fff; color:#16232c; padding:3px 5px }

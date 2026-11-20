@@ -38,8 +38,8 @@ export function createNetwork(container, es, announce) {
     return button;
   }));
   function update(p, started = false) {
-    const routeId = p < .32 ? 0 : p < .56 ? 1 : 2;
-    const t = Math.max(0, Math.min(1, routeId === 0 ? p/.28 : routeId === 1 ? (p-.32)/.20 : (p-.56)/.44));
+    const routeId = p < .32 ? 0 : p < .61 ? 1 : 2;
+    const t = Math.max(0, Math.min(1, routeId === 0 ? p/.28 : routeId === 1 ? (p-.32)/.20 : (p-.61)/.39));
     const names = routes[routeId];
     if (routeId !== currentRoute) { route.setAttribute('d',path(names)); currentRoute=routeId; }
     const len = route.getTotalLength();
