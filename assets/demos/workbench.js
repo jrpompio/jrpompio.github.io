@@ -1,5 +1,5 @@
-import { createDesk } from './desk.js?v=pulse-5';
-export { flowDuration, flowSnapshot } from './desk.js?v=pulse-5';
+import { createDesk } from './desk.js?v=slack-6';
+export { flowCopy, flowDuration, flowSnapshot } from './desk.js?v=slack-6';
 // Original illustrations. Only mount creates DOM; update changes existing SVG nodes.
 const clamp = n => Math.max(0, Math.min(1, n));
 const text = (value, x, y, size = 12, extra = '') => `<text x="${x}" y="${y}" font-size="${size}" ${extra}>${value}</text>`;
@@ -9,28 +9,8 @@ const code = (x,y) => `<path d="M${x} ${y}l-7 7 7 7m29-14 7 7-7 7m-12-18-7 22"/>
 const board = (x,y) => `<rect x="${x}" y="${y}" width="148" height="124" rx="9" class="wb-board"/><path d="M${x+14} ${y+20}h22v25m52-25h43m-43 88h43m-117 0h29v-20" class="wb-dim"/>${pins(x+48,y+39,49,46)}<rect x="${x+48}" y="${y+39}" width="49" height="46" rx="4"/><circle cx="${x+12}" cy="${y+12}" r="3"/><circle cx="${x+136}" cy="${y+112}" r="3"/><rect x="${x+19}" y="${y+49}" width="13" height="28" rx="2"/>`;
 const svg = inner => `<svg class="workbench-svg" viewBox="0 0 560 360" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="wb-grid" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".7" fill="currentColor" opacity=".12"/></pattern></defs><rect width="100%" height="100%" fill="url(#wb-grid)" stroke="none"/><g class="wb-drawing">${inner}</g></svg>`;
 
-export const flowCopy = language => language === 'es' ? [
-  ['Diseñar','Capturar un pulso de 40 ms.','Dibuja la señal, relaciona frecuencia y período y traza el flujo de lectura, decisión y registro.'],
-  ['Simular','Generar el pulso de referencia.','Ajusta el simulador y comprueba cuánto tiempo permanece alta la señal.'],
-  ['Construir','Conectar el sensor.','Coloca el sensor junto a la placa y conecta el cable.'],
-  ['Medir','El pulso cae entre dos lecturas.','La sonda ve el pulso, pero las lecturas de la placa cada 50 ms caen fuera de él.'],
-  ['Documentar','Registrar el primer intento.','Anota los 50 ms, dibuja la referencia y guarda el registro plano de la placa.'],
-  ['Rediseñar','Acortar el intervalo de lectura.','Tacha los 50 ms y ajusta el muestreo a 100 Hz, una lectura cada 10 ms.'],
-  ['Verificar','Repetir la misma medición.','Cuatro muestras caen dentro del mismo pulso de 40 ms.'],
-  ['Compartir','Publicar el resultado.','Sube la ficha con la corrección y comprueba la confirmación.']
-] : [
-  ['Design','Capture a 40 ms pulse.','He sketches the signal, relates frequency to period and draws the read, decide and record flow.'],
-  ['Simulate','Generate the reference pulse.','He adjusts the simulator and checks how long the signal stays high.'],
-  ['Build','Connect the sensor.','He positions the sensor beside the board and plugs in its lead.'],
-  ['Measure','The pulse falls between readings.','The probe sees the pulse, but the board samples every 50 ms and misses it.'],
-  ['Document','Record the first attempt.','He notes the 50 ms setting and sketches both the reference and the flat reading.'],
-  ['Redesign','Shorten the sampling interval.','He crosses out 50 ms and sets the rate to 100 Hz, one reading every 10 ms.'],
-  ['Verify','Repeat the same measurement.','Four samples now land inside the same 40 ms pulse.'],
-  ['Share','Publish the result.','He uploads the corrected project record and checks the confirmation.']
-];
-
 export function createWorkbench({container, kind, language, compact=false, onStage}) {
-  if (kind === 'all') return createDesk(container, onStage);
+  if (kind === 'all') return createDesk(container, onStage, language);
   const es = language === 'es';
   const say = (en,spanish) => es ? spanish : en;
   let refs, previousStage=-1, progress=0;

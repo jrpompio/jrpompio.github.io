@@ -169,3 +169,10 @@ body[data-discipline=all] #flow-stage { display:block; padding:14px 8px 0; color
 .model-story { margin:0 0 12px; color:var(--ink); line-height:1.45 }
 .pe-array button strong { display:block; font-size:1.05rem; font-variant-numeric:tabular-nums }
 .pe-array button.computing { border:2px solid currentColor }
+.desk-props .timing-dot { fill:var(--glow); stroke:none }
+.desk-props .load-lamp { fill:var(--deep) }
+.desk-props .powered .load-lamp { fill:#ffd067; stroke:#ffd067 }
+.desk-svg .actor .eye { fill:var(--ink); stroke:none }
+.desk-svg .mouth,.desk-svg .fingers { stroke-width:1.6 }
+.desk-svg .speech path,.desk-svg .speech rect { stroke:#91acba; stroke-width:1.3; fill:var(--deep) }
+.desk-svg .speech text { fill:var(--ink); text-anchor:middle; font:12px system-ui,sans-serif }

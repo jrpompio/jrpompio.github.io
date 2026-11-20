@@ -2,7 +2,7 @@ import { createInspection } from './demos/inspection.js';
 import { showProcessor, processorInputs } from './demos/processors.js?v=bench-4';
 import { createNetwork } from './demos/network.js';
 import { UI, DISCIPLINES, PROJECTS, SPANISH_TERMS, EXPERIENCE } from "./content.js";
-import { createWorkbench, flowCopy, flowDuration, flowSnapshot } from "./demos/workbench.js?v=pulse-5";
+import { createWorkbench, flowCopy, flowDuration, flowSnapshot } from "./demos/workbench.js?v=slack-6";
 import { createScrollEffects } from "./scroll-effects.js";
       const term = (text) =>
         language === "es" ? SPANISH_TERMS[text] || text : text;
