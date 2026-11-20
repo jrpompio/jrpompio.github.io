@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="assets/vantage.css?v=scope-3" />
+    <link rel="stylesheet" href="assets/vantage.css?v=bench-4" />
 
   </head>
   <body>
@@ -104,7 +104,7 @@
             <div id="processor-panel" hidden>
               <div id="processor-model"></div>
               <output id="clock-status"></output>
-              <div class="demo-buttons"><button id="clock-next" type="button"></button><button id="clock-operand" type="button"></button><button id="clock-reset" type="button">↺</button></div>
+              <div class="demo-buttons"><button id="clock-auto" type="button"></button><button id="clock-next" type="button"></button><button id="clock-operand" type="button"></button><button id="clock-reset" type="button">↺</button></div>
             </div>
             <button type="button" id="scene" aria-describedby="scene-status">
               <span id="flow-stage"></span><span id="scene-art" aria-hidden="true"></span
@@ -124,7 +124,7 @@
             <div id="embedded-controls" class="embedded-controls" hidden>
               <div class="stage-row"><span id="embedded-stage"></span><span id="embedded-position" aria-hidden="true"></span></div>
               <div class="demo-buttons"><button type="button" id="embedded-play">Run sequence</button><button type="button" id="embedded-next">Next step →</button><button type="button" id="embedded-reset" aria-label="Reset demonstration">↺</button></div>
-              <label class="rate-control" id="rate-control"><span id="rate-label">Sample rate</span><input type="range" id="sample-rate" min="1" max="8" value="3" /><output for="sample-rate" id="rate-value">3 Hz</output></label>
+              <label class="rate-control" id="rate-control"><span id="rate-label">Bus clock</span><input type="range" id="sample-rate" min="100" max="200" step="5" value="100" /><output for="sample-rate" id="rate-value">100 kHz</output></label>
             </div>
             <details class="demo-notes" id="embedded-notes" hidden><summary id="embedded-notes-title">About this demo</summary><p id="embedded-notes-body"></p></details>
             </div>
@@ -222,6 +222,6 @@
       </footer>
     </div>
     <dialog id="project-dialog" aria-labelledby="detail-title"><div class="detail-top"><span class="section-label" id="detail-category"></span><button type="button" id="close-project" aria-label="Close project">×</button></div><h2 id="detail-title"></h2><p id="detail-description"></p><div id="detail-tech" class="tags"></div><a id="detail-link"></a></dialog>
-    <script type="module" src="assets/portfolio.js?v=scope-3"></script>
+    <script type="module" src="assets/portfolio.js?v=bench-4"></script>
   </body>
 </html>

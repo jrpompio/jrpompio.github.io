@@ -48,8 +48,22 @@ h1 { font-size:clamp(2.8rem,4.5vw,4.8rem); max-width:18ch; line-height:1; margin
 #scene { display:block; width:100%; color:var(--glow); text-align:left }
 #scene:focus-visible { outline-offset:-2px }
 #scene-art,#scene-hint { display:block }
-#scene-art svg { display:block; width:100%; height:auto; max-height:340px; font:11px Geologica,system-ui,sans-serif; overflow:visible }
-#scene-art .desk-svg { max-height:305px }
+#scene-art { display:grid; align-items:center; min-height:clamp(285px,76cqw,475px) }
+#scene-art svg { display:block; width:100%; height:auto; max-height:490px; font:11px Geologica,system-ui,sans-serif; overflow:visible }
+#scene-art .desk-svg { max-height:460px }
+.desk-svg .bench { stroke:#718896; stroke-width:3 }
+.desk-props { stroke:#bed0dc; stroke-width:2.3 }
+.desk-props .sheet,.desk-props .screen { fill:#20333e }
+.desk-props .board { fill:#214b42; stroke:var(--glow) }
+.desk-props .guide { stroke:#82949f; stroke-dasharray:3 4 }
+.desk-props .ink,.desk-svg .held-tool { stroke:var(--glow); stroke-width:3 }
+.desk-svg .actor { stroke:#ebf1f3; stroke-width:5.5 }
+.desk-svg .actor circle { fill:var(--surface) }
+.desk-svg .far-arm { stroke:#9cabb6 }
+.input-ports { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px 24px; padding:10px; background:var(--deep) }
+.input-port { display:flex; gap:8px; align-items:center; color:var(--glow) }
+.input-matrix { display:grid; grid-template-columns:repeat(4,1fr); gap:1px 8px; padding:0 7px; border-inline:1px solid var(--muted); font-size:.79rem; color:var(--ink); font-variant-numeric:tabular-nums }
+#processor-model { min-height:clamp(320px,75cqw,470px) }
 .svg-line,.wb-drawing { fill:none; stroke:currentColor; stroke-width:1.65; stroke-linecap:round; stroke-linejoin:round }
 .svg-line text,.wb-drawing text { stroke:none; letter-spacing:normal }
 .svg-text,.wb-drawing text,.network-svg text { fill:currentColor }
@@ -112,7 +126,6 @@ dialog h2 { margin:15px 0 }#detail-tech { margin:18px 0 }.demo-buttons button:ho
   .skills { flex-direction:column; gap:10px }.demo-buttons { gap:5px }.demo-buttons button { padding-inline:9px }
 }
 @media(prefers-reduced-motion:no-preference) {
-  .desk-svg [data-moment],#desk-board { transition:opacity .22s ease }
   .registers>div,.systolic button,.project-open { transition:color .16s,border-color .16s }
 }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { transition:none!important; animation:none!important } }

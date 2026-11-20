@@ -1,4 +1,4 @@
-import { createDesk } from './desk.js';
+import { createDesk } from './desk.js?v=bench-4';
 // Original illustrations. Only mount creates DOM; update changes existing SVG nodes.
 const clamp = n => Math.max(0, Math.min(1, n));
 const text = (value, x, y, size = 12, extra = '') => `<text x="${x}" y="${y}" font-size="${size}" ${extra}>${value}</text>`;
@@ -6,22 +6,22 @@ const panel = (x, y, w, h, extra = '') => `<rect x="${x}" y="${y}" width="${w}" 
 const pins = (x,y,w,h) => Array.from({length:5},(_,i)=>`<path d="M${x+8+i*9} ${y-5}v5m0 ${h}v5"/>`).join('')+`<path d="M${x-5} ${y+12}h5m${w} 0h5m-${w+10} 12h5m${w} 0h5"/>`;
 const code = (x,y) => `<path d="M${x} ${y}l-7 7 7 7m29-14 7 7-7 7m-12-18-7 22"/><path d="M${x-7} ${y+35}h74m-74 9h55m-55 9h65" class="wb-dim"/>`;
 const board = (x,y) => `<rect x="${x}" y="${y}" width="148" height="124" rx="9" class="wb-board"/><path d="M${x+14} ${y+20}h22v25m52-25h43m-43 88h43m-117 0h29v-20" class="wb-dim"/>${pins(x+48,y+39,49,46)}<rect x="${x+48}" y="${y+39}" width="49" height="46" rx="4"/><circle cx="${x+12}" cy="${y+12}" r="3"/><circle cx="${x+136}" cy="${y+112}" r="3"/><rect x="${x+19}" y="${y+49}" width="13" height="28" rx="2"/>`;
-const svg = inner => `<svg class="workbench-svg" viewBox="0 0 560 360" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="wb-grid" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".7" fill="currentColor" opacity=".12"/></pattern></defs><rect width="560" height="360" fill="url(#wb-grid)" stroke="none"/><g class="wb-drawing">${inner}</g></svg>`;
+const svg = inner => `<svg class="workbench-svg" viewBox="0 0 560 360" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="wb-grid" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".7" fill="currentColor" opacity=".12"/></pattern></defs><rect width="100%" height="100%" fill="url(#wb-grid)" stroke="none"/><g class="wb-drawing">${inner}</g></svg>`;
 
 export const flowCopy = language => language === 'es' ? [
-  ['Definir','¿Qué debería medir el sensor?','Junior dibuja la señal que espera obtener.'],
-  ['Simular','Probar la idea en software.','Ajusta el programa y compara la simulación con el boceto.'],
-  ['Construir','Conectar la placa.','Integra el sensor después de definir el comportamiento del sistema.'],
-  ['Comprobar','Medir la respuesta.','Envía una orden y compara la adquisición física con la señal esperada.'],
-  ['Documentar','Guardar la evidencia.','Registra la configuración y la traza para repetir la medición.'],
-  ['Compartir','Publicar el trabajo.','Prepara una ficha del proyecto con su señal y su configuración.']
+  ['Definir','¿Qué debería medir el sensor?','Sujeta la hoja y dibuja la señal que espera medir.'],
+  ['Simular','Probar la idea en software.','Teclea el programa, gira el control y observa la señal simulada.'],
+  ['Construir','Conectar la placa.','Levanta el sensor, lo coloca junto a la placa y enchufa el cable.'],
+  ['Comprobar','Medir la respuesta.','Apoya la sonda en la placa y compara la medición con la referencia.'],
+  ['Documentar','Guardar la evidencia.','Anota el ajuste, dibuja la traza y marca la verificación.'],
+  ['Compartir','Publicar el trabajo.','Coloca la ficha en la página del proyecto, pulsa publicar y comprueba la confirmación.']
 ] : [
-  ['Define','What should the sensor measure?','Junior sketches the signal he expects to see.'],
-  ['Simulate','Try the idea in software.','He adjusts the program and compares the simulation with his sketch.'],
-  ['Build','Connect the board.','He wires the sensor once the intended behavior is clear.'],
-  ['Verify','Measure the response.','He sends a command and checks the physical reading against the expected trace.'],
-  ['Document','Record the evidence.','He saves the settings and trace so the measurement can be repeated.'],
-  ['Share','Publish the work.','He prepares a project record with the signal and configuration.']
+  ['Define','What should the sensor measure?','He steadies the sheet and sketches the signal he expects to measure.'],
+  ['Simulate','Try the idea in software.','He types the program, turns the dial and checks the simulated trace.'],
+  ['Build','Connect the board.','He lifts the sensor into place and plugs its lead into the board.'],
+  ['Verify','Measure the response.','He touches the board with the probe and compares the reading with the reference.'],
+  ['Document','Record the evidence.','He writes the setting, sketches the trace and checks off the result.'],
+  ['Share','Publish the work.','He places the record on the project page, presses publish and checks the confirmation.']
 ];
 
 export function createWorkbench({container, kind, language, compact=false, onStage}) {
@@ -72,19 +72,29 @@ export function createWorkbench({container, kind, language, compact=false, onSta
         <circle data-node="packet" r="4" fill="currentColor" stroke="none" cx="122" cy="167"/>`;
   }
   function scopeMarkup() {
-    const byte=[0,0,0,1,1,0,0,0]; // 24 °C in this illustrative reading.
-    const clock=byte.map(()=> 'h7v-22h15v22h8').join('');
-    const data=byte.map(bit=>'V'+(bit?98:120)+'h30').join('');
     return `<g class="scope" fill="currentColor" stroke="none" font-size="13">
-      <text x="12" y="19">${say('One byte at a glance','Una lectura ampliada')} · 24 °C</text>
-      <text x="12" y="58">SCL</text><text x="12" y="72" font-size="11">${say('Clock','Reloj')}</text><text x="12" y="111">SDA</text><text x="12" y="125" font-size="11">${say('Data','Datos')}</text>
-      <g fill="none" stroke="currentColor" stroke-width="2.4"><path d="M67 68h10${clock}"/><path d="M77 120${data}"/></g>
-      ${byte.map((b,i)=>text(b,92+i*30,140,12,'text-anchor="middle"')).join('')}
-      <text x="12" y="173">1 s</text><path class="samples" stroke="currentColor" stroke-width="4"/>
-      <text x="12" y="193" font-size="11">${say('Marks below the byte show readings per second.','Las marcas inferiores indican lecturas por segundo.')}</text></g>`;
+      <text x="16" y="28">I²C · 24 °C</text>
+      <text x="16" y="84">SCL</text><text x="16" y="102" font-size="11">${say('Clock','Reloj')}</text>
+      <text x="16" y="159">SDA</text><text x="16" y="177" font-size="11">${say('Data','Datos')}</text>
+      <g class="wb-dim" fill="none" stroke="currentColor"><path d="M72 52v148m66-148v148m66-148v148m66-148v148m66-148v148" stroke-dasharray="2 5"/></g>
+      <g fill="none" stroke="currentColor" stroke-width="2.4"><path class="scl"/><path class="sda"/></g>
+      <g class="scope-bits">${[0,0,0,1,1,0,0,0].map(bit=>text(bit,0,195,11,'text-anchor="middle"')).join('')}</g>
+      <path stroke="currentColor" opacity=".45" d="M72 206h264"/>
+      <text x="72" y="225">0</text><text x="204" y="225" text-anchor="middle">40 µs</text><text x="336" y="225" text-anchor="end">80 µs</text></g>`;
+  }
+  function tuneScope(scope, khz) {
+    if (Number(scope.dataset.khz) === khz) return;
+    const pitch=264*(1000/khz)/80; // Fixed 80 µs window, one bit per SCL period.
+    const bits=[...scope.querySelectorAll('.scope-bits text')];
+    scope.querySelector('.scl').setAttribute('d','M72 102'+bits.map(()=>`h${pitch/4}v-34h${pitch/2}v34h${pitch/4}`).join(''));
+    scope.querySelector('.sda').setAttribute('d','M72 175'+bits.map((bit,i)=>{
+      bit.setAttribute('x',72+(i+.5)*pitch);
+      return `V${bit.textContent==='1'?141:175}h${pitch}`;
+    }).join(''));
+    scope.dataset.khz=khz;
   }
   function show(name, visible) { refs[name]?.setAttribute('opacity', visible ? '1':'0'); }
-  function update(value=0, {rate=3, reduced=false}={}) {
+  function update(value=0, {rate=100, reduced=false}={}) {
     progress=clamp(value);
     const stage=Math.min(4,Math.floor(progress*4+.00001)), local=(progress*4)%1;
       const linux=kind==='linux';
@@ -105,7 +115,7 @@ export function createWorkbench({container, kind, language, compact=false, onSta
         refs.reading.textContent=stage>=4?'24.0 °C':'—';
         if(stage>=3) {
           const root=container.querySelector('svg');
-          root.setAttribute('viewBox','0 0 360 198');
+          root.setAttribute('viewBox','0 0 360 244');
           root.querySelector('.wb-drawing').style.display='none';
           let scope=root.querySelector('.scope');
           if (!scope) {
@@ -113,7 +123,7 @@ export function createWorkbench({container, kind, language, compact=false, onSta
             scope=root.querySelector('.scope');
           }
           scope.style.display='';
-          scope.querySelector('.samples').setAttribute('d',Array.from({length:rate},(_,i)=>'M'+(66+i*266/rate)+' 172v-10').join(' '));
+          tuneScope(scope,rate);
         } else {
           const root=container.querySelector('svg');
           root.setAttribute('viewBox',compact?'0 0 360 420':'0 0 560 360');
