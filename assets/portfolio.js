@@ -1,5 +1,8 @@
+import { createInspection } from './demos/inspection.js';
+import { showProcessor } from './demos/processors.js?v=vantage-1';
+import { createNetwork } from './demos/network.js';
 import { UI, DISCIPLINES, PROJECTS, SPANISH_TERMS, EXPERIENCE } from "./content.js";
-import { createWorkbench, flowCopy } from "./demos/workbench.js";
+import { createWorkbench, flowCopy } from "./demos/workbench.js?v=vantage-1";
 import { createScrollEffects } from "./scroll-effects.js";
       const term = (text) =>
         language === "es" ? SPANISH_TERMS[text] || text : text;
@@ -30,6 +33,9 @@ import { createScrollEffects } from "./scroll-effects.js";
       let workbenchKey = "";
       let softwareMode = "reaction";
       let embeddedMode = "firmware";
+      let digitalMode = 'alu';
+      let clockTick = 0, operand = 2, selectedCell = 0;
+      let network, inspection;
       let expandedProjects = false;
       // Best reaction time lives only in this page session; never write it to storage.
       let reactionBest = null;
@@ -131,8 +137,8 @@ import { createScrollEffects } from "./scroll-effects.js";
             "Procesá seis unidades: cinco pasan y luego se documenta la marcada como defectuosa",
           ),
           networks: demoText(
-            "Send three data packets: shortest route, failure, then recovery",
-            "Enviá tres datos: ruta más corta, falla y recuperación",
+            "Send a humidity reading",
+            "Enviá una lectura de humedad",
           ),
         };
         document.querySelector("#scene-hint").textContent = hints[active];
@@ -220,7 +226,7 @@ import { createScrollEffects } from "./scroll-effects.js";
             if(kind === "all") {
               const copy=flowCopy(language)[stage];
               document.querySelector("#flow-stage").textContent=copy[0];
-              document.querySelector("#flow-position").textContent=`${stage+1} / 5`;
+              document.querySelector("#flow-position").textContent=`${stage+1} / ${flowCopy(language).length}`;
               demoStatus(copy[1]);scrollEffects.mark(stage);
             } else demoStatus(embeddedStages()[stage]);
           }});
@@ -232,6 +238,8 @@ import { createScrollEffects } from "./scroll-effects.js";
         workbench.update(progress,{rate:Number(document.querySelector("#sample-rate").value),reduced:motionPreference.matches});
         const stage=Math.min(4,Math.floor(progress*4+.00001));
         document.querySelector("#embedded-stage").textContent=embeddedStages()[stage];
+        document.querySelector("#camera-compare").hidden = embeddedMode !== "linux" || stage !== 4;
+        document.querySelector("#compare-label").textContent = demoText("Compare the original and corrected image","Compará la imagen original y la corregida");
         document.querySelector("#embedded-position").textContent=`${stage+1} / 5`;
       }
       function advanceEmbedded() {
@@ -272,32 +280,8 @@ import { createScrollEffects } from "./scroll-effects.js";
         );
       }
       function drawProcess(t) {
-        const batchProgress = clamp(t / 0.68),
-          inspectionProgress = clamp((t - 0.68) / 0.32),
-          lift = ease((inspectionProgress - 0.35) / 0.35),
-          defectVisible = t >= 0.68,
-          goodCount = Math.min(5, Math.floor(batchProgress * 5)),
-          defectY = defectVisible && inspectionProgress >= 0.35 ? mix(158, 145, lift) : 158,
-          photoDone = t >= 0.91,
-          measureDone = t >= 0.95,
-          saveDone = t >= 0.985;
-        const units = Array.from({ length: 6 }, (_, i) => {
-          const unitX = 50 + i * 43 + batchProgress * 50,
-            accepted = i > 0 && i >= 6 - goodCount,
-            defective = i === 0,
-            defectDetected = defective && t >= 0.68;
-          if (defective && t >= 0.76) return "";
-          return `<rect x="${unitX}" y="146" width="24" height="27" rx="3" fill="#10231f" stroke="${defectDetected ? "#ff7979" : accepted ? "#72dfb1" : "currentColor"}" stroke-width="${defectDetected ? 1.7 : 1.4}"/>${defectDetected ? `<path d="M${unitX + 12} 150l8 14h-16z" fill="none" stroke="#ff7979" stroke-width="1.3"/><path d="M${unitX + 12} 154v5m0 2v1" stroke="#ff7979" stroke-width="1.2"/>` : accepted ? `<path d="M${unitX + 4} 159l4 4 10-11" stroke="#72dfb1" stroke-width="1.4" fill="none"/>` : ""}`;
-        }).join("");
-        const stage = (x, label, done, icon) => `<g opacity="${t >= 0.76 ? 1 : 0.55}"><rect x="${x}" y="76" width="40" height="28" rx="4" fill="#10231f" stroke="${done ? "#72dfb1" : "currentColor"}"/><path d="${icon}" stroke="${done ? "#72dfb1" : "currentColor"}" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><text x="${x + 20}" y="113" text-anchor="middle" fill="${done ? "#72dfb1" : "currentColor"}" stroke="none" font-family="system-ui,sans-serif" font-size="7" font-weight="400" letter-spacing="0">${label}</text></g>`;
-        const docs = `${stage(55, demoText("PHOTO", "FOTO"), photoDone, "M63 83h24v15h-24z M69 83l3-4h7l3 4 M75 88a4 4 0 1 0 0 8a4 4 0 0 0 0-8")}${stage(99, demoText("MEASURE", "MEDIR"), measureDone, "M109 82v16m4-16v16m-4-11h13m-13 6h13m0-11v16")}${stage(143, demoText("RECORD", "REGISTRAR"), saveDone, "M152 82h12l5 5v12h-17z M155 82v6h9v-6 M155 97v-6h9v6")}`;
-        const defectX = 50 + batchProgress * 50,
-          defectCenter = defectX + 12,
-          defect = t >= 0.76 ? `<g><rect x="${defectX}" y="${defectY - 13}" width="24" height="27" rx="3" fill="#10231f" stroke="#ff7979" stroke-width="1.7"/><path d="M${defectCenter} ${defectY - 9}l8 14h-16z" fill="none" stroke="#ff7979" stroke-width="1.3"/><path d="M${defectCenter} ${defectY - 5}v5m0 2v1" stroke="#ff7979" stroke-width="1.2"/></g>` : "";
-        const yieldWidget = `<rect x="259" y="37" width="139" height="31" rx="6" fill="#10231f" stroke="currentColor"/><text x="269" y="49" fill="currentColor" stroke="none" font-family="system-ui,sans-serif" font-size="8" font-weight="600">YIELD</text><text x="269" y="61" fill="#d9f6eb" stroke="none" font-family="system-ui,sans-serif" font-size="8" font-weight="400">${goodCount} / 6 ${demoText("good", "buenas")} · ${((goodCount / 6) * 100).toFixed(1)}%</text>`;
-        paintDemo(
-          `${yieldWidget}${docs}<rect x="47" y="182" width="328" height="32" rx="16"/><circle cx="66" cy="198" r="10"/><circle cx="356" cy="198" r="10"/><path class="svg-muted" d="M81 198h260 M92 214v19 M330 214v19"/>${units}${defect}<path d="M119 119L${defectCenter} ${defectY - 17}m-3-3 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 2" opacity="${t >= 0.76 ? .9 : 0}"/>${svgLabel(demoText("INSPECT · RIGHT → LEFT", "INSPECCIÓN · DERECHA → IZQUIERDA"), 47, 254, 'font-size="8" font-weight="400" letter-spacing=".04em" stroke="none"')}`,
-        );
+        inspection ??= createInspection(document.querySelector("#scene-art"),language === "es");
+        inspection(t);
       }
       // Illustrative closed-loop second-order response, not a measurement of a real system.
       const PENDULUM_START_ANGLE = -Math.PI / 2;
@@ -336,7 +320,7 @@ import { createScrollEffects } from "./scroll-effects.js";
           const arrow = clockwise
             ? `<path d="M${-radius * 0.48} ${-radius * 0.62}A${radius * 0.78} ${radius * 0.78} 0 0 1 ${radius * 0.48} ${-radius * 0.62}"/>`
             : `<path d="M${radius * 0.48} ${-radius * 0.62}A${radius * 0.78} ${radius * 0.78} 0 0 0 ${-radius * 0.48} ${-radius * 0.62}"/>`;
-          return `<g transform="translate(${cx} ${cy}) rotate(${rotation.toFixed(1)})"><polygon points="${points.join(" ")}" fill="#101f1b"/><circle r="${(radius * 0.67).toFixed(1)}" fill="#101f1b"/><path d="${spokes}" stroke-width="2"/><path d="${arrow}" fill="none" stroke="currentColor" stroke-width="1.8" marker-end="url(#control-gear-arrow)"/><circle r="4" fill="currentColor"/></g>`;
+          return `<g transform="translate(${cx} ${cy}) rotate(${rotation.toFixed(1)})"><polygon points="${points.join(" ")}" fill="#101f1b"/><circle r="${(radius * 0.67).toFixed(1)}" fill="#101f1b"/><path d="${spokes}" stroke-width="2"/><path d="${arrow}" fill="none" stroke="currentColor" stroke-width="1.8" marker-end="url(#control-gear-arrow)"/><circle cx="${radius*.56}" cy="0" r="2.1" fill="#f1f6f8" stroke="none"/><circle r="4" fill="currentColor"/></g>`;
         };
         const primaryClockwise = gearAngle >= gearStartRotation;
         let trace = "";
@@ -388,7 +372,7 @@ import { createScrollEffects } from "./scroll-effects.js";
           idle: demoText("TAP TO BEGIN", "TOCÁ PARA INICIAR"),
           red: demoText("RED · GET READY", "ROJO · PREPARATE"),
           yellow: demoText("WAIT FOR GREEN", "ESPERÁ LA LUZ VERDE"),
-          go: "GO!",
+          go: demoText("NOW", "¡YA!"),
           result: result + " ms",
           falseStart: demoText("TOO SOON", "MUY PRONTO"),
         };
@@ -475,73 +459,8 @@ import { createScrollEffects } from "./scroll-effects.js";
         demoFrame = requestAnimationFrame(tick);
       }
       function drawNetwork(progress = 0, started = false) {
-        const primary = [[86, 118], [133, 76], [218, 76], [292, 130], [350, 130]],
-          primaryToFailure = primary.slice(0, 3),
-          backup = [[86, 145], [133, 184], [175.5, 130], [218, 184], [292, 130], [350, 130]];
-        const pointAt = (points, amount) => {
-          const lengths = [];
-          let total = 0;
-          for (let i = 0; i < points.length - 1; i++) {
-            const length = Math.hypot(points[i + 1][0] - points[i][0], points[i + 1][1] - points[i][1]);
-            lengths.push(length); total += length;
-          }
-          let distance = Math.max(0, Math.min(1, amount)) * total;
-          for (let i = 0; i < lengths.length; i++) {
-            if (distance <= lengths[i] || i === lengths.length - 1) {
-              const t = lengths[i] ? distance / lengths[i] : 0;
-              return [mix(points[i][0], points[i + 1][0], t), mix(points[i][1], points[i + 1][1], t)];
-            }
-            distance -= lengths[i];
-          }
-          return points[points.length - 1];
-        };
-        const firstDelivered = started && progress >= 0.28,
-          secondStarted = started && progress >= 0.31,
-          failed = started && progress >= 0.46,
-          rerouted = started && progress >= 0.49,
-          thirdDelivered = started && progress >= 0.99,
-          complete = thirdDelivered;
-        let packet = null, packetNumber = 0;
-        if (started && progress < 0.28) {
-          packet = pointAt(primary, progress / 0.28);
-          packetNumber = 1;
-        } else if (started && progress >= 0.31 && progress < 0.46) {
-          packet = pointAt(primaryToFailure, (progress - 0.31) / 0.15);
-          packetNumber = 2;
-        } else if (failed && !rerouted) {
-          packet = [218, 76];
-          packetNumber = 2;
-        } else if (rerouted) {
-          packet = pointAt(backup, (progress - 0.49) / 0.51);
-          packetNumber = 3;
-        }
-        if (firstDelivered && !demoState.networkFirstAnnounced) {
-          demoState.networkFirstAnnounced = true;
-          demoStatus(demoText("Packet 1 arrived by the shortest route.", "El dato 1 llegó por la ruta más corta."));
-        }
-        if (failed && !demoState.networkFailureAnnounced) {
-          demoState.networkFailureAnnounced = true;
-          demoStatus(demoText("Packet 2 failed at node B.", "El dato 2 falló en el nodo B."));
-        }
-        if (rerouted && !demoState.networkRerouteAnnounced) {
-          demoState.networkRerouteAnnounced = true;
-          demoStatus(demoText("Packet 3 is taking the backup route through C, E and D.", "El dato 3 toma la ruta alterna por C, E y D."));
-        }
-        const sensorLabel = demoText("HUMIDITY", "HUMEDAD"),
-          sensorValue = secondStarted ? "23%" : "12%",
-          centralValue = thirdDelivered ? "23%" : firstDelivered ? "12%" : "",
-          routeInfo = !started
-            ? demoText("SHORTEST ROUTE · READY", "RUTA MÁS CORTA · LISTA")
-            : complete ? demoText("PACKETS 1 & 3 ARRIVED · 2 FAILED", "DATOS 1 Y 3 LLEGARON · 2 FALLÓ")
-              : rerouted ? demoText("PACKET 3 · BACKUP VIA C → E → D", "DATO 3 · RESPALDO POR C → E → D")
-                : failed ? demoText("PACKET 2 LOST AT B · SELECTING BACKUP", "DATO 2 PERDIDO EN B · ELIGIENDO RESPALDO")
-                  : firstDelivered ? demoText("PACKET 2 · TESTING PRIMARY ROUTE", "DATO 2 · PROBANDO RUTA PRINCIPAL")
-                    : demoText("PACKET 1 · SHORTEST ROUTE", "DATO 1 · RUTA MÁS CORTA");
-        const node = (id, x, y, offline = false) =>
-          `<rect x="${x - 15}" y="${y - 14}" width="30" height="28" rx="6" fill="#10231f" stroke="${offline ? "#ff7979" : "currentColor"}" stroke-width="${offline ? 2 : 1.5}"/><text x="${x}" y="${y + 1}" text-anchor="middle" dominant-baseline="central" fill="#f2fff9" stroke="none" font-family="ui-monospace,monospace" font-size="12" font-weight="700" letter-spacing="0">${id}</text>${offline ? `<circle cx="${x + 14}" cy="${y - 13}" r="5" fill="#ff7979" stroke="none"/><path d="M${x + 12} ${y - 15}l4 4m0-4-4 4" stroke="#10231f" stroke-width="1.5"/>` : ""}`;
-        paintDemo(
-          `${svgLabel(routeInfo, 42, 29)}<path class="svg-muted" d="M86 118L133 76h85l74 54h57 M86 145L133 184 M133 76v108 M218 76v108 M218 76L175.5 130 M133 184L175.5 130L218 184"/><path d="M86 118L133 76h85" stroke="currentColor" stroke-width="2.4" opacity=".95"/><path d="M218 76l74 54h57" stroke="${failed ? "#ff7979" : "currentColor"}" stroke-width="${failed ? 2 : 2.4}" stroke-dasharray="${failed ? "5 4" : "none"}" opacity="${failed ? .9 : .95}"/><path d="M86 145L133 184L175.5 130L218 184l74-54h57" stroke="${rerouted ? "#72dfb1" : "currentColor"}" stroke-width="${rerouted ? 2.6 : 1}" opacity="${rerouted ? .98 : .18}"/><rect x="26" y="102" width="60" height="58" rx="8"/><path d="M56 108c-7 9-8 13-8 17a8 8 0 0 0 16 0c0-4-1-8-8-17z" fill="currentColor" fill-opacity=".14"/><path d="M56 113c-4 6-5 9-5 12a5 5 0 0 0 10 0c0-3-1-6-5-12z" fill="currentColor" stroke="none"/><text class="svg-text" x="56" y="151" text-anchor="middle">${sensorValue}</text>${node("A", 133, 76)}${node("B", 218, 76, failed)}${node("C", 133, 184)}${node("D", 218, 184)}${node("E", 175.5, 130)}${node("GW", 292, 130)}<rect x="350" y="101" width="60" height="58" rx="7"/><rect x="358" y="108" width="44" height="31" rx="3"/><path d="M363 116h34 M363 122h26"/><text class="svg-text" x="380" y="134" text-anchor="middle">${centralValue}</text><path d="M373 144h14l4 7h-22z"/>${centered(demoText("CONTROL", "CENTRAL"), 380, 174)}${centered(demoText("CENTER", "DE MANEJO"), 380, 185)}${centered(sensorLabel, 56, 180)}${packet ? `<rect x="${packet[0] - 7}" y="${packet[1] - 6}" width="14" height="12" rx="3" fill="${packetNumber === 2 && failed ? "#ff7979" : "#72dfb1"}" stroke="#10231f" stroke-width=".7"/><text x="${packet[0]}" y="${packet[1] + 2.5}" text-anchor="middle" fill="#10231f" font-family="ui-monospace,monospace" font-size="8" font-weight="700">${packetNumber}</text>` : ""}`,
-        );
+        network ??= createNetwork(document.querySelector('#scene-art'), language === 'es', demoStatus);
+        network.update(progress, started);
       }
       function drawOverview(progress = 0) {
         ensureWorkbench("all");
@@ -550,13 +469,14 @@ import { createScrollEffects } from "./scroll-effects.js";
       }
       function updateFlowControls() {
         document.querySelector("#flow-play").textContent=demoState.busy?demoText("Pause","Pausar"):demoState.flowProgress>0 && demoState.flowProgress<1?demoText("Resume","Continuar"):demoText("Run sequence","Reproducir");
+        document.querySelector("#flow-prev").setAttribute("aria-label",demoText("Previous step","Paso anterior"));
         document.querySelector("#flow-next").textContent=demoText("Next step →","Siguiente →");
         document.querySelector("#flow-reset").setAttribute("aria-label",demoText("Reset demonstration","Reiniciar demostración"));
         document.querySelector("#flow-follow").textContent=demoText("Follow scroll","Seguir scroll");
       }
       function advanceFlow() {
         scrollEffects.follow(false);cancelDemo();
-        drawOverview(((Math.floor((demoState.flowProgress||0)*4+.00001)+1)%5)/4);
+        drawOverview(((Math.floor((demoState.flowProgress||0)*5+.00001)+1)%6)/5);
         updateFlowControls();
       }
       function playFlow() {
@@ -569,7 +489,7 @@ import { createScrollEffects } from "./scroll-effects.js";
       }
       const scrollEffects=createScrollEffects({motionPreference,onFlowStage:stage=>{
         if(active!=="all" || demoState.busy)return;
-        drawOverview(stage/4);
+        drawOverview(stage/5);
       }});
       function renderJourney() {
         const list=document.querySelector("#journey-steps");
@@ -580,7 +500,7 @@ import { createScrollEffects } from "./scroll-effects.js";
           const h=document.createElement("h2");h.textContent=heading;
           const label=document.createElement("span");label.className="section-label";label.textContent=title;
           button.append(index,label,h);
-          button.addEventListener("click",()=>{scrollEffects.follow(false);cancelDemo();drawOverview(stage/4);updateFlowControls();});
+          button.addEventListener("click",()=>{scrollEffects.follow(false);cancelDemo();drawOverview(stage/5);updateFlowControls();});
           const copy=document.createElement("p");copy.textContent=description;
           item.append(button,copy);return item;
         }));
@@ -611,16 +531,20 @@ import { createScrollEffects } from "./scroll-effects.js";
         };
         document.querySelector("#flow-controls").hidden=active!=="all";
         document.querySelector("#journey").hidden=active!=="all";
+        network = null; inspection = null;
+        document.querySelector("#node-inspector").hidden = true;
+        document.querySelector("#camera-compare").hidden = true;
         defaults[active]();
         if(active==="all")updateFlowControls();
         embeddedLabels();
+        digitalControls();
         setDemoHint();
         demoStatus(
           active === "all" ? flowCopy(language)[0][1]
             : active === "embedded" && embeddedMode !== "hex"
             ? embeddedStages()[0]
             : active === "digital"
-            ? "A = 0 · B = 0 · AND · Q = 0"
+            ? digitalMode === "alu" ? "A = 0 · B = 0 · AND · Q = 0" : demoText("Educational model","Modelo educativo")
             : demoText(
                 "Interactive illustration · tap or use Enter",
                 "Ilustración interactiva · tocá o usá Enter",
@@ -674,7 +598,7 @@ import { createScrollEffects } from "./scroll-effects.js";
                       : { x: 75, y: mix(118, 242, fall * fall) };
                   drawRobot(
                     hand,
-                    t < 0.45 ? 14 : 19,
+                    mix(14, 19, ease((t - 0.42) / 0.06)),
                     box,
                     1 - ease((t - 0.68) / 0.14),
                     t >= 0.9,
@@ -736,7 +660,7 @@ import { createScrollEffects } from "./scroll-effects.js";
             demoState.processMeasureAnnounced = false;
             demoState.processSaveAnnounced = false;
             animateDemo(
-              8000,
+              8600,
               (t) => drawProcess(t),
               () => {
                 drawProcess(1);
@@ -912,8 +836,8 @@ import { createScrollEffects } from "./scroll-effects.js";
             : "Flappy";
         });
         document.querySelector("#scene-label").textContent = active === "all"
-          ? demoText("ENGINEERING FLOW", "FLUJO DE INGENIERÍA")
-          : pick(d.label).toUpperCase();
+          ? demoText("Engineering flow", "Flujo de ingeniería")
+          : pick(d.label);
         document.querySelector("#scene-caption").textContent = active === "embedded" ? demoText("Illustrative lab · academic work", "Laboratorio ilustrativo · trabajo académico") : pick(d.caption);
         document.querySelector("#skills").replaceChildren(
           ...d.skills.map((skill) => {
@@ -944,13 +868,11 @@ import { createScrollEffects } from "./scroll-effects.js";
           card.style.viewTransitionName = "project-" + PROJECTS.indexOf(p);
           const top = document.createElement("div");
           top.className = "project-head";
-          const number = document.createElement("span");
-          number.textContent = String(i + 1).padStart(2, "0");
           const category = document.createElement("span");
           category.textContent = pick(
             DISCIPLINES[active === "all" ? p.groups[0] : active].label,
           );
-          top.append(number, category);
+          top.append(category);
           const title = document.createElement("h3");
           title.textContent = pick(p.title);
           const desc = document.createElement("p");
@@ -975,7 +897,7 @@ import { createScrollEffects } from "./scroll-effects.js";
           const details = document.createElement("button");
           details.type = "button";
           details.className = "project-open";
-          details.textContent = demoText("Explore project +", "Ver proyecto +");
+          details.textContent = demoText("Explore project", "Ver proyecto");
           details.setAttribute("aria-haspopup", "dialog");
           details.addEventListener("click", () => openProject(p));
           actions.append(details);
@@ -989,7 +911,7 @@ import { createScrollEffects } from "./scroll-effects.js";
         const more = document.querySelector("#more-projects");
         more.hidden = filtered.length <= 4;
         more.setAttribute("aria-expanded", String(expandedProjects));
-        more.textContent = expandedProjects ? demoText("Show fewer projects ↑", "Mostrar menos proyectos ↑") : demoText(`Explore all ${filtered.length} projects ↓`, `Explorar los ${filtered.length} proyectos ↓`);
+        more.textContent = expandedProjects ? demoText("Show fewer projects", "Mostrar menos proyectos") : demoText(`Explore all ${filtered.length} projects`, `Explorar los ${filtered.length} proyectos`);
         updateIndicator();
         const exp = EXPERIENCE[language];
         document.querySelector("#experience-heading").textContent = exp.heading;
@@ -1016,6 +938,60 @@ import { createScrollEffects } from "./scroll-effects.js";
           transitionUpdate(() => render(true));
         }),
       );
+      function drawProcessor() {
+        const model = document.querySelector("#processor-model");
+        const focusedCell = model.contains(document.activeElement) ? document.activeElement.dataset.cell : undefined;
+        document.querySelector("#clock-status").textContent = showProcessor(model, digitalMode, language, clockTick, operand, selectedCell);
+        if (focusedCell !== undefined) model.querySelector('[data-cell="'+focusedCell+'"]')?.focus();
+      }
+      function digitalControls() {
+        const digital = active === "digital", processor = digital && digitalMode !== "alu";
+        document.querySelector("#digital-tabs").hidden = !digital;
+        document.querySelector("#processor-panel").hidden = !processor;
+        document.querySelector("#scene").hidden = processor;
+        document.querySelectorAll("[data-digital]").forEach(tab=>{
+          const selected = tab.dataset.digital === digitalMode;
+          tab.setAttribute("aria-selected",String(selected)); tab.tabIndex=selected?0:-1;
+          if(digital && selected) {
+            const panel=document.querySelector("#scene-panel");
+            panel.setAttribute("role","tabpanel");panel.setAttribute("aria-labelledby",tab.id);
+          }
+        });
+        if (!processor) return;
+        document.querySelector("#clock-operand").hidden=digitalMode !== "cpu";
+        document.querySelector("#clock-operand").textContent=demoText("Change input","Cambiar entrada")+" · "+operand;
+        document.querySelector("#clock-next").textContent=demoText("Clock step","Pulso de reloj");
+        document.querySelector("#clock-reset").setAttribute("aria-label",demoText("Reset clock","Reiniciar reloj"));
+        drawProcessor();
+      }
+      document.querySelectorAll("[data-digital]").forEach(tab=>tab.addEventListener("click",()=>{
+        digitalMode=tab.dataset.digital;clockTick=0;mountDemo();
+      }));
+      document.querySelector("#digital-tabs").addEventListener("keydown",event=>{
+        const tabs=[...event.currentTarget.children], index=tabs.indexOf(event.target);
+        const next={ArrowLeft:(index+2)%3,ArrowRight:(index+1)%3,Home:0,End:2}[event.key];
+        if(next===undefined)return;
+        event.preventDefault();tabs[next].focus();tabs[next].click();
+      });
+      document.querySelector("#clock-next").onclick=()=>{clockTick=(clockTick+1)%(digitalMode==="cpu"?10:5);drawProcessor();};
+      document.querySelector("#clock-reset").onclick=()=>{clockTick=0;drawProcessor();};
+      document.querySelector("#clock-operand").onclick=()=>{operand=(operand+1)%10;clockTick=0;digitalControls();};
+      function inspectCell(event) {
+        const cell = event.target.closest("[data-cell]");
+        if (!cell) return;
+        selectedCell = Number(cell.dataset.cell);
+        const model = document.querySelector("#processor-model");
+        model.querySelectorAll("[data-cell]").forEach(item=>item.setAttribute("aria-pressed",String(item === cell)));
+        model.querySelector(".cell-value").textContent = cell.querySelector("small").textContent+" · "+cell.dataset.expression;
+      }
+      for (const event of ["click","focusin","pointerover"]) {
+        document.querySelector("#processor-model").addEventListener(event,inspectCell);
+      }
+      document.querySelector("#compare-slider").oninput=event=>document.querySelector(".chart-pair").style.setProperty("--split",event.target.value+"%");
+      document.querySelector("#flow-prev").onclick=()=>{
+        cancelDemo();scrollEffects.follow(false);
+        drawOverview(Math.max(0,Math.floor((demoState.flowProgress||0)*5+.00001)-1)/5);updateFlowControls();
+      };
       const sceneButton = document.querySelector("#scene");
       sceneButton.addEventListener("click", activateDemo);
       sceneButton.addEventListener("keydown", (event) => {
@@ -1076,10 +1052,10 @@ import { createScrollEffects } from "./scroll-effects.js";
       function changeDiscipline(key, updateUrl = true) {
         if (!Object.hasOwn(DISCIPLINES,key)) return;
         transitionUpdate(() => {
-          active=key; expandedProjects=false; render();
+          active=key; expandedProjects=false; clockTick=0; render();
           if(updateUrl) document.querySelector(".hero").scrollIntoView({block:"start",behavior:"instant"});
         });
-        if (updateUrl) history.replaceState(null,"", "#"+key);
+        if (updateUrl) history.pushState(null,"", "#"+key);
       }
       function openProject(project) {
         const dialog = document.querySelector("#project-dialog");
@@ -1111,7 +1087,7 @@ import { createScrollEffects } from "./scroll-effects.js";
         cards.forEach((card,i)=>{card.hidden=!expandedProjects && i>=4;});
         const more=document.querySelector("#more-projects");
         more.setAttribute("aria-expanded",String(expandedProjects));
-        more.textContent=expandedProjects?demoText("Show fewer projects ↑","Mostrar menos proyectos ↑"):demoText(`Explore all ${cards.length} projects ↓`,`Explorar los ${cards.length} proyectos ↓`);
+        more.textContent=expandedProjects?demoText("Show fewer projects","Mostrar menos proyectos"):demoText(`Explore all ${cards.length} projects`,`Explorar los ${cards.length} proyectos`);
       });
       document.querySelectorAll("[data-embedded-mode]").forEach(tab=>tab.addEventListener("click",()=>{
         if(embeddedMode === tab.dataset.embeddedMode) return;
@@ -1132,7 +1108,7 @@ import { createScrollEffects } from "./scroll-effects.js";
       document.querySelector("#embedded-reset").addEventListener("click",mountDemo);
       document.querySelector("#sample-rate").addEventListener("input",event=>{
         document.querySelector("#rate-value").textContent=event.target.value+" Hz";
-        if(!demoState.busy) drawEmbedded(demoState.embeddedProgress||0);
+        cancelDemo(); drawEmbedded(1); embeddedLabels();
       });
       window.addEventListener("resize",()=>{
         updateIndicator();
@@ -1140,13 +1116,13 @@ import { createScrollEffects } from "./scroll-effects.js";
         else if(active==="embedded" && embeddedMode!=="hex")drawEmbedded(demoState.embeddedProgress||0);
       });
       window.addEventListener("hashchange",()=>{
-        const key=location.hash.slice(1);if(Object.hasOwn(DISCIPLINES,key)&&active!==key)changeDiscipline(key,false);
+        const key=location.hash.slice(1) || "all";if(Object.hasOwn(DISCIPLINES,key)&&active!==key)changeDiscipline(key,false);
       });
       const requestedDiscipline=location.hash.slice(1);
       if(Object.hasOwn(DISCIPLINES,requestedDiscipline))active=requestedDiscipline;
       if("IntersectionObserver" in window) {
         new IntersectionObserver(entries=>{
-          if(!entries[0].isIntersecting && (demoFrame || demoTimer)) {
+          if(!entries[0].isIntersecting && (demoFrame || demoTimer || demoState.reactionPhase === "go")) {
             if(active==="all" || active==="embedded" && embeddedMode!=="hex") { cancelDemo();workbench?.pause();embeddedLabels();updateFlowControls(); }
             else mountDemo();
           }
