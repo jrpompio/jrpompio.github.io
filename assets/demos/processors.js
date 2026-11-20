@@ -7,7 +7,7 @@ function waveform(tick, last) {
 }
 export function showProcessor(container, mode, language, tick, operand, cellIndex) {
   const es=language==='es', clock=es?'Reloj':'Clock';
-  let die, status;
+  let die, status, story;
   if(mode==='cpu') {
     const instruction=Math.min(2,Math.floor(Math.max(0,tick-1)/3));
     const phase=(tick-1)%3;
@@ -18,6 +18,16 @@ export function showProcessor(container, mode, language, tick, operand, cellInde
     const positions=[[12,20],[116,20],[220,20],[116,99],[220,99],[12,99]];
     const wire=(a,b,d)=>`<path d="${d}" class="${active.includes(a)&&active.includes(b)?'on':''}"/>`;
     const values=[Math.ceil(tick/3),tick?ops[instruction]:'—','',tick>=6?operand+3:tick>=3?operand:'—','+',tick===9?operand+3:'—'];
+    const actions = es
+      ? [`cargar el valor ${operand}`, 'sumar tres', 'guardar el resultado']
+      : [`load the value ${operand}`, 'add three', 'store the result'];
+    const execution = es
+      ? [`El registro recibe ${operand} y lo conserva para el siguiente paso.`, `La ALU suma tres y devuelve ${operand+3} al registro.`, `La memoria RAM guarda el resultado, ${operand+3}.`]
+      : [`The register holds ${operand} for the next step.`, `The ALU adds three and sends ${operand+3} back to the register.`, `RAM stores the result, ${operand+3}.`];
+    if (!tick) story = es ? 'Esta CPU lee un número, le suma tres y guarda el resultado. Avanzá un pulso para seguirlo por el chip.' : 'This CPU reads a number, adds three and saves the result. Step the clock to follow it through the chip.';
+    else if (phase === 0) story = es ? `La memoria entrega la orden de ${actions[instruction]}.` : `Memory supplies the instruction to ${actions[instruction]}.`;
+    else if (phase === 1) story = es ? `El decodificador prepara el circuito para ${actions[instruction]}.` : `The decoder prepares the circuit to ${actions[instruction]}.`;
+    else story = execution[instruction];
     die=`<svg viewBox="0 0 320 172" class="cpu-die"><g class="bus">${wire(0,1,'M99 44h17')}${wire(1,2,'M203 44h17')}${wire(1,3,'M159 68v31')}${wire(3,4,'M203 118h17m0 10h-17')}${wire(3,5,'M99 122h17')}<path d="M264 68v31" stroke-dasharray="3 3"/></g>${blocks.map((b,i)=>`<g tabindex="0" role="button" aria-label="${b}" data-block="${descriptions[i]}" transform="translate(${positions[i]})" class="${active.includes(i)?'on':''}"><rect width="87" height="48" rx="3"/><text x="43" y="20">${b}</text><text x="43" y="37">${values[i]}</text></g>`).join('')}</svg><output class="cpu-detail"></output>`;
     status=`${clock} ${tick}/9 · ${tick?ops[instruction]+' · '+(es?['Leer','Decodificar','Ejecutar']:['Fetch','Decode','Execute'])[phase]:(es?'Listo':'Ready')}`;
   } else {
@@ -28,11 +38,15 @@ export function showProcessor(container, mode, language, tick, operand, cellInde
         const a=(r+n)%3+1,b=(c+n)%2+1;
         last=`${sum} + ${a} × ${b} = ${sum+a*b}`;sum+=a*b;
       }
-      return {name:`PE ${r+1}·${c+1}`,detail:last || (es?'En espera':'Waiting'),busy:k>=0&&k<4};
+      return {name:`${String.fromCharCode(65+r)}${c+1}`,value:k<0?'—':sum,detail:last || (es?'En espera':'Waiting'),busy:k>=0&&k<4};
     });
-    die=`<div class="die-memory">${es?'Memoria local':'Local memory'} ↓</div><div class="pe-array">${cells.map((v,i)=>`<button data-cell="${i}" data-expression="${v.detail}" class="${v.busy?'computing':''}" aria-pressed="${cellIndex===i}"><small>${v.name}</small></button>`).join('')}</div><output class="cell-value">${cellIndex>=0?cells[cellIndex].name+' · '+cells[cellIndex].detail:(es?'Tocá una celda para inspeccionarla':'Select a cell to inspect it')}</output>`;
+    const busy = cells.filter(cell => cell.busy).length;
+    if (!tick) story = es ? 'Cada cuadrado es un circuito de cálculo. Avanzá el reloj para ver cómo los datos recorren el chip en diagonal.' : 'Each square is a computing circuit. Step the clock to see data spread diagonally across the chip.';
+    else if (tick === 10) story = es ? 'La última celda terminó. Los 16 números son los resultados que calculó el chip.' : 'The last cell has finished. The 16 numbers are the results computed by the chip.';
+    else story = es ? `Circuitos calculando en este pulso: ${busy}. Cada uno suma un producto a su total.` : `Circuits computing on this pulse: ${busy}. Each adds one product to its running total.`;
+    die=`<div class="die-memory">${es?'Memoria local':'Local memory'} ↓</div><div class="pe-array">${cells.map((v,i)=>`<button data-cell="${i}" data-expression="${v.detail}" class="${v.busy?'computing':''}" aria-pressed="${cellIndex===i}"><small>${v.name}</small><strong>${v.value}</strong></button>`).join('')}</div><output class="cell-value">${cellIndex>=0?cells[cellIndex].name+' · '+cells[cellIndex].detail:(es?'Tocá una celda para inspeccionarla':'Select a cell to inspect it')}</output>`;
     status=`${clock} ${tick}/10`;
   }
-  container.innerHTML=`<div class="chip-die">${die}</div>${waveform(tick,mode==='cpu'?9:10)}`;
+  container.innerHTML=`<p class="model-story">${story}</p><div class="chip-die">${die}</div>${waveform(tick,mode==='cpu'?9:10)}`;
   return status;
 }

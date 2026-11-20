@@ -40,7 +40,7 @@ export function createWorkbench({container, kind, language, compact=false, onSta
         <path d="M42 198h182" class="wb-dim"/>
         ${board(298,105)}${text(linux?'Jetson Nano':'MCU',372,247,13,'text-anchor="middle"')}<circle data-node="led" cx="431" cy="120" r="4" fill="currentColor"/>
         ${linux ? `<rect x="485" y="72" width="49" height="53" rx="7" class="wb-surface"/><circle cx="509" cy="97" r="15"/><circle cx="509" cy="97" r="8" class="wb-dim"/>${text('IMX477',509,147,10,'text-anchor="middle"')}
-          <g data-node="preview">${panel(318,137,110,73)}<g data-node="image"><rect x="324" y="143" width="98" height="61" fill="#173e39" stroke="none"/><circle data-node="sun" cx="404" cy="155" r="6" fill="#e4d99b" stroke="none"/><path data-node="mountain" d="M324 196l28-39 24 27 15-19 31 31v8h-98z" fill="#83dfad" stroke="none"/></g></g>
+          <g data-node="preview">${panel(318,137,110,73)}<image data-node="image" x="324" y="143" width="98" height="61" preserveAspectRatio="none" href="assets/demos/camera-scene.svg"/></g>
           ${panel(29,294,502,42)}${text('Device Tree',44,320,11,'class="wb-muted"')}<text data-node="detail" x="188" y="320" font-size="12">rggb</text>`
         : `<rect x="482" y="73" width="52" height="52" rx="7" class="wb-surface"/><path d="M495 92q13-16 26 0m-22 6q9-11 18 0"/><circle cx="508" cy="106" r="2" fill="currentColor"/>${text('I²C',508,146,11,'text-anchor="middle"')}
           <text data-node="reading" x="372" y="291" font-size="21" text-anchor="middle">—</text>
@@ -63,13 +63,25 @@ export function createWorkbench({container, kind, language, compact=false, onSta
         <path data-node="host-link" d="M122 167v41" class="wb-cable"/><path data-node="sensor-link" d="M196 272h55v-29h31" class="wb-cable"/>
         ${board(48,208)}${text(linux?'Jetson Nano':'MCU',122,352,13,'text-anchor="middle"')}<circle data-node="led" cx="181" cy="223" r="4" fill="currentColor"/>
         ${linux?`<rect x="282" y="217" width="49" height="53" rx="7" class="wb-surface"/><circle cx="306" cy="243" r="15"/><circle cx="306" cy="243" r="8" class="wb-dim"/>${text('IMX477',306,291,12,'text-anchor="middle"')}
-          <g transform="translate(-250 103)"><g data-node="preview">${panel(318,137,110,73)}<g data-node="image"><rect x="324" y="143" width="98" height="61" fill="#173e39" stroke="none"/><circle data-node="sun" cx="404" cy="155" r="6" fill="#e4d99b" stroke="none"/><path data-node="mountain" d="M324 196l28-39 24 27 15-19 31 31v8h-98z" fill="#83dfad" stroke="none"/></g></g></g>
+          <g transform="translate(-250 103)"><g data-node="preview">${panel(318,137,110,73)}<image data-node="image" x="324" y="143" width="98" height="61" preserveAspectRatio="none" href="assets/demos/camera-scene.svg"/></g></g>
           ${panel(20,368,320,42)}<text data-node="detail" x="34" y="394" font-size="12">Device Tree · rggb</text>`
           :`<rect x="282" y="217" width="49" height="53" rx="7" class="wb-surface"/><path d="M292 237q14-17 28 0m-23 6q9-10 18 0"/>${text('I²C',306,291,12,'text-anchor="middle"')}
           <text data-node="reading" x="287" y="328" font-size="19" text-anchor="middle">—</text>
           <g data-node="signals">${panel(20,368,320,42)}${text('SCL',32,384,10)}${text('SDA',32,401,10)}<path data-node="clock" d="M70 383h250" class="wb-bright"/><path data-node="data" d="M70 400h250"/></g>
           <g data-node="python"><rect x="33" y="63" width="294" height="65" rx="4" class="wb-surface"/>${text('Python · configure()',46,84,13)}<path d="M48 106h175" class="wb-dim"/><circle cx="128" cy="106" r="5" fill="currentColor"/></g>`}
         <circle data-node="packet" r="4" fill="currentColor" stroke="none" cx="122" cy="167"/>`;
+  }
+  function scopeMarkup() {
+    const byte=[0,0,0,1,1,0,0,0]; // 24 °C in this illustrative reading.
+    const clock=byte.map(()=> 'h7v-22h15v22h8').join('');
+    const data=byte.map(bit=>'V'+(bit?98:120)+'h30').join('');
+    return `<g class="scope" fill="currentColor" stroke="none" font-size="13">
+      <text x="12" y="19">${say('One byte at a glance','Una lectura ampliada')} · 24 °C</text>
+      <text x="12" y="58">SCL</text><text x="12" y="72" font-size="11">${say('Clock','Reloj')}</text><text x="12" y="111">SDA</text><text x="12" y="125" font-size="11">${say('Data','Datos')}</text>
+      <g fill="none" stroke="currentColor" stroke-width="2.4"><path d="M67 68h10${clock}"/><path d="M77 120${data}"/></g>
+      ${byte.map((b,i)=>text(b,92+i*30,140,12,'text-anchor="middle"')).join('')}
+      <text x="12" y="173">1 s</text><path class="samples" stroke="currentColor" stroke-width="4"/>
+      <text x="12" y="193" font-size="11">${say('Marks below the byte show readings per second.','Las marcas inferiores indican lecturas por segundo.')}</text></g>`;
   }
   function show(name, visible) { refs[name]?.setAttribute('opacity', visible ? '1':'0'); }
   function update(value=0, {rate=3, reduced=false}={}) {
@@ -86,26 +98,29 @@ export function createWorkbench({container, kind, language, compact=false, onSta
       refs.packet.setAttribute('cy',String(compact?(stage<3?167+41*local:243+29*local):(stage<3?171:119+52*local)));
       if(linux) {
         refs.image.setAttribute('transform',stage<2?'translate(0 347) scale(1 -1)':'');
-        refs.sun.setAttribute('fill',stage===2?'#e29ad6':'#e4d99b');refs.mountain.setAttribute('fill',stage===2?'#cf7b91':'#83dfad');
+        refs.image.style.filter=stage<3?'hue-rotate(110deg) saturate(1.4)':'';
         refs.detail.textContent=stage<3?'rggb':stage===3?'gbrg':'gbrg · GStreamer → video';
       } else {
         show('code',stage<4);show('python',stage===4);show('signals',stage>=3);
         refs.reading.textContent=stage>=4?'24.0 °C':'—';
-        const x=compact?70:83,w=compact?250:425,clockY=compact?383:308,dataY=compact?400:325;
-        // Equal-width illustrative bus bursts in a fixed time window.
-        const burst = (base, data) => {
-          let path = 'M' + x + ' ' + (base-6);
-          for (let sample = 0; sample < rate; sample++) {
-            const start = x + sample*w/rate;
-            for (let bit=0; bit<8; bit++) {
-              path += 'H' + (start + bit*2) + 'V' + (data && bit%3 === 0 ? base-6 : base);
-              path += 'h1V' + (base-6);
-            }
+        if(stage>=3) {
+          const root=container.querySelector('svg');
+          root.setAttribute('viewBox','0 0 360 198');
+          root.querySelector('.wb-drawing').style.display='none';
+          let scope=root.querySelector('.scope');
+          if (!scope) {
+            root.insertAdjacentHTML('beforeend',scopeMarkup());
+            scope=root.querySelector('.scope');
           }
-          return path + 'H' + (x+w);
-        };
-        refs.clock.setAttribute('d',burst(clockY,false));
-        refs.data.setAttribute('d',burst(dataY,true));
+          scope.style.display='';
+          scope.querySelector('.samples').setAttribute('d',Array.from({length:rate},(_,i)=>'M'+(66+i*266/rate)+' 172v-10').join(' '));
+        } else {
+          const root=container.querySelector('svg');
+          root.setAttribute('viewBox',compact?'0 0 360 420':'0 0 560 360');
+          root.querySelector('.wb-drawing').style.display='';
+          const scope=root.querySelector('.scope');
+          if(scope)scope.style.display='none';
+        }
       }
     if(stage!==previousStage) {previousStage=stage;onStage?.(stage);}
   }

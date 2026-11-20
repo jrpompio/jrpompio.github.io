@@ -103,9 +103,7 @@ dialog h2 { margin:15px 0 }#detail-tech { margin:18px 0 }.demo-buttons button:ho
 .registers strong,.systolic strong { display:block; font-weight:450; font-variant-numeric:tabular-nums }
 .matrix-inputs { display:flex; align-items:center; justify-content:center; gap:22px; margin-bottom:14px }.matrix { display:flex; gap:7px; align-items:center }.matrix>div { display:grid; grid-template-columns:1fr 1fr; column-gap:8px; padding:1px 7px; border-inline:1px solid var(--muted) }
 .systolic button:is(:hover,:focus-visible,[aria-pressed=true]) { border-color:var(--glow); color:var(--glow) }.cell-value { font-variant-numeric:tabular-nums; margin-top:8px }
-.chart-pair { height:92px; position:relative; --split:50%; background:var(--deep); overflow:hidden }
-.chart-pair i { position:absolute; inset:0; background:linear-gradient(0deg,#244138 0 25%,transparent 25%),radial-gradient(circle at 70% 30%,#ffd776 0 7%,transparent 7.5%),linear-gradient(130deg,transparent 42%,#64aa91 42% 68%,transparent 68%),#446378 }
-.chart-pair i:first-child { transform:scaleY(-1) }.chart-pair i:last-child { clip-path:inset(0 0 0 var(--split)) }
+.chart-pair { aspect-ratio:16/9; margin-bottom:10px; position:relative; --split:50%; background:var(--deep); overflow:hidden }
 .chart-pair::after { content:""; position:absolute; left:var(--split); inset-block:0; border-left:2px solid white }
 @media(max-width:800px) {
   .hero,.experience,.project-grid { grid-template-columns:1fr }.hero { padding-top:30px }
@@ -143,10 +141,14 @@ h1,h2,h3 { min-width:0; overflow-wrap:break-word }
 .pe-array button[aria-pressed=true] { outline:2px solid var(--ink); outline-offset:-3px }
 .cell-value { display:block; font-size:.85rem; text-align:center }
 #scene-panel:has(#camera-compare:not([hidden])) #scene { display:none }
-.chart-pair { height:auto; aspect-ratio:3/2; margin-bottom:10px; --split:50% }
-.chart-pair i { background:linear-gradient(to right,#f18b7c 25%,#e5c969 25% 50%,#92cfad 50% 75%,#88b9df 75%) center bottom / 100% 24% no-repeat,#293c50 }
-.chart-pair i::after { content:"↑"; color:#fff; position:absolute; inset:5% 0 24%; text-align:center; font:600 clamp(60px,22cqw,140px)/1.2 system-ui }
-.chart-pair i:first-child { filter:hue-rotate(95deg) }
 .chart-pair input[type=range] { position:absolute; inset:0; width:100%; height:100%; margin:0; opacity:0; cursor:ew-resize; z-index:2 }
 .chart-pair:focus-within { outline:2px solid white }
 .chart-pair::before { content:"↔"; position:absolute; z-index:1; top:50%; left:clamp(14px,var(--split),calc(100% - 14px)); transform:translate(-50%,-50%); border-radius:4px; background:#fff; color:#16232c; padding:3px 5px }
+#flow-stage { display:none }
+body[data-discipline=all] #flow-stage { display:block; padding:14px 8px 0; color:var(--ink); font-size:clamp(.94rem,2.8cqw,1.14rem); text-align:left }
+.chart-pair img { position:absolute; inset:0; width:100%; height:100%; object-fit:fill }
+.camera-original { transform:scaleY(-1); filter:hue-rotate(110deg) saturate(1.4) }
+.camera-corrected { clip-path:inset(0 0 0 var(--split)) }
+.model-story { margin:0 0 12px; color:var(--ink); line-height:1.45 }
+.pe-array button strong { display:block; font-size:1.05rem; font-variant-numeric:tabular-nums }
+.pe-array button.computing { border:2px solid currentColor }

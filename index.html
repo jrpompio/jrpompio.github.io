@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="assets/vantage.css?v=chips-2" />
+    <link rel="stylesheet" href="assets/vantage.css?v=scope-3" />
 
   </head>
   <body>
@@ -107,17 +107,17 @@
               <div class="demo-buttons"><button id="clock-next" type="button"></button><button id="clock-operand" type="button"></button><button id="clock-reset" type="button">↺</button></div>
             </div>
             <button type="button" id="scene" aria-describedby="scene-status">
-              <span id="scene-art" aria-hidden="true"></span
+              <span id="flow-stage"></span><span id="scene-art" aria-hidden="true"></span
               ><span id="scene-hint"></span>
             </button>
             <div id="node-inspector" hidden><div id="node-buttons"></div><output id="node-reading"></output></div>
             <div class="camera-compare" id="camera-compare" hidden>
               <label id="compare-label" for="compare-slider"></label>
-              <div class="chart-pair"><i></i><i></i><input aria-labelledby="compare-label" id="compare-slider" type="range" min="0" max="100" value="50"></div>
+              <div class="chart-pair"><img class="camera-original" src="assets/demos/camera-scene.svg" alt=""><img class="camera-corrected" src="assets/demos/camera-scene.svg" alt=""><input aria-labelledby="compare-label" id="compare-slider" type="range" min="0" max="100" value="50"></div>
               <div class="demo-buttons"><button type="button" id="before-image">Before</button><button type="button" id="after-image">After</button></div>
             </div>
             <div id="flow-controls" class="embedded-controls flow-controls">
-              <div class="stage-row"><span id="flow-stage"></span></div>
+
               <div class="demo-buttons"><button type="button" id="flow-play">Run sequence</button><button type="button" id="flow-reset" aria-label="Reset demonstration">↺</button></div>
               <button type="button" id="flow-follow" class="follow-scroll" aria-pressed="false">Follow scroll</button>
             </div>
@@ -222,6 +222,6 @@
       </footer>
     </div>
     <dialog id="project-dialog" aria-labelledby="detail-title"><div class="detail-top"><span class="section-label" id="detail-category"></span><button type="button" id="close-project" aria-label="Close project">×</button></div><h2 id="detail-title"></h2><p id="detail-description"></p><div id="detail-tech" class="tags"></div><a id="detail-link"></a></dialog>
-    <script type="module" src="assets/portfolio.js?v=chips-2"></script>
+    <script type="module" src="assets/portfolio.js?v=scope-3"></script>
   </body>
 </html>

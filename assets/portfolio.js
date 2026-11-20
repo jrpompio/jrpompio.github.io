@@ -1,8 +1,8 @@
 import { createInspection } from './demos/inspection.js';
-import { showProcessor } from './demos/processors.js?v=chips-2';
+import { showProcessor } from './demos/processors.js?v=scope-3';
 import { createNetwork } from './demos/network.js';
 import { UI, DISCIPLINES, PROJECTS, SPANISH_TERMS, EXPERIENCE } from "./content.js";
-import { createWorkbench, flowCopy } from "./demos/workbench.js?v=vantage-1";
+import { createWorkbench, flowCopy } from "./demos/workbench.js?v=scope-3";
 import { createScrollEffects } from "./scroll-effects.js";
       const term = (text) =>
         language === "es" ? SPANISH_TERMS[text] || text : text;
@@ -123,8 +123,8 @@ import { createScrollEffects } from "./scroll-effects.js";
                   ? demoText("Tap to try another round", "Tocá para intentar otra vez")
                   : demoText("Tap, click or press Enter to begin", "Tocá, hacé clic o presioná Enter para empezar"),
           digital: demoText(
-            "Left: cycle inputs 00 → 01 → 10 → 11 · Right: select AND / OR / XOR",
-            "Izquierda: cambiar entradas 00 → 01 → 10 → 11 · Derecha: elegir AND / OR / XOR",
+            "Tap left to change the two switches. Tap right to choose which gate controls the output.",
+            "Tocá la izquierda para cambiar los dos interruptores. Tocá la derecha para elegir qué compuerta controla la salida.",
           ),
           control: demoText(
             "Tap for a random target: −45°, 0° or 45°",
@@ -223,7 +223,7 @@ import { createScrollEffects } from "./scroll-effects.js";
           onStage:stage=> {
             if(kind === "all") {
               const copy=flowCopy(language)[stage];
-              document.querySelector("#flow-stage").textContent=copy[0];
+              document.querySelector("#flow-stage").textContent=copy[0]+" · "+copy[1];
               demoStatus(copy[1]);scrollEffects.mark(stage);
             } else demoStatus(embeddedStages()[stage]);
           }});
@@ -239,6 +239,7 @@ import { createScrollEffects } from "./scroll-effects.js";
         document.querySelector("#before-image").textContent = demoText("Before","Antes");
         document.querySelector("#after-image").textContent = demoText("After","Después");
         document.querySelector("#compare-label").textContent = demoText("Compare the original and corrected image","Compará la imagen original y la corregida");
+        if (embeddedMode === "linux" && stage === 4) updateComparison();
         document.querySelector("#embedded-position").textContent=`${stage+1} / 5`;
       }
       function advanceEmbedded() {
@@ -337,6 +338,13 @@ import { createScrollEffects } from "./scroll-effects.js";
         );
         return { angle: theta, gearRotation: gearAngle };
       }
+      function aluRule(operation) {
+        return [
+          demoText("AND lights the lamp when both switches are on.", "AND enciende la lámpara cuando ambos interruptores están activos."),
+          demoText("OR lights the lamp when at least one switch is on.", "OR enciende la lámpara cuando al menos un interruptor está activo."),
+          demoText("XOR lights the lamp when exactly one switch is on.", "XOR enciende la lámpara cuando solo un interruptor está activo."),
+        ][operation];
+      }
       function drawDigital(step, operation = 0) {
         const a = step >> 1,
           b = step & 1,
@@ -354,7 +362,7 @@ import { createScrollEffects } from "./scroll-effects.js";
         const gateWires = names.map((_, index) => `<path d="M214 ${82 + index * 42}H270" stroke="currentColor" stroke-width="${index === selected ? 2.3 : 1.2}" opacity="${index === selected ? 1 : 0.25}"/>`).join("");
         const muxLabel = `<text x="300" y="116" text-anchor="middle" fill="currentColor" stroke="none" font-family="system-ui,sans-serif" font-size="9" font-weight="600">MUX</text><text x="300" y="132" text-anchor="middle" fill="currentColor" stroke="none" font-family="ui-monospace,monospace" font-size="7" font-weight="400">${names[selected]}</text>`;
         paintDemo(
-          `<rect x="9" y="40" width="402" height="168" rx="8" class="svg-muted"/>${Array.from({length:18},(_,i)=>`<path class="svg-muted" d="M${30+21*i} 33v7m0 168v7"/>`).join("")}${svgLabel(demoText("1-BIT ALU", "ALU DE 1 BIT"), 35, 29)}<rect x="35" y="66" width="64" height="38" rx="5"/><rect x="35" y="154" width="64" height="38" rx="5"/>${centered("A = " + a, 67, 85)}${centered("B = " + b, 67, 173)}<path class="svg-muted" d="M99 85h14 M113 75v84 M99 173h31 M130 89v84 M113 75h30 M130 89h13 M113 117h30 M130 131h13 M113 159h30 M130 173h13"/>${gates}${gateWires}<path d="M270 62H316L335 124L316 186H270Z" fill="#10231f"/><path d="M270 62H316L335 124L316 186H270Z" fill="none" stroke="currentColor"/><path d="M335 124h16" stroke="currentColor" stroke-width="2.3"/><rect x="351" y="103" width="57" height="42" rx="5" fill="${result ? "currentColor" : "#10231f"}" fill-opacity="${result ? ".2" : "1"}"/><text x="379.5" y="128" text-anchor="middle" dominant-baseline="central" fill="currentColor" stroke="none" font-family="ui-monospace,monospace" font-size="11" font-weight="600">Q = ${result}</text>${muxLabel}`,
+          `<rect x="9" y="40" width="402" height="168" rx="8" class="svg-muted"/>${Array.from({length:18},(_,i)=>`<path class="svg-muted" d="M${30+21*i} 33v7m0 168v7"/>`).join("")}${svgLabel(demoText("1-BIT ALU", "ALU DE 1 BIT"), 35, 29)}<rect x="35" y="66" width="64" height="38" rx="5"/><rect x="35" y="154" width="64" height="38" rx="5"/>${centered("A = " + a, 67, 85)}${centered("B = " + b, 67, 173)}<path class="svg-muted" d="M99 85h14 M113 75v84 M99 173h31 M130 89v84 M113 75h30 M130 89h13 M113 117h30 M130 131h13 M113 159h30 M130 173h13"/>${gates}${gateWires}<path d="M270 62H316L335 124L316 186H270Z" fill="#10231f"/><path d="M270 62H316L335 124L316 186H270Z" fill="none" stroke="currentColor"/><path d="M335 124h16" stroke="currentColor" stroke-width="2.3"/><path d="M351 124h7"/><circle cx="374" cy="124" r="16" fill="${result ? "currentColor" : "none"}"/><path d="M367 144h14m-11 4h8"/>${result ? '<path d="M374 99v-6m20 13 5-5m-45 5-5-5"/>' : ''}${centered(result ? demoText("On","Encendida") : demoText("Off","Apagada"),374,171)}${muxLabel}`,
         );
       }
       // Reaction test: red, then yellow, then green after a random 0–3000 ms.
@@ -477,7 +485,7 @@ import { createScrollEffects } from "./scroll-effects.js";
         if(demoState.busy) {cancelDemo();updateFlowControls();return;}
         if(motionPreference.matches) {drawOverview(1);updateFlowControls();return;}
         const from=demoState.flowProgress>=1?0:demoState.flowProgress||0;
-        animateDemo(9000*(1-from),t=>drawOverview(from+(1-from)*t),updateFlowControls);
+        animateDemo(6000*(1-from),t=>drawOverview(from+(1-from)*t),updateFlowControls);
         updateFlowControls();
       }
       const scrollEffects=createScrollEffects({motionPreference,onFlowStage:stage=>{
@@ -537,7 +545,7 @@ import { createScrollEffects } from "./scroll-effects.js";
             : active === "embedded" && embeddedMode !== "hex"
             ? embeddedStages()[0]
             : active === "digital"
-            ? digitalMode === "alu" ? "A = 0 · B = 0 · AND · Q = 0" : demoText("Educational model","Modelo educativo")
+            ? digitalMode === "alu" ? aluRule(0) : demoText("Educational model","Modelo educativo")
             : demoText(
                 "Interactive illustration · tap or use Enter",
                 "Ilustración interactiva · tocá o usá Enter",
@@ -688,12 +696,8 @@ import { createScrollEffects } from "./scroll-effects.js";
                 rightSide = event?.key === "ArrowRight" || (!event?.key && event?.clientX >= sceneBounds.left + sceneBounds.width / 2);
               if (rightSide) demoState.operation = (demoState.operation + 1) % 3;
               else demoState.step = (demoState.step + 1) % 4;
-              const a = demoState.step >> 1,
-                b = demoState.step & 1,
-                operationName = ["AND", "OR", "XOR"][demoState.operation],
-                result = [a & b, a | b, a ^ b][demoState.operation];
               drawDigital(demoState.step, demoState.operation);
-              demoStatus(`A = ${a} · B = ${b} · ${operationName} · Q = ${result}`);
+              demoStatus(aluRule(demoState.operation));
             }
             break;
           case "software":
@@ -976,8 +980,14 @@ import { createScrollEffects } from "./scroll-effects.js";
       for (const event of ["click","focusin","pointerover"]) {
         document.querySelector("#processor-model").addEventListener(event,inspectCell);
       }
-      document.querySelector("#compare-slider").oninput=()=>document.querySelector(".chart-pair").style.setProperty("--split",document.querySelector("#compare-slider").value+"%");
+      function updateComparison() {
+        const original = Number(compareSlider.value);
+        const corrected = 100 - original;
+        document.querySelector(".chart-pair").style.setProperty("--split", original+"%");
+        compareSlider.setAttribute("aria-valuetext",demoText(`${original}% original, ${corrected}% corrected`, `${original}% original, ${corrected}% corregida`));
+      }
       const compareSlider=document.querySelector("#compare-slider");
+      compareSlider.oninput = updateComparison;
       for(const [id,value] of [["before-image",100],["after-image",0]]) {
         document.getElementById(id).onclick=()=>{compareSlider.value=value;compareSlider.oninput();};
       }
