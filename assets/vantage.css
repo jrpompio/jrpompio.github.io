@@ -55,8 +55,12 @@ h1 { font-size:clamp(2.8rem,4.5vw,4.8rem); max-width:18ch; line-height:1; margin
 .desk-props { stroke:#bed0dc; stroke-width:2.3 }
 .desk-props .sheet,.desk-props .screen { fill:#20333e }
 .desk-props .board { fill:#214b42; stroke:var(--glow) }
+.desk-props .desk-label { fill:var(--ink); stroke:none; font:11px system-ui,sans-serif }
+.desk-props .sample-dot { fill:var(--glow); stroke:var(--surface); stroke-width:.8 }
+.desk-props .miss { stroke:#ff8f85; stroke-width:3 }
 .desk-props .guide { stroke:#82949f; stroke-dasharray:3 4 }
 .desk-props .ink,.desk-svg .held-tool { stroke:var(--glow); stroke-width:3 }
+.desk-props .sheet ~ .ink { stroke-width:1.8 }
 .desk-svg .actor { stroke:#ebf1f3; stroke-width:5.5 }
 .desk-svg .actor circle { fill:var(--surface) }
 .desk-svg .far-arm { stroke:#9cabb6 }

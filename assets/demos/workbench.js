@@ -1,4 +1,5 @@
-import { createDesk } from './desk.js?v=bench-4';
+import { createDesk } from './desk.js?v=pulse-5';
+export { flowDuration, flowSnapshot } from './desk.js?v=pulse-5';
 // Original illustrations. Only mount creates DOM; update changes existing SVG nodes.
 const clamp = n => Math.max(0, Math.min(1, n));
 const text = (value, x, y, size = 12, extra = '') => `<text x="${x}" y="${y}" font-size="${size}" ${extra}>${value}</text>`;
@@ -9,19 +10,23 @@ const board = (x,y) => `<rect x="${x}" y="${y}" width="148" height="124" rx="9" 
 const svg = inner => `<svg class="workbench-svg" viewBox="0 0 560 360" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="wb-grid" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".7" fill="currentColor" opacity=".12"/></pattern></defs><rect width="100%" height="100%" fill="url(#wb-grid)" stroke="none"/><g class="wb-drawing">${inner}</g></svg>`;
 
 export const flowCopy = language => language === 'es' ? [
-  ['Definir','¿Qué debería medir el sensor?','Sujeta la hoja y dibuja la señal que espera medir.'],
-  ['Simular','Probar la idea en software.','Teclea el programa, gira el control y observa la señal simulada.'],
-  ['Construir','Conectar la placa.','Levanta el sensor, lo coloca junto a la placa y enchufa el cable.'],
-  ['Comprobar','Medir la respuesta.','Apoya la sonda en la placa y compara la medición con la referencia.'],
-  ['Documentar','Guardar la evidencia.','Anota el ajuste, dibuja la traza y marca la verificación.'],
-  ['Compartir','Publicar el trabajo.','Coloca la ficha en la página del proyecto, pulsa publicar y comprueba la confirmación.']
+  ['Diseñar','Capturar un pulso de 40 ms.','Dibuja la señal, relaciona frecuencia y período y traza el flujo de lectura, decisión y registro.'],
+  ['Simular','Generar el pulso de referencia.','Ajusta el simulador y comprueba cuánto tiempo permanece alta la señal.'],
+  ['Construir','Conectar el sensor.','Coloca el sensor junto a la placa y conecta el cable.'],
+  ['Medir','El pulso cae entre dos lecturas.','La sonda ve el pulso, pero las lecturas de la placa cada 50 ms caen fuera de él.'],
+  ['Documentar','Registrar el primer intento.','Anota los 50 ms, dibuja la referencia y guarda el registro plano de la placa.'],
+  ['Rediseñar','Acortar el intervalo de lectura.','Tacha los 50 ms y ajusta el muestreo a 100 Hz, una lectura cada 10 ms.'],
+  ['Verificar','Repetir la misma medición.','Cuatro muestras caen dentro del mismo pulso de 40 ms.'],
+  ['Compartir','Publicar el resultado.','Sube la ficha con la corrección y comprueba la confirmación.']
 ] : [
-  ['Define','What should the sensor measure?','He steadies the sheet and sketches the signal he expects to measure.'],
-  ['Simulate','Try the idea in software.','He types the program, turns the dial and checks the simulated trace.'],
-  ['Build','Connect the board.','He lifts the sensor into place and plugs its lead into the board.'],
-  ['Verify','Measure the response.','He touches the board with the probe and compares the reading with the reference.'],
-  ['Document','Record the evidence.','He writes the setting, sketches the trace and checks off the result.'],
-  ['Share','Publish the work.','He places the record on the project page, presses publish and checks the confirmation.']
+  ['Design','Capture a 40 ms pulse.','He sketches the signal, relates frequency to period and draws the read, decide and record flow.'],
+  ['Simulate','Generate the reference pulse.','He adjusts the simulator and checks how long the signal stays high.'],
+  ['Build','Connect the sensor.','He positions the sensor beside the board and plugs in its lead.'],
+  ['Measure','The pulse falls between readings.','The probe sees the pulse, but the board samples every 50 ms and misses it.'],
+  ['Document','Record the first attempt.','He notes the 50 ms setting and sketches both the reference and the flat reading.'],
+  ['Redesign','Shorten the sampling interval.','He crosses out 50 ms and sets the rate to 100 Hz, one reading every 10 ms.'],
+  ['Verify','Repeat the same measurement.','Four samples now land inside the same 40 ms pulse.'],
+  ['Share','Publish the result.','He uploads the corrected project record and checks the confirmation.']
 ];
 
 export function createWorkbench({container, kind, language, compact=false, onStage}) {

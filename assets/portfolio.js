@@ -2,7 +2,7 @@ import { createInspection } from './demos/inspection.js';
 import { showProcessor, processorInputs } from './demos/processors.js?v=bench-4';
 import { createNetwork } from './demos/network.js';
 import { UI, DISCIPLINES, PROJECTS, SPANISH_TERMS, EXPERIENCE } from "./content.js";
-import { createWorkbench, flowCopy } from "./demos/workbench.js?v=bench-4";
+import { createWorkbench, flowCopy, flowDuration, flowSnapshot } from "./demos/workbench.js?v=pulse-5";
 import { createScrollEffects } from "./scroll-effects.js";
       const term = (text) =>
         language === "es" ? SPANISH_TERMS[text] || text : text;
@@ -487,12 +487,12 @@ import { createScrollEffects } from "./scroll-effects.js";
         if(demoState.busy) {cancelDemo();updateFlowControls();return;}
         if(motionPreference.matches) {drawOverview(1);updateFlowControls();return;}
         const from=demoState.flowProgress>=1?0:demoState.flowProgress||0;
-        animateDemo(7200*(1-from),t=>drawOverview(from+(1-from)*t),updateFlowControls);
+        animateDemo(1000*flowDuration*(1-from),t=>drawOverview(from+(1-from)*t),updateFlowControls);
         updateFlowControls();
       }
       const scrollEffects=createScrollEffects({motionPreference,onFlowStage:stage=>{
         if(active!=="all" || demoState.busy)return;
-        drawOverview((stage+.8)/6);
+        drawOverview(flowSnapshot(stage));
       }});
       function renderJourney() {
         const list=document.querySelector("#journey-steps");
@@ -503,7 +503,7 @@ import { createScrollEffects } from "./scroll-effects.js";
           const h=document.createElement("h2");h.textContent=heading;
           const label=document.createElement("span");label.className="section-label";label.textContent=title;
           button.append(index,label,h);
-          button.addEventListener("click",()=>{scrollEffects.follow(false);cancelDemo();drawOverview((stage+.8)/6);updateFlowControls();});
+          button.addEventListener("click",()=>{scrollEffects.follow(false);cancelDemo();drawOverview(flowSnapshot(stage));updateFlowControls();});
           const copy=document.createElement("p");copy.textContent=description;
           item.append(button,copy);return item;
         }));
@@ -930,19 +930,27 @@ import { createScrollEffects } from "./scroll-effects.js";
         if (cell !== undefined) model.querySelector(`[data-cell="${cell}"]`)?.focus({preventScroll:true});
         else if (block) model.querySelector(`[data-block][aria-label="${block}"]`)?.focus({preventScroll:true});
       }
+      function lastClockTick() { return digitalMode === "cpu" ? 9 : 10; }
+      function updateClockButtons() {
+        const finished=clockTick===lastClockTick();
+        document.querySelector("#clock-next").disabled=finished;
+        document.querySelector("#clock-auto").textContent=finished ? demoText("Replay","Repetir")
+          : automaticClock ? demoText("Pause","Pausar") : demoText("Play","Reproducir");
+        document.querySelector("#clock-status").setAttribute("aria-live",automaticClock && !finished ? "off" : "polite");
+      }
       function advanceClock() {
-        const last = digitalMode === "cpu" ? 9 : 10;
-        clockTick = (clockTick + 1) % (last + 1);
+        clockTick=Math.min(clockTick+1,lastClockTick());
+        if(clockTick===lastClockTick()) automaticClock=false;
+        updateClockButtons();
         drawProcessor();
       }
       function scheduleClock() {
         clearTimeout(clockTimer);
-        if (!automaticClock || document.hidden || !instrumentVisible || active !== "digital" || digitalMode === "alu") return;
-        const last = digitalMode === "cpu" ? 9 : 10;
+        if (!automaticClock || document.hidden || !instrumentVisible || active !== "digital" || digitalMode === "alu" || clockTick>=lastClockTick()) return;
         clockTimer = window.setTimeout(()=>{
           advanceClock();
           scheduleClock();
-        }, clockTick === last ? 2400 : 950);
+        }, 950);
       }
       function digitalControls() {
         const digital = active === "digital", processor = digital && digitalMode !== "alu";
@@ -959,8 +967,7 @@ import { createScrollEffects } from "./scroll-effects.js";
         });
         scheduleClock();
         if (!processor) return;
-        document.querySelector("#clock-auto").textContent=automaticClock ? demoText("Pause","Pausar") : demoText("Play","Reproducir");
-        document.querySelector("#clock-status").setAttribute("aria-live",automaticClock ? "off" : "polite");
+        updateClockButtons();
         document.querySelector("#clock-operand").textContent=demoText("Random inputs","Entradas aleatorias");
         document.querySelector("#clock-next").textContent=demoText("Clock step","Pulso de reloj");
         document.querySelector("#clock-reset").setAttribute("aria-label",demoText("Reset clock","Reiniciar reloj"));
@@ -975,11 +982,15 @@ import { createScrollEffects } from "./scroll-effects.js";
         if(next===undefined)return;
         event.preventDefault();tabs[next].focus();tabs[next].click();
       });
-      document.querySelector("#clock-auto").onclick=()=>{automaticClock=!automaticClock;digitalControls();};
+      document.querySelector("#clock-auto").onclick=()=>{
+        if(clockTick===lastClockTick()) { clockTick=0; automaticClock=true; }
+        else automaticClock=!automaticClock;
+        digitalControls();
+      };
       document.querySelector("#clock-next").onclick=()=>{
         automaticClock=false;
-        clockTick=(clockTick+1)%(digitalMode==="cpu"?10:11);
-        digitalControls();
+        clearTimeout(clockTimer);
+        advanceClock();
       };
       document.querySelector("#clock-reset").onclick=()=>{clockTick=0;automaticClock=false;digitalControls();};
       document.querySelector("#clock-operand").onclick=()=>{
